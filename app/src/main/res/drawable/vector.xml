@@ -1,0 +1,23 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="412dp"
+    android:height="150dp"
+    android:viewportWidth="412"
+    android:viewportHeight="150">
+
+    <!-- Gelombang hijau tua -->
+    <path
+        android:fillColor="#045504"
+
+        android:pathData="M0,0 C200,140 200,-100 500,90 L150,140 L0,100 Z" />
+
+    <!-- Gelombang hijau sedang -->
+    <path
+        android:fillColor="#148531"
+
+        android:pathData="M0,20 C200,160 250,-100 500,90 L150,140 L0,100 Z" />
+
+    <!-- Gelombang hijau muda -->
+    <path
+        android:fillColor= "#BFF6A4"
+        android:pathData="M-10,30 C150,180 290,-60 450,90 L412,150 L0,150 Z" />
+</vector>

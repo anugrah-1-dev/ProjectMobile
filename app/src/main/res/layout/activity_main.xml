@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#5DD62C"
+    android:padding="16dp">
+
+    <!-- Logo TPQ Roudlotul Ilmi -->
+    <ImageView
+        android:id="@+id/logo_mitra_"
+        android:layout_width="268dp"
+        android:layout_height="266dp"
+        android:layout_centerInParent="true"
+        android:src="@drawable/logo_mitra" />
+
+</RelativeLayout>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">#5DD62C</item>
+        <!-- Darker variant of the primary color. -->
+        <item name="colorPrimaryDark">#4CAF50</item>
+        <!-- Secondary brand color. -->
+        <item name="colorAccent">#FF4081</item>
+        <!-- Remove action bar -->
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+</resources>

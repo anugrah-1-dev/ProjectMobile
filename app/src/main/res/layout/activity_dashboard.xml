@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dashboard_a"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#5DD62C">
+
+    <!-- Bagian bawah warna hijau muda -->
+    <View
+        android:id="@+id/bg_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_alignParentBottom="true"
+        android:layout_weight="1"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="false"
+        android:layout_marginTop="400dp"
+        android:background="#DAF7A6" />
+
+    <!-- Logo TPQ -->
+
+    <ImageView
+        android:id="@+id/vector"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="2dp"
+        android:contentDescription="@string/app_name"
+        android:scaleType="fitXY"
+        android:src="@drawable/vector" />
+
+    <ImageView
+        android:id="@+id/logo_mitra"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="80dp"
+        android:src="@drawable/logo_mitra" />
+
+    <!-- Tulisan Welcome -->
+    <TextView
+        android:id="@+id/welcome_tpq"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/logo_mitra"
+        android:layout_marginTop="20dp"
+        android:text="WELCOME\nTPQ\nROUDLOTUL ILMI"
+        android:textAlignment="center"
+        android:textColor="#F0F9DF"
+        android:textSize="26sp"
+        android:fontFamily="sans-serif-black" />
+
+    <!-- Tombol Start -->
+    <Button
+        android:id="@+id/start_button"
+        android:layout_width="130dp"
+        android:layout_height="50dp"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="60dp"
+        android:backgroundTint="#32CD32"
+        android:text="START"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        android:fontFamily="sans-serif-medium" />
+
+</RelativeLayout>
