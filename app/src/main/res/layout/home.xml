@@ -30,14 +30,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toEndOf="@id/logo_mitra"
-        android:layout_marginStart="15dp"
-        android:layout_marginTop="45dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="50dp"
         android:text="TPQ\nROUDLOTUL ILMI"
         android:textColor="#000000"
-        android:textSize="24sp"
+        android:textSize="28sp"
         android:textStyle="bold"
-        android:gravity="center"
-        android:lineSpacingExtra="4sp" />
+        android:gravity=""
+        android:lineSpacingExtra="5sp" />
 
     <!-- Menu Cards -->
     <!-- Card 1 - Manajemen Soal -->
@@ -45,7 +45,7 @@
         android:id="@+id/card_manajemen_soal"
         android:layout_width="160dp"
         android:layout_height="160dp"
-        android:layout_marginStart="25dp"
+        android:layout_marginStart="30dp"
         android:layout_marginTop="200dp"
         android:background="@drawable/rounded_card"
         android:orientation="vertical"
@@ -76,7 +76,7 @@
         android:id="@+id/card_manajemen_murid"
         android:layout_width="160dp"
         android:layout_height="160dp"
-        android:layout_marginStart="205dp"
+        android:layout_marginStart="220dp"
         android:layout_marginTop="200dp"
         android:background="@drawable/rounded_card"
         android:orientation="vertical"
@@ -107,7 +107,7 @@
         android:id="@+id/card_akun"
         android:layout_width="160dp"
         android:layout_height="160dp"
-        android:layout_marginStart="25dp"
+        android:layout_marginStart="30dp"
         android:layout_marginTop="380dp"
         android:background="@drawable/rounded_card"
         android:orientation="vertical"
@@ -138,7 +138,7 @@
         android:id="@+id/card_histori"
         android:layout_width="160dp"
         android:layout_height="160dp"
-        android:layout_marginStart="205dp"
+        android:layout_marginStart="220dp"
         android:layout_marginTop="380dp"
         android:background="@drawable/rounded_card"
         android:orientation="vertical"
@@ -184,11 +184,6 @@
         android:background="@drawable/home"
         android:elevation="4dp">
 
-        <ImageView
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:src="@drawable/home"
-            android:tint="#FFFFFF" />
 
     </LinearLayout>
 
@@ -204,12 +199,6 @@
         android:gravity="center"
         android:background="@drawable/setting"
         android:elevation="4dp">
-
-        <ImageView
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:src="@drawable/setting"
-            android:tint="#FFFFFF" />
 
     </LinearLayout>
 
