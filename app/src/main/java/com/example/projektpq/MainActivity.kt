@@ -6,8 +6,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.ViewCompat
+import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,17 +26,28 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        // Navigasi ke DashboardActivity setelah delay atau aksi tertentu
-        navigateToDashboardAfterDelay()
+        // Initialize Firebase Auth
+        auth = FirebaseAuth.getInstance()
+
+        // Navigasi berdasarkan status login
+        navigateBasedOnAuthStatus()
     }
 
-    private fun navigateToDashboardAfterDelay() {
-        // Contoh: pindah ke Dashboard setelah 2 detik (seperti splash screen)
+    private fun navigateBasedOnAuthStatus() {
         findViewById<android.view.View>(R.id.main).postDelayed({
-            val intent = Intent(this, DashboardActivity::class.java)
+            val currentUser = auth.currentUser
+
+            val intent = if (currentUser != null) {
+                // Jika sudah login, langsung ke Dashboard
+                Intent(this, DashboardActivity::class.java)
+            } else {
+                // Jika belum login, ke LoginActivity
+                Intent(this, LoginActivity::class.java)
+            }
+
             startActivity(intent)
-            finish() // Tutup MainActivity
+            finish()
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
-        }, 2000) // Delay 2 detik
+        }, 2000)
     }
 }

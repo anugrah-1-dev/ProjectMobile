@@ -11,7 +11,7 @@ class DashboardActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_dashboard) // XML yang Anda berikan
+        setContentView(R.layout.activity_dashboard)
 
         initializeViews()
         setupClickListeners()
@@ -23,18 +23,14 @@ class DashboardActivity : AppCompatActivity() {
 
     private fun setupClickListeners() {
         startButton.setOnClickListener {
-            // Aksi ketika tombol START ditekan
-            // Bisa navigasi ke activity lain atau fungsi aplikasi utama
-            navigateToNextActivity()
+            navigateToLoginActivity()
         }
     }
 
-    private fun navigateToNextActivity() {
-        // Contoh: navigasi ke activity berikutnya
-        // val intent = Intent(this, HomeActivity::class.java)
-        // startActivity(intent)
-
-        // Untuk sekarang, tampilkan pesan atau tutup
-        // finish() // Jika ingin kembali ke MainActivity
+    private fun navigateToLoginActivity() {
+        val intent = Intent(this, LoginActivity::class.java)
+        startActivity(intent)
+        // Optional: finish() jika ingin menutup DashboardActivity setelah pindah
+        // finish()
     }
 }

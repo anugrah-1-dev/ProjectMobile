@@ -1,5 +1,39 @@
 <resources>
-    <string name="app_name">ProjekTPQ</string>
-    <string name="title_dynamicfeature">Module Title</string>
-    <string name="title_dynamicfeature2">Module Title</string>
+    <string name="app_name">ProjektPQ</string>
+
+    <!-- PENTING: Ganti dengan Web Client ID dari Firebase Console -->
+    <!-- Cara mendapatkan:
+         1. Buka Firebase Console (https://console.firebase.google.com/)
+         2. Pilih project Anda
+         3. Project Settings → Add app → Android
+         4. Download google-services.json yang baru
+         5. Atau cek di Authentication → Sign-in method → Google → Web SDK configuration
+    -->
+    <string name="default_web_client_id">601172156898-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.apps.googleusercontent.com</string>
+
+    <!-- Login Screen -->
+    <string name="hello">Hello!</string>
+    <string name="username_label">Username</string>
+    <string name="password_label">Password</string>
+    <string name="username_hint">Masukkan username</string>
+    <string name="password_hint">Masukkan password</string>
+    <string name="forgot_password">Lupa Password?</string>
+    <string name="login_button">Login</string>
+    <string name="or_divider">atau</string>
+
+    <!-- Error Messages -->
+    <string name="error_email_empty">Email tidak boleh kosong</string>
+    <string name="error_email_invalid">Format email tidak valid</string>
+    <string name="error_password_empty">Password tidak boleh kosong</string>
+    <string name="error_password_short">Password minimal 6 karakter</string>
+
+    <!-- Success Messages -->
+    <string name="login_success">Login berhasil!</string>
+    <string name="register_success">Registrasi berhasil!</string>
+    <string name="reset_email_sent">Email reset password telah dikirim</string>
+
+    <!-- Content Descriptions -->
+    <string name="wave_background">Wave background</string>
+    <string name="logo_mitra">Logo Mitra</string>
+    <string name="toggle_password_visibility">Toggle password visibility</string>
 </resources>
