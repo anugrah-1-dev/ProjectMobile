@@ -16,8 +16,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="2dp">
+            android:orientation="vertical">
 
             <!-- ===================== TOP HEADER ===================== -->
             <RelativeLayout
@@ -26,7 +25,8 @@
                 android:layout_height="140dp"
                 android:background="@drawable/gelombang1"
                 android:padding="12dp"
-                android:elevation="4dp">
+                android:elevation="4dp"
+                android:layout_marginBottom="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -65,15 +65,19 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:orientation="vertical"
-                android:paddingBottom="16dp">
+                android:paddingBottom="16dp"
+                android:paddingStart="0dp"
+                android:paddingEnd="0dp">
 
                 <!-- JILID I -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/jilid_1"
                     android:layout_width="match_parent"
                     android:layout_height="57dp"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="20dp"
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?android:attr/selectableItemBackground"
@@ -96,7 +100,7 @@
                     android:id="@+id/jilid_2"
                     android:layout_width="match_parent"
                     android:layout_height="57dp"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="20dp"
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?android:attr/selectableItemBackground"
@@ -119,7 +123,7 @@
                     android:id="@+id/jilid_3"
                     android:layout_width="match_parent"
                     android:layout_height="57dp"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="20dp"
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?android:attr/selectableItemBackground"
@@ -142,7 +146,7 @@
                     android:id="@+id/jilid_4"
                     android:layout_width="match_parent"
                     android:layout_height="57dp"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="20dp"
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?android:attr/selectableItemBackground"
