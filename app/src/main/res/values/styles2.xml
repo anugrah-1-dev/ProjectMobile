@@ -1,0 +1,9 @@
+<style name="JilidButtonStyle">
+    <item name="android:layout_width">match_parent</item>
+    <item name="android:layout_height">57dp</item>
+    <item name="android:layout_marginTop">15dp</item>
+    <item name="android:background">@drawable/rectangle_8</item>
+    <item name="android:textColor">#000</item>
+    <item name="android:textSize">26sp</item>
+    <item name="android:gravity">center</item>
+</style>

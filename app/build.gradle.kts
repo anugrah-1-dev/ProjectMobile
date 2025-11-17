@@ -44,7 +44,6 @@ android {
             excludes += "META-INF/DEPENDENCIES"
         }
     }
-    dynamicFeatures += setOf(":app:dynamicfeature", ":app:dynamicfeature2")
 }
 
 dependencies {
@@ -63,7 +62,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:20.7.0")
 
     // MySQL JDBC Driver (pastikan file JAR ada di folder app/libs/)
-    implementation(files("libs/mysql-connector-java-5.1.49.jar"))
+    implementation(files("libs/mysql-connector-j-9.1.0.jar"))
 
     // Testing
     testImplementation(libs.junit)

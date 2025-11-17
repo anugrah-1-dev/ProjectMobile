@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "601172156898",
+    "firebase_url": "https://projecttpq-b7a6f-default-rtdb.firebaseio.com",
+    "project_id": "projecttpq-b7a6f",
+    "storage_bucket": "projecttpq-b7a6f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:601172156898:android:e4191be924c523c71659bb",
+        "android_client_info": {
+          "package_name": "com.example.projektpq"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD309lHkKkoWOd9-zyfLihykR4cKd61qv8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

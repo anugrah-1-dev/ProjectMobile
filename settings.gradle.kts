@@ -21,5 +21,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "ProjekTPQ"
 include(":app")
-include(":app:dynamicfeature")
-include(":app:dynamicfeature2")
