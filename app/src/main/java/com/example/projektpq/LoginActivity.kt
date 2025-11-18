@@ -60,9 +60,15 @@ class LoginActivity : AppCompatActivity() {
         val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
         try {
             val account = task.getResult(ApiException::class.java)
-            account?.idToken?.let { firebaseAuthWithGoogle(it) }
+            account?.idToken?.let {
+                Log.d(TAG, "Google Sign In berhasil, idToken obtained")
+                firebaseAuthWithGoogle(it)
+            } ?: run {
+                Log.e(TAG, "Google idToken is null")
+                Toast.makeText(this, "Gagal mendapatkan credential", Toast.LENGTH_SHORT).show()
+            }
         } catch (e: ApiException) {
-            Log.e(TAG, "Google sign in gagal", e)
+            Log.e(TAG, "Google sign in gagal - Status Code: ${e.statusCode}, Message: ${e.message}", e)
             Toast.makeText(this, "Google sign in gagal: ${e.statusCode}", Toast.LENGTH_SHORT).show()
         }
     }
@@ -71,17 +77,24 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.login)
 
-        // Initialize services
-        auth = FirebaseAuth.getInstance()
-        databaseService = FirebaseDatabaseService()
-        mysqlApiService = MySQLApiService()
+        try {
+            // Initialize services
+            auth = FirebaseAuth.getInstance()
+            databaseService = FirebaseDatabaseService()
+            mysqlApiService = MySQLApiService()
 
-        initializeViews()
-        setupGoogleSignIn()
-        setupClickListeners()
+            initializeViews()
+            setupGoogleSignIn()
+            setupClickListeners()
 
-        // Load saved login mode
-        loadLoginMode()
+            // Load saved login mode
+            loadLoginMode()
+
+            Log.d(TAG, "LoginActivity onCreate completed successfully")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error in onCreate", e)
+            Toast.makeText(this, "Error initializing: ${e.message}", Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun initializeViews() {
@@ -110,9 +123,10 @@ class LoginActivity : AppCompatActivity() {
                 .build()
 
             googleSignInClient = GoogleSignIn.getClient(this, gso)
+            Log.d(TAG, "Google Sign In client initialized successfully")
         } catch (e: Exception) {
             Log.e(TAG, "Error setting up Google Sign In", e)
-            Toast.makeText(this, "Google Sign In tidak tersedia", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Google Sign In tidak tersedia: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -151,6 +165,7 @@ class LoginActivity : AppCompatActivity() {
 
         // Google sign in
         googleSignInButton.setOnClickListener {
+            Log.d(TAG, "Google Sign In button clicked")
             signInWithGoogle()
         }
 
@@ -275,13 +290,16 @@ class LoginActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 setButtonLoading(loginButton, true, "Loading...")
+                Log.d(TAG, "Attempting email/password login for: $email")
 
                 auth.signInWithEmailAndPassword(email, password).await()
                 val user = auth.currentUser
 
                 if (user != null) {
+                    Log.d(TAG, "Email login successful for: ${user.email}")
                     saveUserToDatabase(user)
-                    saveUserSession(user.uid, user.email ?: "", "firebase_user", true)
+                    // Default role untuk Firebase user
+                    saveUserSession(user.uid, user.email ?: "", "user", true)
                     Toast.makeText(this@LoginActivity, "Login berhasil!", Toast.LENGTH_SHORT).show()
                     navigateToHome()
                 }
@@ -298,13 +316,15 @@ class LoginActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 setButtonLoading(loginButton, true, "Mendaftarkan...")
+                Log.d(TAG, "Attempting registration for: $email")
 
                 auth.createUserWithEmailAndPassword(email, password).await()
                 val user = auth.currentUser
 
                 if (user != null) {
+                    Log.d(TAG, "Registration successful for: ${user.email}")
                     saveUserToDatabase(user)
-                    saveUserSession(user.uid, user.email ?: "", "firebase_user", true)
+                    saveUserSession(user.uid, user.email ?: "", "user", true)
                     Toast.makeText(this@LoginActivity, "Registrasi berhasil!", Toast.LENGTH_SHORT).show()
                     navigateToHome()
                 }
@@ -334,7 +354,7 @@ class LoginActivity : AppCompatActivity() {
 
                 val result = databaseService.saveUserData(user.uid, userData)
                 if (result.isSuccess) {
-                    Log.d(TAG, "User data saved successfully")
+                    Log.d(TAG, "User data saved successfully to Firebase Database")
                 } else {
                     Log.e(TAG, "Failed to save user data", result.exceptionOrNull())
                 }
@@ -378,26 +398,50 @@ class LoginActivity : AppCompatActivity() {
 
     private fun signInWithGoogle() {
         try {
-            val signInIntent = googleSignInClient.signInIntent
-            googleSignInLauncher.launch(signInIntent)
+            Log.d(TAG, "Starting Google Sign In process")
+
+            // Sign out dari akun sebelumnya untuk memastikan pemilihan akun
+            googleSignInClient.signOut().addOnCompleteListener {
+                Log.d(TAG, "Previous Google account signed out")
+                val signInIntent = googleSignInClient.signInIntent
+                googleSignInLauncher.launch(signInIntent)
+            }
         } catch (e: Exception) {
             Log.e(TAG, "Error launching Google Sign In", e)
-            Toast.makeText(this, "Tidak dapat membuka Google Sign In", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Tidak dapat membuka Google Sign In: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun firebaseAuthWithGoogle(idToken: String) {
         lifecycleScope.launch {
             try {
+                Log.d(TAG, "Starting Firebase authentication with Google credential")
+
                 val credential = GoogleAuthProvider.getCredential(idToken, null)
-                auth.signInWithCredential(credential).await()
-                val user = auth.currentUser
+                val authResult = auth.signInWithCredential(credential).await()
+                val user = authResult.user
 
                 if (user != null) {
+                    Log.d(TAG, "Firebase auth successful - UID: ${user.uid}, Email: ${user.email}")
+
                     saveUserToDatabase(user)
-                    saveUserSession(user.uid, user.email ?: "", "google_user", true)
+
+                    // Simpan session dengan role default "user"
+                    saveUserSession(
+                        userId = user.uid,
+                        username = user.email ?: user.displayName ?: "Google User",
+                        role = "user",
+                        isGoogle = true
+                    )
+
                     Toast.makeText(this@LoginActivity, "Google sign in berhasil!", Toast.LENGTH_SHORT).show()
+
+                    // Delay sedikit untuk memastikan Toast muncul
+                    kotlinx.coroutines.delay(500)
                     navigateToHome()
+                } else {
+                    Log.e(TAG, "Firebase user is null after authentication")
+                    Toast.makeText(this@LoginActivity, "Gagal mendapatkan data user", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Google authentication gagal", e)
@@ -556,37 +600,30 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun navigateToHome() {
-        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val userRole = prefs.getString(KEY_USER_ROLE, "") ?: ""
-        val username = prefs.getString(KEY_USERNAME, "") ?: ""
+        try {
+            val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            val userRole = prefs.getString(KEY_USER_ROLE, "") ?: ""
+            val username = prefs.getString(KEY_USERNAME, "") ?: ""
 
-        Log.d(TAG, "Navigating - User: $username, Role: $userRole")
+            Log.d(TAG, "Navigating to Home - User: $username, Role: $userRole")
 
-        // Tentukan target activity berdasarkan role
-        val targetActivity = when (userRole) {
-            "SUPER ADMIN" -> {
-                Log.d(TAG, "→ DashboardActivity")
-                DashboardActivity::class.java
+            // Untuk semua user, gunakan HomeActivity
+            // DashboardActivity hanya untuk admin panel yang berbeda
+            val intent = Intent(this, HomeActivity::class.java).apply {
+                putExtra("USER_ROLE", userRole)
+                putExtra("USERNAME", username)
+                // Clear back stack
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             }
-            "admin biasa" -> {
-                Log.d(TAG, "→ HomeActivity")
-                HomeActivity::class.java
-            }
-            else -> {
-                Log.d(TAG, "→ HomeActivity (default)")
-                HomeActivity::class.java
-            }
+
+            startActivity(intent)
+            finish()
+
+            Log.d(TAG, "Navigation to HomeActivity completed")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error during navigation", e)
+            Toast.makeText(this, "Error navigating: ${e.message}", Toast.LENGTH_SHORT).show()
         }
-
-        // Buat intent dengan extra data
-        val intent = Intent(this, targetActivity).apply {
-            putExtra("USER_ROLE", userRole)
-            putExtra("USERNAME", username)
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
-
-        startActivity(intent)
-        finish()
     }
 
     override fun onStart() {
@@ -622,5 +659,6 @@ class LoginActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         // Clean up resources if needed
+        Log.d(TAG, "LoginActivity destroyed")
     }
 }
