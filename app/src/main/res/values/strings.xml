@@ -9,7 +9,7 @@
          4. Download google-services.json yang baru
          5. Atau cek di Authentication → Sign-in method → Google → Web SDK configuration
     -->
-    <string name="default_web_client_id">601172156898-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.apps.googleusercontent.com</string>
+    <string name="default_web_client_id">601172156898-ke43rsopeafg6lin88eip9th1o8j3pgh.apps.googleusercontent.com</string>
 
     <!-- Login Screen -->
     <string name="hello">Hello!</string>

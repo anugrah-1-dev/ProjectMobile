@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
@@ -18,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:layout_alignParentTop="true"
-            android:contentDescription="Wave background"
+            android:contentDescription="Wave background decoration"
             android:scaleType="fitXY"
             android:src="@drawable/gelombang1" />
 
@@ -30,7 +28,7 @@
             android:layout_below="@id/wave_background"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="-80dp"
-            android:contentDescription="Logo Mitra"
+            android:contentDescription="Logo TPQ Mitra"
             android:src="@drawable/logo_mitra" />
 
         <!-- White Card Container -->
@@ -56,38 +54,77 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="32dp"
+                android:layout_marginBottom="16dp"
                 android:text="Hello!"
                 android:textColor="#000000"
                 android:textSize="28sp"
                 android:textStyle="bold" />
 
-            <!-- Username Field -->
+            <!-- ========== LOGIN MODE SWITCH ========== -->
+            <LinearLayout
+                android:id="@+id/switch_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:background="@drawable/rounded_edittext_bg"
+                android:paddingStart="16dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:minHeight="56dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Mode Login:"
+                    android:textColor="#666666"
+                    android:textSize="14sp"
+                    android:gravity="start|center_vertical" />
+
+                <Switch
+                    android:id="@+id/login_mode_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Google/Firebase"
+                    android:textSize="12sp"
+                    android:checked="true"
+                    android:thumbTint="#5DD62C"
+                    android:trackTint="#CCCCCC"
+                    android:minWidth="48dp"
+                    android:minHeight="48dp"
+                    android:padding="8dp" />
+            </LinearLayout>
+
+            <!-- Email/Username Label -->
             <TextView
                 android:id="@+id/username_label"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:text="Username"
+                android:text="Email"
                 android:textColor="#000000"
-                android:textSize="14sp"
-                android:textStyle="normal" />
+                android:textSize="14sp" />
 
+            <!-- Email/Username Input -->
             <EditText
                 android:id="@+id/username_input"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:layout_marginBottom="20dp"
                 android:background="@drawable/rounded_edittext_bg"
-                android:hint="Masukkan username"
-                android:inputType="text"
+                android:hint="Masukkan email"
+                android:inputType="textEmailAddress"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
                 android:textColor="#000000"
                 android:textColorHint="#999999"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:autofillHints="emailAddress" />
 
-            <!-- Password Field -->
+            <!-- Password Label -->
             <TextView
                 android:id="@+id/password_label"
                 android:layout_width="match_parent"
@@ -95,9 +132,9 @@
                 android:layout_marginBottom="8dp"
                 android:text="Password"
                 android:textColor="#000000"
-                android:textSize="14sp"
-                android:textStyle="normal" />
+                android:textSize="14sp" />
 
+            <!-- Password Input -->
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
@@ -116,7 +153,8 @@
                     android:paddingEnd="8dp"
                     android:textColor="#000000"
                     android:textColorHint="#999999"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    android:autofillHints="password" />
 
                 <ImageButton
                     android:id="@+id/toggle_password"
@@ -136,7 +174,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
-                android:layout_marginBottom="30dp"
+                android:layout_marginBottom="20dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:minHeight="48dp"
@@ -144,7 +182,7 @@
                 android:paddingStart="12dp"
                 android:paddingEnd="12dp"
                 android:text="Lupa Password?"
-                android:textColor="#000000"
+                android:textColor="#5DD62C"
                 android:textSize="12sp"
                 android:textStyle="bold" />
 
@@ -153,6 +191,7 @@
                 android:id="@+id/login_button"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
+                android:layout_marginBottom="12dp"
                 android:background="@drawable/rounded_button_bg"
                 android:text="Login"
                 android:textAllCaps="false"
@@ -160,8 +199,22 @@
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
-            <!-- Divider dengan "atau" -->
+            <!-- ========== REGISTER BUTTON (untuk mode SQL) ========== -->
+            <Button
+                android:id="@+id/register_button"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:background="@drawable/rounded_button_outline_bg"
+                android:text="Register Akun Baru"
+                android:textAllCaps="false"
+                android:textColor="#5DD62C"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <!-- ========== DIVIDER dengan "atau" ========== -->
             <LinearLayout
+                android:id="@+id/divider_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"

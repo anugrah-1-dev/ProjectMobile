@@ -1,40 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:dist="http://schemas.android.com/apk/distribution">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.projektpq">
 
-    <dist:module dist:instant="true" />
+    <!-- Izin internet untuk Firebase dan MySQL API -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="false"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:supportsRtl="true"
+        tools:targetApi="31">
 
-        <!-- DashboardActivity sebagai activity pertama (LAUNCHER) -->
+        <!-- MainActivity sebagai LAUNCHER (Splash Screen) -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:windowSoftInputMode="adjustResize">
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"
+            android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-
-        <activity
-            android:name=".DashboardActivity"
-            android:exported="false" />
-
         <!-- LoginActivity -->
         <activity
             android:name=".LoginActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden"
+            android:launchMode="singleTop" />
 
-        <!-- HomeActivity (setelah login berhasil) -->
+        <!-- HomeActivity untuk user biasa -->
         <activity
             android:name=".HomeActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"
+            android:launchMode="singleTask" />
+
+        <!-- DashboardActivity untuk Super Admin -->
+        <activity
+            android:name=".DashboardActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"
+            android:launchMode="singleTask" />
 
     </application>
 
