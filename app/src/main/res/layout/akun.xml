@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="#5DD62C">
+
+    <RelativeLayout
+        android:id="@+id/akun"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#5DD62C">
+
+        <!-- Header Background -->
+        <View
+            android:id="@+id/header_background"
+            android:layout_width="match_parent"
+            android:layout_height="161dp"
+            android:layout_alignParentTop="true"
+            android:background="@drawable/gelombang1" />
+
+        <!-- Logo -->
+        <ImageView
+            android:id="@+id/logo_mitra"
+            android:layout_width="130dp"
+            android:layout_height="129dp"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:src="@drawable/logo_mitra"
+            android:contentDescription="Logo TPQ" />
+
+        <!-- Judul TPQ -->
+        <TextView
+            android:id="@+id/tpq_roudlot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/logo_mitra"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="30dp"
+            android:text="TPQ\nROUDLOTUL ILMI"
+            android:textColor="#000000"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:lineSpacingExtra="5sp" />
+
+        <!-- Profile Picture dengan Background Circle -->
+        <View
+            android:id="@+id/profile_circle"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="130dp"
+            android:background="@drawable/circle_akun" />
+
+        <ImageView
+            android:id="@+id/user_icon"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="140dp"
+            android:src="@drawable/profil"
+            android:contentDescription="Foto Profil" />
+
+        <!-- Background Putih Utama -->
+        <View
+            android:id="@+id/main_background"
+            android:layout_width="match_parent"
+            android:layout_height="500dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="300dp"
+            android:background="@drawable/rectangle_main" />
+
+        <!-- Navigation Bar -->
+        <View
+            android:id="@+id/nav_bar"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="320dp"
+            android:background="@drawable/rectangle_1" />
+
+        <!-- Back Button -->
+        <ImageView
+            android:id="@+id/back_icon"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="330dp"
+            android:src="@drawable/back_to"
+            android:contentDescription="Back" />
+
+        <TextView
+            android:id="@+id/back_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/back_icon"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="332dp"
+            android:text="Back"
+            android:textColor="#000000"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <!-- Judul Akun -->
+        <TextView
+            android:id="@+id/akun_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="30dp"
+            android:layout_marginTop="332dp"
+            android:text="Akun"
+            android:textColor="#000000"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <!-- ========== FIELD NAMA ========== -->
+        <View
+            android:id="@+id/field_nama"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="380dp"
+            android:background="@drawable/rectangle_input" />
+
+        <!-- Icon dan Text Nama DI ATAS field -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="395dp"
+            android:layout_marginLeft="35dp"
+            android:layout_marginRight="35dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:id="@+id/pen_icon"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/edit_pencil"
+                android:contentDescription="Edit Nama" />
+
+            <TextView
+                android:id="@+id/nama_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:text="Eka Indah Febriyanti"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- ========== FIELD EMAIL ========== -->
+        <View
+            android:id="@+id/field_email"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="465dp"
+            android:background="@drawable/rectangle_input" />
+
+        <!-- Icon dan Text Email DI ATAS field -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="480dp"
+            android:layout_marginLeft="35dp"
+            android:layout_marginRight="35dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:id="@+id/email_icon"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/email"
+                android:contentDescription="Email" />
+
+            <TextView
+                android:id="@+id/email_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:text="eka123@gmail.com"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- ========== FIELD TELEPON ========== -->
+        <View
+            android:id="@+id/field_telepon"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="550dp"
+            android:background="@drawable/rectangle_input" />
+
+        <!-- Icon dan Text Telepon DI ATAS field -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="565dp"
+            android:layout_marginLeft="35dp"
+            android:layout_marginRight="35dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:id="@+id/phone_icon"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/phone"
+                android:contentDescription="Telepon" />
+
+            <TextView
+                android:id="@+id/telepon_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:text="081231231234"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Tombol Edit -->
+        <Button
+            android:id="@+id/edit_button"
+            android:layout_width="140dp"
+            android:layout_height="48dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="640dp"
+            android:layout_marginBottom="100dp"
+            android:background="@drawable/rounded_edittext_bg"
+            android:text="Edit"
+            android:textColor="#000000"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <!-- Bottom Navigation -->
+        <View
+            android:id="@+id/bottom_nav"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_alignParentBottom="true"
+            android:background="@drawable/rounded_bottom_nav" />
+
+        <!-- Tombol Home -->
+        <ImageView
+            android:id="@+id/home_icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginLeft="40dp"
+            android:layout_marginBottom="15dp"
+            android:src="@drawable/home"
+            android:contentDescription="Home"
+            android:background="?attr/selectableItemBackgroundBorderless" />
+
+        <!-- Tombol Setting -->
+        <ImageView
+            android:id="@+id/settings_icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="40dp"
+            android:layout_marginBottom="15dp"
+            android:src="@drawable/setting"
+            android:contentDescription="Settings"
+            android:background="?attr/selectableItemBackgroundBorderless" />
+
+    </RelativeLayout>
+</ScrollView>

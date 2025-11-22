@@ -5,14 +5,15 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.method.PasswordTransformationMethod
 import android.util.Log
+import android.view.Gravity
 import android.view.View
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.projektpq.service.FirebaseDatabaseService
 import com.example.projektpq.service.MySQLApiService
-import com.example.projektpq.HomeActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -42,7 +43,7 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var dividerContainer: LinearLayout
 
     private var isPasswordVisible = false
-    private var isGoogleLoginMode = true // true = Google/Firebase, false = MySQL
+    private var isGoogleLoginMode = true
 
     companion object {
         private const val TAG = "LoginActivity"
@@ -53,7 +54,6 @@ class LoginActivity : AppCompatActivity() {
         private const val KEY_USER_ROLE = "user_role"
     }
 
-    // Modern way untuk handle Google Sign In result
     private val googleSignInLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -61,15 +61,21 @@ class LoginActivity : AppCompatActivity() {
         try {
             val account = task.getResult(ApiException::class.java)
             account?.idToken?.let {
-                Log.d(TAG, "Google Sign In berhasil, idToken obtained")
+                Log.d(TAG, "✓ Google Sign In berhasil, memproses authentication...")
                 firebaseAuthWithGoogle(it)
             } ?: run {
-                Log.e(TAG, "Google idToken is null")
-                Toast.makeText(this, "Gagal mendapatkan credential", Toast.LENGTH_SHORT).show()
+                Log.e(TAG, "✗ Google idToken is null")
+                Toast.makeText(this, "Gagal mendapatkan credential Google", Toast.LENGTH_SHORT).show()
             }
         } catch (e: ApiException) {
-            Log.e(TAG, "Google sign in gagal - Status Code: ${e.statusCode}, Message: ${e.message}", e)
-            Toast.makeText(this, "Google sign in gagal: ${e.statusCode}", Toast.LENGTH_SHORT).show()
+            val errorMsg = when(e.statusCode) {
+                10 -> "Konfigurasi Google Sign In salah. Periksa SHA-1 fingerprint."
+                12501 -> "Login dibatalkan"
+                12500 -> "Konfigurasi project Firebase salah"
+                else -> "Error: ${e.statusCode}"
+            }
+            Log.e(TAG, "✗ Google sign in gagal - $errorMsg", e)
+            Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show()
         }
     }
 
@@ -78,7 +84,6 @@ class LoginActivity : AppCompatActivity() {
         setContentView(R.layout.login)
 
         try {
-            // Initialize services
             auth = FirebaseAuth.getInstance()
             databaseService = FirebaseDatabaseService()
             mysqlApiService = MySQLApiService()
@@ -86,33 +91,26 @@ class LoginActivity : AppCompatActivity() {
             initializeViews()
             setupGoogleSignIn()
             setupClickListeners()
-
-            // Load saved login mode
             loadLoginMode()
 
-            Log.d(TAG, "LoginActivity onCreate completed successfully")
+            Log.d(TAG, "✓ LoginActivity initialized successfully")
         } catch (e: Exception) {
-            Log.e(TAG, "Error in onCreate", e)
+            Log.e(TAG, "✗ Error in onCreate", e)
             Toast.makeText(this, "Error initializing: ${e.message}", Toast.LENGTH_LONG).show()
         }
     }
 
     private fun initializeViews() {
-        try {
-            usernameInput = findViewById(R.id.username_input)
-            passwordInput = findViewById(R.id.password_input)
-            togglePassword = findViewById(R.id.toggle_password)
-            loginButton = findViewById(R.id.login_button)
-            forgotPassword = findViewById(R.id.forgot_password)
-            googleSignInButton = findViewById(R.id.google_sign_in_button)
-            loginModeSwitch = findViewById(R.id.login_mode_switch)
-            registerButton = findViewById(R.id.register_button)
-            usernameLabel = findViewById(R.id.username_label)
-            dividerContainer = findViewById(R.id.divider_container)
-        } catch (e: Exception) {
-            Log.e(TAG, "Error initializing views", e)
-            Toast.makeText(this, "Error: Ada komponen yang tidak ditemukan di layout", Toast.LENGTH_LONG).show()
-        }
+        usernameInput = findViewById(R.id.username_input)
+        passwordInput = findViewById(R.id.password_input)
+        togglePassword = findViewById(R.id.toggle_password)
+        loginButton = findViewById(R.id.login_button)
+        forgotPassword = findViewById(R.id.forgot_password)
+        googleSignInButton = findViewById(R.id.google_sign_in_button)
+        loginModeSwitch = findViewById(R.id.login_mode_switch)
+        registerButton = findViewById(R.id.register_button)
+        usernameLabel = findViewById(R.id.username_label)
+        dividerContainer = findViewById(R.id.divider_container)
     }
 
     private fun setupGoogleSignIn() {
@@ -123,20 +121,18 @@ class LoginActivity : AppCompatActivity() {
                 .build()
 
             googleSignInClient = GoogleSignIn.getClient(this, gso)
-            Log.d(TAG, "Google Sign In client initialized successfully")
+            Log.d(TAG, "✓ Google Sign In client initialized")
         } catch (e: Exception) {
-            Log.e(TAG, "Error setting up Google Sign In", e)
-            Toast.makeText(this, "Google Sign In tidak tersedia: ${e.message}", Toast.LENGTH_SHORT).show()
+            Log.e(TAG, "✗ Error setting up Google Sign In", e)
+            Toast.makeText(this, "Google Sign In tidak tersedia", Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun setupClickListeners() {
-        // Toggle password visibility
         togglePassword.setOnClickListener {
             togglePasswordVisibility()
         }
 
-        // Login button - pilih mode
         loginButton.setOnClickListener {
             if (isGoogleLoginMode) {
                 performEmailPasswordLogin()
@@ -145,7 +141,6 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
-        // Register button untuk MySQL
         registerButton.setOnClickListener {
             if (!isGoogleLoginMode) {
                 performMySQLRegister()
@@ -154,22 +149,15 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
-        // Forgot password
         forgotPassword.setOnClickListener {
-            if (isGoogleLoginMode) {
-                showForgotPasswordDialog()
-            } else {
-                Toast.makeText(this, "Reset password untuk SQL belum tersedia", Toast.LENGTH_SHORT).show()
-            }
+            navigateToResetPassword()
         }
 
-        // Google sign in
         googleSignInButton.setOnClickListener {
-            Log.d(TAG, "Google Sign In button clicked")
+            Log.d(TAG, "→ Google Sign In button clicked")
             signInWithGoogle()
         }
 
-        // Switch mode login
         loginModeSwitch.setOnCheckedChangeListener { _, isChecked ->
             isGoogleLoginMode = isChecked
             updateUIForLoginMode()
@@ -177,64 +165,80 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    private fun navigateToResetPassword() {
+        try {
+            val intent = Intent(this, ResetPasswordActivity::class.java)
+
+            if (isGoogleLoginMode) {
+                val email = usernameInput.text.toString().trim()
+                intent.putExtra(ResetPasswordActivity.EXTRA_EMAIL, email)
+                intent.putExtra(ResetPasswordActivity.EXTRA_IS_GOOGLE, true)
+            } else {
+                val username = usernameInput.text.toString().trim()
+                intent.putExtra(ResetPasswordActivity.EXTRA_USERNAME, username)
+                intent.putExtra(ResetPasswordActivity.EXTRA_IS_GOOGLE, false)
+            }
+
+            startActivity(intent)
+            Log.d(TAG, "✓ Navigated to ResetPasswordActivity")
+        } catch (e: Exception) {
+            Log.e(TAG, "✗ Error navigating to ResetPassword", e)
+            Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private fun loadLoginMode() {
         val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         isGoogleLoginMode = prefs.getBoolean(KEY_LOGIN_MODE, true)
-
         loginModeSwitch.isChecked = isGoogleLoginMode
         updateUIForLoginMode()
     }
 
     private fun saveLoginMode(isGoogle: Boolean) {
-        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        prefs.edit().putBoolean(KEY_LOGIN_MODE, isGoogle).apply()
+        getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean(KEY_LOGIN_MODE, isGoogle)
+            .apply()
     }
 
     private fun saveUserSession(userId: String, username: String, role: String, isGoogle: Boolean) {
-        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        prefs.edit().apply {
+        getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit().apply {
             putString(KEY_USER_ID, userId)
             putString(KEY_USERNAME, username)
             putString(KEY_USER_ROLE, role)
             putBoolean(KEY_LOGIN_MODE, isGoogle)
             apply()
         }
-
-        Log.d(TAG, "Session saved - User: $username, Role: $role, IsGoogle: $isGoogle")
+        Log.d(TAG, "✓ Session saved - User: $username, Role: $role, IsGoogle: $isGoogle")
     }
 
     private fun updateUIForLoginMode() {
         if (isGoogleLoginMode) {
-            // Mode Google/Firebase
             usernameInput.hint = "Masukkan email"
             usernameLabel.text = "Email"
             googleSignInButton.visibility = View.VISIBLE
             dividerContainer.visibility = View.VISIBLE
             forgotPassword.visibility = View.VISIBLE
+            forgotPassword.text = "Lupa Password?"
             loginButton.text = "Login"
             registerButton.visibility = View.GONE
             loginModeSwitch.text = "Google/Firebase"
-
-            // Ubah input type ke email
             usernameInput.inputType = android.text.InputType.TYPE_CLASS_TEXT or
                     android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
         } else {
-            // Mode MySQL
             usernameInput.hint = "Masukkan username"
             usernameLabel.text = "Username"
             googleSignInButton.visibility = View.GONE
             dividerContainer.visibility = View.GONE
-            forgotPassword.visibility = View.GONE
+            forgotPassword.visibility = View.VISIBLE
+            forgotPassword.text = "Ganti Password?"
             loginButton.text = "Login dengan SQL"
             registerButton.visibility = View.VISIBLE
             loginModeSwitch.text = "SQL Database"
-
-            // Ubah input type ke text biasa
             usernameInput.inputType = android.text.InputType.TYPE_CLASS_TEXT or
                     android.text.InputType.TYPE_TEXT_VARIATION_NORMAL
         }
 
-        // Clear input fields saat ganti mode
         usernameInput.text?.clear()
         passwordInput.text?.clear()
         usernameInput.error = null
@@ -251,6 +255,48 @@ class LoginActivity : AppCompatActivity() {
         }
         isPasswordVisible = !isPasswordVisible
         passwordInput.setSelection(passwordInput.text?.length ?: 0)
+    }
+
+    // ==================== NOTIFIKASI LOGIN BERHASIL (DI ATAS) ====================
+
+    private fun showLoginSuccessNotification() {
+        try {
+            // Inflate custom layout
+            val notificationView = layoutInflater.inflate(R.layout.login_berhasil, null)
+
+            // Buat AlertDialog dengan custom view
+            val dialog = AlertDialog.Builder(this)
+                .setView(notificationView)
+                .setCancelable(false)
+                .create()
+
+            // Set background transparent
+            dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+            // Posisikan dialog di atas layar
+            dialog.window?.setGravity(Gravity.TOP)
+
+            // Tambahkan margin dari atas (optional)
+            val params = dialog.window?.attributes
+            params?.y = 50 // Margin 50px dari atas, sesuaikan jika perlu
+            dialog.window?.attributes = params
+
+            // Tampilkan dialog
+            dialog.show()
+
+            Log.d(TAG, "✓ Login success notification displayed at top")
+
+            // Auto dismiss setelah 2 detik dan navigasi ke Home
+            lifecycleScope.launch {
+                kotlinx.coroutines.delay(2000)
+                dialog.dismiss()
+                navigateToHome()
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "✗ Error showing success notification", e)
+            // Fallback: langsung navigasi ke home jika error
+            navigateToHome()
+        }
     }
 
     // ==================== FIREBASE/GOOGLE LOGIN ====================
@@ -290,51 +336,39 @@ class LoginActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 setButtonLoading(loginButton, true, "Loading...")
-                Log.d(TAG, "Attempting email/password login for: $email")
+                Log.d(TAG, "→ Attempting email/password login for: $email")
 
                 auth.signInWithEmailAndPassword(email, password).await()
                 val user = auth.currentUser
 
                 if (user != null) {
-                    Log.d(TAG, "Email login successful for: ${user.email}")
-                    saveUserToDatabase(user)
-                    // Default role untuk Firebase user
-                    saveUserSession(user.uid, user.email ?: "", "user", true)
-                    Toast.makeText(this@LoginActivity, "Login berhasil!", Toast.LENGTH_SHORT).show()
-                    navigateToHome()
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Login gagal, mencoba registrasi", e)
-                registerWithEmailPassword(email, password)
-            } finally {
-                setButtonLoading(loginButton, false, "Login")
-            }
-        }
-    }
-
-    private fun registerWithEmailPassword(email: String, password: String) {
-        lifecycleScope.launch {
-            try {
-                setButtonLoading(loginButton, true, "Mendaftarkan...")
-                Log.d(TAG, "Attempting registration for: $email")
-
-                auth.createUserWithEmailAndPassword(email, password).await()
-                val user = auth.currentUser
-
-                if (user != null) {
-                    Log.d(TAG, "Registration successful for: ${user.email}")
+                    Log.d(TAG, "✓ Email login successful")
                     saveUserToDatabase(user)
                     saveUserSession(user.uid, user.email ?: "", "user", true)
-                    Toast.makeText(this@LoginActivity, "Registrasi berhasil!", Toast.LENGTH_SHORT).show()
-                    navigateToHome()
+                    showLoginSuccessNotification() // TAMPILKAN NOTIFIKASI
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "Authentication gagal", e)
-                Toast.makeText(
-                    this@LoginActivity,
-                    "Authentication gagal: ${e.message}",
-                    Toast.LENGTH_LONG
-                ).show()
+                Log.e(TAG, "✗ Login gagal: ${e.message}")
+
+                val errorMessage = when {
+                    e.message?.contains("no user record") == true ||
+                            e.message?.contains("user-not-found") == true -> {
+                        "Email tidak terdaftar. Silakan registrasi terlebih dahulu."
+                    }
+                    e.message?.contains("wrong-password") == true ||
+                            e.message?.contains("invalid-credential") == true -> {
+                        "Password salah. Silakan coba lagi."
+                    }
+                    e.message?.contains("invalid-email") == true -> {
+                        "Format email tidak valid."
+                    }
+                    e.message?.contains("network") == true -> {
+                        "Koneksi internet bermasalah."
+                    }
+                    else -> "Login gagal: ${e.message}"
+                }
+
+                Toast.makeText(this@LoginActivity, errorMessage, Toast.LENGTH_LONG).show()
             } finally {
                 setButtonLoading(loginButton, false, "Login")
             }
@@ -354,60 +388,27 @@ class LoginActivity : AppCompatActivity() {
 
                 val result = databaseService.saveUserData(user.uid, userData)
                 if (result.isSuccess) {
-                    Log.d(TAG, "User data saved successfully to Firebase Database")
+                    Log.d(TAG, "✓ User data saved to Firebase Database")
                 } else {
-                    Log.e(TAG, "Failed to save user data", result.exceptionOrNull())
+                    Log.e(TAG, "✗ Failed to save user data", result.exceptionOrNull())
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "Error saving user data", e)
-            }
-        }
-    }
-
-    private fun showForgotPasswordDialog() {
-        val email = usernameInput.text.toString().trim()
-
-        if (email.isEmpty()) {
-            usernameInput.error = "Masukkan email untuk reset password"
-            return
-        }
-
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            usernameInput.error = "Format email tidak valid"
-            return
-        }
-
-        lifecycleScope.launch {
-            try {
-                auth.sendPasswordResetEmail(email).await()
-                Toast.makeText(
-                    this@LoginActivity,
-                    "Email reset password telah dikirim ke $email",
-                    Toast.LENGTH_LONG
-                ).show()
-            } catch (e: Exception) {
-                Log.e(TAG, "Gagal mengirim email reset", e)
-                Toast.makeText(
-                    this@LoginActivity,
-                    "Gagal mengirim email: ${e.message}",
-                    Toast.LENGTH_LONG
-                ).show()
+                Log.e(TAG, "✗ Error saving user data", e)
             }
         }
     }
 
     private fun signInWithGoogle() {
         try {
-            Log.d(TAG, "Starting Google Sign In process")
+            Log.d(TAG, "→ Starting Google Sign In process")
 
-            // Sign out dari akun sebelumnya untuk memastikan pemilihan akun
             googleSignInClient.signOut().addOnCompleteListener {
-                Log.d(TAG, "Previous Google account signed out")
+                Log.d(TAG, "✓ Previous account signed out")
                 val signInIntent = googleSignInClient.signInIntent
                 googleSignInLauncher.launch(signInIntent)
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error launching Google Sign In", e)
+            Log.e(TAG, "✗ Error launching Google Sign In", e)
             Toast.makeText(this, "Tidak dapat membuka Google Sign In: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
@@ -415,41 +416,26 @@ class LoginActivity : AppCompatActivity() {
     private fun firebaseAuthWithGoogle(idToken: String) {
         lifecycleScope.launch {
             try {
-                Log.d(TAG, "Starting Firebase authentication with Google credential")
+                Log.d(TAG, "→ Starting Firebase authentication with Google")
 
                 val credential = GoogleAuthProvider.getCredential(idToken, null)
                 val authResult = auth.signInWithCredential(credential).await()
                 val user = authResult.user
 
                 if (user != null) {
-                    Log.d(TAG, "Firebase auth successful - UID: ${user.uid}, Email: ${user.email}")
-
+                    Log.d(TAG, "✓ Firebase auth successful")
                     saveUserToDatabase(user)
-
-                    // Simpan session dengan role default "user"
                     saveUserSession(
                         userId = user.uid,
                         username = user.email ?: user.displayName ?: "Google User",
                         role = "user",
                         isGoogle = true
                     )
-
-                    Toast.makeText(this@LoginActivity, "Google sign in berhasil!", Toast.LENGTH_SHORT).show()
-
-                    // Delay sedikit untuk memastikan Toast muncul
-                    kotlinx.coroutines.delay(500)
-                    navigateToHome()
-                } else {
-                    Log.e(TAG, "Firebase user is null after authentication")
-                    Toast.makeText(this@LoginActivity, "Gagal mendapatkan data user", Toast.LENGTH_SHORT).show()
+                    showLoginSuccessNotification() // TAMPILKAN NOTIFIKASI
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "Google authentication gagal", e)
-                Toast.makeText(
-                    this@LoginActivity,
-                    "Authentication gagal: ${e.message}",
-                    Toast.LENGTH_LONG
-                ).show()
+                Log.e(TAG, "✗ Google authentication gagal", e)
+                Toast.makeText(this@LoginActivity, "Authentication gagal: ${e.message}", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -504,31 +490,18 @@ class LoginActivity : AppCompatActivity() {
                             userData.role,
                             false
                         )
-                        Toast.makeText(this@LoginActivity, "Login berhasil!", Toast.LENGTH_SHORT).show()
-                        navigateToHome()
+                        showLoginSuccessNotification() // TAMPILKAN NOTIFIKASI
                     } else {
-                        Toast.makeText(
-                            this@LoginActivity,
-                            response?.message ?: "Login gagal",
-                            Toast.LENGTH_LONG
-                        ).show()
+                        Toast.makeText(this@LoginActivity, response?.message ?: "Login gagal", Toast.LENGTH_LONG).show()
                     }
                 } else {
                     val error = result.exceptionOrNull()
-                    Toast.makeText(
-                        this@LoginActivity,
-                        "Koneksi gagal: ${error?.message ?: "Unknown error"}",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    Toast.makeText(this@LoginActivity, "Koneksi gagal: ${error?.message}", Toast.LENGTH_LONG).show()
                     Log.e(TAG, "MySQL login failed", error)
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "MySQL login error", e)
-                Toast.makeText(
-                    this@LoginActivity,
-                    "Error: ${e.message}",
-                    Toast.LENGTH_LONG
-                ).show()
+                Toast.makeText(this@LoginActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
             } finally {
                 setButtonLoading(loginButton, false, "Login dengan SQL")
             }
@@ -561,31 +534,18 @@ class LoginActivity : AppCompatActivity() {
                             userData.role,
                             false
                         )
-                        Toast.makeText(this@LoginActivity, "Registrasi berhasil!", Toast.LENGTH_SHORT).show()
-                        navigateToHome()
+                        showLoginSuccessNotification() // TAMPILKAN NOTIFIKASI
                     } else {
-                        Toast.makeText(
-                            this@LoginActivity,
-                            response?.message ?: "Registrasi gagal",
-                            Toast.LENGTH_LONG
-                        ).show()
+                        Toast.makeText(this@LoginActivity, response?.message ?: "Registrasi gagal", Toast.LENGTH_LONG).show()
                     }
                 } else {
                     val error = result.exceptionOrNull()
-                    Toast.makeText(
-                        this@LoginActivity,
-                        "Koneksi gagal: ${error?.message ?: "Unknown error"}",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    Toast.makeText(this@LoginActivity, "Koneksi gagal: ${error?.message}", Toast.LENGTH_LONG).show()
                     Log.e(TAG, "MySQL register failed", error)
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "MySQL register error", e)
-                Toast.makeText(
-                    this@LoginActivity,
-                    "Error: ${e.message}",
-                    Toast.LENGTH_LONG
-                ).show()
+                Toast.makeText(this@LoginActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
             } finally {
                 setButtonLoading(registerButton, false, "Register Akun Baru")
             }
@@ -605,23 +565,22 @@ class LoginActivity : AppCompatActivity() {
             val userRole = prefs.getString(KEY_USER_ROLE, "") ?: ""
             val username = prefs.getString(KEY_USERNAME, "") ?: ""
 
-            Log.d(TAG, "Navigating to Home - User: $username, Role: $userRole")
+            Log.d(TAG, "→ Navigating to Home")
+            Log.d(TAG, "  - Username: $username")
+            Log.d(TAG, "  - Role: $userRole")
 
-            // Untuk semua user, gunakan HomeActivity
-            // DashboardActivity hanya untuk admin panel yang berbeda
             val intent = Intent(this, HomeActivity::class.java).apply {
                 putExtra("USER_ROLE", userRole)
                 putExtra("USERNAME", username)
-                // Clear back stack
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             }
 
             startActivity(intent)
             finish()
 
-            Log.d(TAG, "Navigation to HomeActivity completed")
+            Log.d(TAG, "✓ Navigation completed")
         } catch (e: Exception) {
-            Log.e(TAG, "Error during navigation", e)
+            Log.e(TAG, "✗ Error during navigation", e)
             Toast.makeText(this, "Error navigating: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
@@ -633,32 +592,27 @@ class LoginActivity : AppCompatActivity() {
         val savedUserId = prefs.getString(KEY_USER_ID, null)
         val savedLoginMode = prefs.getBoolean(KEY_LOGIN_MODE, true)
 
-        // Cek apakah user sudah login
         if (savedUserId != null) {
             if (savedLoginMode) {
-                // Cek Firebase
                 val currentUser = auth.currentUser
                 if (currentUser != null) {
-                    Log.d(TAG, "User sudah login dengan Firebase: ${currentUser.email}")
+                    Log.d(TAG, "✓ User sudah login dengan Firebase, redirect ke Home")
                     navigateToHome()
+                    return
                 } else {
-                    // Session expired, clear saved data
-                    Log.d(TAG, "Firebase session expired, clearing data")
+                    Log.d(TAG, "✗ Firebase session expired")
                     prefs.edit().clear().apply()
                 }
             } else {
-                // MySQL login - langsung navigate
-                val username = prefs.getString(KEY_USERNAME, "")
-                val role = prefs.getString(KEY_USER_ROLE, "")
-                Log.d(TAG, "User sudah login dengan MySQL - User: $username, Role: $role")
+                Log.d(TAG, "✓ User sudah login dengan MySQL, redirect ke Home")
                 navigateToHome()
+                return
             }
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        // Clean up resources if needed
         Log.d(TAG, "LoginActivity destroyed")
     }
 }

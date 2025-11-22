@@ -1,14 +1,5 @@
 <resources>
     <string name="app_name">ProjektPQ</string>
-
-    <!-- PENTING: Ganti dengan Web Client ID dari Firebase Console -->
-    <!-- Cara mendapatkan:
-         1. Buka Firebase Console (https://console.firebase.google.com/)
-         2. Pilih project Anda
-         3. Project Settings → Add app → Android
-         4. Download google-services.json yang baru
-         5. Atau cek di Authentication → Sign-in method → Google → Web SDK configuration
-    -->
     <string name="default_web_client_id">601172156898-ke43rsopeafg6lin88eip9th1o8j3pgh.apps.googleusercontent.com</string>
 
     <!-- Login Screen -->
@@ -36,4 +27,6 @@
     <string name="wave_background">Wave background</string>
     <string name="logo_mitra">Logo Mitra</string>
     <string name="toggle_password_visibility">Toggle password visibility</string>
+
+    <string name="login_berhasil">Login Berhasil</string>
 </resources>

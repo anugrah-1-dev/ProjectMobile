@@ -63,6 +63,11 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        Log.d(TAG, "HomeActivity onResume - User returned to home screen")
+    }
+
     private fun isUserLoggedIn(): Boolean {
         val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val savedUserId = prefs.getString(KEY_USER_ID, null)
@@ -93,26 +98,43 @@ class HomeActivity : AppCompatActivity() {
     private fun setupClickListeners() {
         // Card Manajemen Soal
         cardManajemenSoal.setOnClickListener {
+            Log.d(TAG, "Card Manajemen Soal clicked")
             Toast.makeText(this, "Manajemen Soal", Toast.LENGTH_SHORT).show()
             // TODO: Navigate to ManajemenSoalActivity
+            // val intent = Intent(this, ManajemenSoalActivity::class.java)
+            // startActivity(intent)
         }
 
-        // Card Manajemen Murid
+        // Card Manajemen Murid - DIPERBAIKI
         cardManajemenMurid.setOnClickListener {
-            Toast.makeText(this, "Manajemen Murid", Toast.LENGTH_SHORT).show()
-            // TODO: Navigate to ManajemenMuridActivity
+            Log.d(TAG, "Card Manajemen Murid clicked")
+            try {
+                val intent = Intent(this, ManajemenMuridActivity::class.java)
+                startActivity(intent)
+                Log.d(TAG, "Navigating to ManajemenMuridActivity")
+            } catch (e: Exception) {
+                Log.e(TAG, "Error opening ManajemenMuridActivity", e)
+                Toast.makeText(
+                    this,
+                    "Error: ${e.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
 
         // Card Akun
         cardAkun.setOnClickListener {
-            Toast.makeText(this, "Akun", Toast.LENGTH_SHORT).show()
+            Log.d(TAG, "Card Akun clicked")
             showAccountInfo()
         }
 
         // Card Histori
         cardHistori.setOnClickListener {
+            Log.d(TAG, "Card Histori clicked")
             Toast.makeText(this, "Histori", Toast.LENGTH_SHORT).show()
             // TODO: Navigate to HistoriActivity
+            // val intent = Intent(this, HistoriActivity::class.java)
+            // startActivity(intent)
         }
     }
 
@@ -163,6 +185,7 @@ class HomeActivity : AppCompatActivity() {
 
         val message = "Account Info:\n\nUsername: $username\nRole: $userRole\nLogin Type: $loginType"
         Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+        Log.d(TAG, "Account info displayed")
     }
 
     private fun performLogout() {

@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="#5DD62C">
+
+    <RelativeLayout
+        android:id="@+id/lihat_soal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#5DD62C"
+        android:clipToOutline="true">
+
+        <!-- Header Background -->
+        <View
+            android:id="@+id/gelombang1"
+            android:layout_width="523dp"
+            android:layout_height="161dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="-40dp"
+            android:layout_marginTop="-10dp"
+            android:background="@drawable/gelombang1" />
+
+        <!-- Title Section -->
+        <View
+            android:id="@+id/rectangle_8"
+            android:layout_width="360dp"
+            android:layout_height="57dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="26dp"
+            android:layout_marginTop="87dp"
+            android:background="@drawable/rectangle_8" />
+
+        <TextView
+            android:id="@+id/jilid_i"
+            android:layout_width="97.9dp"
+            android:layout_height="34.96dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="156.55dp"
+            android:layout_marginTop="97.99dp"
+            android:gravity="center_horizontal|top"
+            android:text="JILID I"
+            android:textColor="#000000"
+            android:textSize="32sp" />
+
+        <!-- Question 1 -->
+        <View
+            android:id="@+id/rectangle_1_1"
+            android:layout_width="352dp"
+            android:layout_height="128dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="164dp"
+            android:background="@drawable/rectangle_1" />
+
+        <TextView
+            android:id="@+id/bacakan_kal_1"
+            android:layout_width="250dp"
+            android:layout_height="41.57dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="56.76dp"
+            android:layout_marginTop="178.52dp"
+            android:gravity="top"
+            android:text="Bacakan kalimat Istiadzah!\n\n"
+            android:textColor="#000000"
+            android:textSize="24sp" />
+
+        <View
+            android:id="@+id/rectangle_input_1"
+            android:layout_width="323.18dp"
+            android:layout_height="38dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="44.41dp"
+            android:layout_marginTop="239dp"
+            android:background="@drawable/rectangle_input" />
+
+        <TextView
+            android:id="@+id/berikan_nil_1"
+            android:layout_width="296.16dp"
+            android:layout_height="24dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="57.92dp"
+            android:layout_marginTop="246dp"
+            android:gravity="top"
+            android:text="Berikan nilai....."
+            android:textColor="#000000"
+            android:textSize="20sp" />
+
+        <!-- Question 2 -->
+        <View
+            android:id="@+id/rectangle_1_2"
+            android:layout_width="352dp"
+            android:layout_height="128dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="312dp"
+            android:background="@drawable/rectangle_1" />
+
+        <TextView
+            android:id="@+id/bacakan_kal_2"
+            android:layout_width="250dp"
+            android:layout_height="41.57dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="56.76dp"
+            android:layout_marginTop="326.52dp"
+            android:gravity="top"
+            android:text="Bacakan kalimat Basmallah!\n\n"
+            android:textColor="#000000"
+            android:textSize="24sp" />
+
+        <View
+            android:id="@+id/rectangle_input_2"
+            android:layout_width="323.18dp"
+            android:layout_height="38dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="45dp"
+            android:layout_marginTop="387dp"
+            android:background="@drawable/rectangle_input" />
+
+        <TextView
+            android:id="@+id/berikan_nil_2"
+            android:layout_width="296.16dp"
+            android:layout_height="24dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="60.59dp"
+            android:layout_marginTop="394dp"
+            android:gravity="top"
+            android:text="Berikan nilai....."
+            android:textColor="#000000"
+            android:textSize="20sp" />
+
+        <!-- Question 3 -->
+        <View
+            android:id="@+id/rectangle_1_3"
+            android:layout_width="352dp"
+            android:layout_height="128dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="460dp"
+            android:background="@drawable/rectangle_1" />
+
+        <TextView
+            android:id="@+id/bacakan_kal_3"
+            android:layout_width="250dp"
+            android:layout_height="41.57dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="56.76dp"
+            android:layout_marginTop="471.52dp"
+            android:gravity="top"
+            android:text="Bacakan kalimat Tahmid!"
+            android:textColor="#000000"
+            android:textSize="24sp" />
+
+        <View
+            android:id="@+id/rectangle_input_3"
+            android:layout_width="323.18dp"
+            android:layout_height="38dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="44.41dp"
+            android:layout_marginTop="535dp"
+            android:background="@drawable/rectangle_input" />
+
+        <TextView
+            android:id="@+id/berikan_nil_3"
+            android:layout_width="296.16dp"
+            android:layout_height="24dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="57.92dp"
+            android:layout_marginTop="542dp"
+            android:gravity="top"
+            android:text="Berikan nilai....."
+            android:textColor="#000000"
+            android:textSize="20sp" />
+
+        <!-- Question 4 -->
+        <View
+            android:id="@+id/rectangle_1_4"
+            android:layout_width="352dp"
+            android:layout_height="128dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="608dp"
+            android:background="@drawable/rectangle_1" />
+
+        <TextView
+            android:id="@+id/bacakan_kal_4"
+            android:layout_width="250dp"
+            android:layout_height="34dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="57dp"
+            android:layout_marginTop="620dp"
+            android:gravity="top"
+            android:text="Bacakan kalimat Tahmid!"
+            android:textColor="#000000"
+            android:textSize="24sp" />
+
+        <View
+            android:id="@+id/rectangle_input_4"
+            android:layout_width="323.18dp"
+            android:layout_height="38dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="44.41dp"
+            android:layout_marginTop="683dp"
+            android:background="@drawable/rectangle_input" />
+
+        <TextView
+            android:id="@+id/berikan_nil_4"
+            android:layout_width="296.16dp"
+            android:layout_height="24dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="57.92dp"
+            android:layout_marginTop="690dp"
+            android:gravity="top"
+            android:text="Berikan nilai....."
+            android:textColor="#000000"
+            android:textSize="20sp" />
+
+        <!-- Navigation Buttons -->
+        <View
+            android:id="@+id/choose_page"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="32dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/choose_page" />
+
+        <View
+            android:id="@+id/cancel"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="337dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/cancel" />
+
+        <!-- Back Button -->
+        <View
+            android:id="@+id/back_button"
+            android:layout_width="90dp"
+            android:layout_height="30dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="770dp"
+            android:background="@drawable/rectangle_2" />
+
+        <TextView
+            android:id="@+id/back"
+            android:layout_width="49dp"
+            android:layout_height="28dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="49dp"
+            android:layout_marginTop="771dp"
+            android:gravity="center_horizontal|top"
+            android:text="Back"
+            android:textColor="#000000"
+            android:textSize="20sp" />
+
+        <!-- Next Button -->
+        <View
+            android:id="@+id/next_button"
+            android:layout_width="90dp"
+            android:layout_height="30dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="292dp"
+            android:layout_marginTop="770dp"
+            android:background="@drawable/rectangle_2" />
+
+        <TextView
+            android:id="@+id/next"
+            android:layout_width="47dp"
+            android:layout_height="28dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="312dp"
+            android:layout_marginTop="771dp"
+            android:gravity="center_horizontal|top"
+            android:text="Next"
+            android:textColor="#000000"
+            android:textSize="20sp" />
+
+    </RelativeLayout>
+</ScrollView>

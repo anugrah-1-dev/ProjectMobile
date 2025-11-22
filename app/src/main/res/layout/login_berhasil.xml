@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/login_container"
+    android:layout_width="358dp"
+    android:layout_height="82dp"
+    android:clipToOutline="true"
+    android:background="@drawable/login_berhasil">
+
+    <TextView
+        android:id="@+id/login_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="@string/login_berhasil"
+        android:textAppearance="@style/login_berhasil"
+        android:gravity="center" />
+
+</RelativeLayout>

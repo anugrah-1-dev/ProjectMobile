@@ -54,9 +54,9 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.5" />
 
-    <!-- Card 1 - Manajemen Soal -->
+    <!-- Card 1 - Kelola Akun -->
     <LinearLayout
-        android:id="@+id/card_manajemen_soal"
+        android:id="@+id/card_kelola_akun"
         android:layout_width="0dp"
         android:layout_height="150dp"
         android:layout_marginStart="20dp"
@@ -74,73 +74,6 @@
         <ImageView
             android:layout_width="70dp"
             android:layout_height="70dp"
-            android:src="@drawable/buku"
-            android:scaleType="centerInside" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Manajemen Soal"
-            android:textColor="#000000"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:gravity="center" />
-    </LinearLayout>
-
-    <!-- Card 2 - Manajemen Murid -->
-    <LinearLayout
-        android:id="@+id/card_manajemen_murid"
-        android:layout_width="0dp"
-        android:layout_height="150dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="20dp"
-        android:background="@drawable/rounded_card"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:padding="16dp"
-        android:elevation="8dp"
-        app:layout_constraintTop_toTopOf="@id/card_manajemen_soal"
-        app:layout_constraintStart_toEndOf="@id/guideline_vertical"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <ImageView
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:src="@drawable/murid"
-            android:scaleType="centerInside" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Manajemen Murid"
-            android:textColor="#000000"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:gravity="center" />
-    </LinearLayout>
-
-    <!-- Card 3 - Akun -->
-    <LinearLayout
-        android:id="@+id/card_akun"
-        android:layout_width="0dp"
-        android:layout_height="150dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginTop="20dp"
-        android:background="@drawable/rounded_card"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:padding="16dp"
-        android:elevation="8dp"
-        app:layout_constraintTop_toBottomOf="@id/card_manajemen_soal"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/guideline_vertical">
-
-        <ImageView
-            android:layout_width="70dp"
-            android:layout_height="70dp"
             android:src="@drawable/profil"
             android:scaleType="centerInside" />
 
@@ -148,16 +81,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Akun"
+            android:text="Kelola Akun"
             android:textColor="#000000"
             android:textSize="14sp"
             android:textStyle="bold"
             android:gravity="center" />
     </LinearLayout>
 
-    <!-- Card 4 - Histori -->
+    <!-- Card 2 - Activity -->
     <LinearLayout
-        android:id="@+id/card_histori"
+        android:id="@+id/card_activity"
         android:layout_width="0dp"
         android:layout_height="150dp"
         android:layout_marginStart="10dp"
@@ -167,7 +100,7 @@
         android:gravity="center"
         android:padding="16dp"
         android:elevation="8dp"
-        app:layout_constraintTop_toTopOf="@id/card_akun"
+        app:layout_constraintTop_toTopOf="@id/card_kelola_akun"
         app:layout_constraintStart_toEndOf="@id/guideline_vertical"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -181,7 +114,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Histori"
+            android:text="Activity"
             android:textColor="#000000"
             android:textSize="14sp"
             android:textStyle="bold"

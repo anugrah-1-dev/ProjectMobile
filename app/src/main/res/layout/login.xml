@@ -8,14 +8,17 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="800dp">
+        android:paddingBottom="20dp">
 
         <!-- Background Wave Top -->
         <ImageView
             android:id="@+id/wave_background"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
+            android:minHeight="180dp"
+            android:maxHeight="220dp"
+            android:adjustViewBounds="true"
             android:contentDescription="Wave background decoration"
             android:scaleType="fitXY"
             android:src="@drawable/gelombang1" />
@@ -28,7 +31,9 @@
             android:layout_below="@id/wave_background"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="-80dp"
+            android:adjustViewBounds="true"
             android:contentDescription="Logo TPQ Mitra"
+            android:scaleType="fitCenter"
             android:src="@drawable/logo_mitra" />
 
         <!-- White Card Container -->
@@ -37,8 +42,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/logo_mitra"
-            android:layout_marginTop="40dp"
             android:layout_marginStart="20dp"
+            android:layout_marginTop="41dp"
             android:layout_marginEnd="20dp"
             android:layout_marginBottom="20dp"
             android:background="@drawable/rounded_card_background"
@@ -66,36 +71,36 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
                 android:background="@drawable/rounded_edittext_bg"
+                android:gravity="center_vertical"
+                android:minHeight="56dp"
+                android:orientation="horizontal"
                 android:paddingStart="16dp"
-                android:paddingEnd="8dp"
                 android:paddingTop="8dp"
-                android:paddingBottom="8dp"
-                android:minHeight="56dp">
+                android:paddingEnd="8dp"
+                android:paddingBottom="8dp">
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:gravity="start|center_vertical"
                     android:text="Mode Login:"
                     android:textColor="#666666"
-                    android:textSize="14sp"
-                    android:gravity="start|center_vertical" />
+                    android:textSize="14sp" />
 
                 <Switch
                     android:id="@+id/login_mode_switch"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Google/Firebase"
-                    android:textSize="12sp"
                     android:checked="true"
-                    android:thumbTint="#5DD62C"
-                    android:trackTint="#CCCCCC"
                     android:minWidth="48dp"
                     android:minHeight="48dp"
-                    android:padding="8dp" />
+                    android:padding="8dp"
+                    android:text="Google"
+                    android:textSize="12sp"
+                    android:thumbTint="#5DD62C"
+                    android:trackTint="#CCCCCC" />
             </LinearLayout>
 
             <!-- Email/Username Label -->
@@ -112,17 +117,20 @@
             <EditText
                 android:id="@+id/username_input"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
+                android:minHeight="52dp"
+                android:autofillHints="emailAddress"
                 android:background="@drawable/rounded_edittext_bg"
                 android:hint="Masukkan email"
                 android:inputType="textEmailAddress"
                 android:paddingStart="16dp"
+                android:paddingTop="16dp"
                 android:paddingEnd="16dp"
+                android:paddingBottom="16dp"
                 android:textColor="#000000"
                 android:textColorHint="#999999"
-                android:textSize="14sp"
-                android:autofillHints="emailAddress" />
+                android:textSize="14sp" />
 
             <!-- Password Label -->
             <TextView
@@ -137,24 +145,29 @@
             <!-- Password Input -->
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
+                android:minHeight="52dp"
                 android:background="@drawable/rounded_edittext_bg">
 
                 <EditText
                     android:id="@+id/password_input"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_toStartOf="@+id/toggle_password"
+                    android:layout_centerVertical="true"
+                    android:minHeight="52dp"
+                    android:autofillHints="password"
                     android:background="@null"
                     android:hint="Masukkan password"
                     android:inputType="textPassword"
                     android:paddingStart="16dp"
+                    android:paddingTop="16dp"
                     android:paddingEnd="8dp"
+                    android:paddingBottom="16dp"
                     android:textColor="#000000"
                     android:textColorHint="#999999"
-                    android:textSize="14sp"
-                    android:autofillHints="password" />
+                    android:textSize="14sp" />
 
                 <ImageButton
                     android:id="@+id/toggle_password"
@@ -177,8 +190,8 @@
                 android:layout_marginBottom="20dp"
                 android:clickable="true"
                 android:focusable="true"
-                android:minHeight="48dp"
                 android:gravity="center_vertical"
+                android:minHeight="48dp"
                 android:paddingStart="12dp"
                 android:paddingEnd="12dp"
                 android:text="Lupa Password?"
@@ -190,8 +203,9 @@
             <Button
                 android:id="@+id/login_button"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
+                android:minHeight="52dp"
                 android:background="@drawable/rounded_button_bg"
                 android:text="Login"
                 android:textAllCaps="false"
@@ -203,7 +217,8 @@
             <Button
                 android:id="@+id/register_button"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="wrap_content"
+                android:minHeight="52dp"
                 android:background="@drawable/rounded_button_outline_bg"
                 android:text="Register Akun Baru"
                 android:textAllCaps="false"
@@ -248,7 +263,8 @@
             <com.google.android.gms.common.SignInButton
                 android:id="@+id/google_sign_in_button"
                 android:layout_width="match_parent"
-                android:layout_height="52dp" />
+                android:layout_height="wrap_content"
+                android:minHeight="52dp" />
 
         </LinearLayout>
 
