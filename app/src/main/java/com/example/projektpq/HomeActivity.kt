@@ -101,11 +101,9 @@ class HomeActivity : AppCompatActivity() {
             Log.d(TAG, "Card Manajemen Soal clicked")
             Toast.makeText(this, "Manajemen Soal", Toast.LENGTH_SHORT).show()
             // TODO: Navigate to ManajemenSoalActivity
-            // val intent = Intent(this, ManajemenSoalActivity::class.java)
-            // startActivity(intent)
         }
 
-        // Card Manajemen Murid - DIPERBAIKI
+        // Card Manajemen Murid
         cardManajemenMurid.setOnClickListener {
             Log.d(TAG, "Card Manajemen Murid clicked")
             try {
@@ -122,10 +120,21 @@ class HomeActivity : AppCompatActivity() {
             }
         }
 
-        // Card Akun
+        // Card Akun - UPDATED TO NAVIGATE TO AkunActivity
         cardAkun.setOnClickListener {
             Log.d(TAG, "Card Akun clicked")
-            showAccountInfo()
+            try {
+                val intent = Intent(this, AkunActivity::class.java)
+                startActivity(intent)
+                Log.d(TAG, "Navigating to AkunActivity")
+            } catch (e: Exception) {
+                Log.e(TAG, "Error opening AkunActivity", e)
+                Toast.makeText(
+                    this,
+                    "Error: ${e.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
 
         // Card Histori
@@ -133,8 +142,6 @@ class HomeActivity : AppCompatActivity() {
             Log.d(TAG, "Card Histori clicked")
             Toast.makeText(this, "Histori", Toast.LENGTH_SHORT).show()
             // TODO: Navigate to HistoriActivity
-            // val intent = Intent(this, HistoriActivity::class.java)
-            // startActivity(intent)
         }
     }
 
@@ -173,19 +180,6 @@ class HomeActivity : AppCompatActivity() {
 
         Toast.makeText(this, welcomeMessage, Toast.LENGTH_LONG).show()
         Log.d(TAG, "Welcome message shown: $welcomeMessage")
-    }
-
-    private fun showAccountInfo() {
-        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val username = prefs.getString(KEY_USERNAME, "Unknown")
-        val userRole = prefs.getString(KEY_USER_ROLE, "Unknown")
-        val isGoogleLogin = prefs.getBoolean(KEY_LOGIN_MODE, true)
-
-        val loginType = if (isGoogleLogin) "Firebase/Google" else "MySQL"
-
-        val message = "Account Info:\n\nUsername: $username\nRole: $userRole\nLogin Type: $loginType"
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
-        Log.d(TAG, "Account info displayed")
     }
 
     private fun performLogout() {

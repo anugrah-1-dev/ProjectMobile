@@ -88,6 +88,18 @@
                 android:value=".ManajemenMuridActivity" />
         </activity>
 
+        <!-- AkunActivity - ADDED -->
+        <activity
+            android:name=".AkunActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme"
+            android:parentActivityName=".HomeActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".HomeActivity" />
+        </activity>
+
     </application>
 
 </manifest>

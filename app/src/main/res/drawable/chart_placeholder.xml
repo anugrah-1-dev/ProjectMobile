@@ -1,0 +1,130 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="340dp"
+    android:height="260dp"
+    android:viewportWidth="340"
+    android:viewportHeight="260">
+
+    <!-- Background dipersempit mendekati garis axis -->
+    <path
+        android:fillColor="#00DF82"
+        android:pathData="M35,25 L325,25 L325,215 L35,215 Z"/>
+
+    <!-- Grid Lines Horizontal yang lebih presisi -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.5"
+        android:strokeAlpha="0.4"
+        android:pathData="M50,40 L310,40"/>
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.5"
+        android:strokeAlpha="0.4"
+        android:pathData="M50,90 L310,90"/>
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.5"
+        android:strokeAlpha="0.4"
+        android:pathData="M50,140 L310,140"/>
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.5"
+        android:strokeAlpha="0.4"
+        android:pathData="M50,190 L310,190"/>
+
+    <!-- Grid Lines Vertical untuk presisi -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1"
+        android:strokeAlpha="0.3"
+        android:pathData="M90,40 L90,190"/>
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1"
+        android:strokeAlpha="0.3"
+        android:pathData="M140,40 L140,190"/>
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1"
+        android:strokeAlpha="0.3"
+        android:pathData="M190,40 L190,190"/>
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1"
+        android:strokeAlpha="0.3"
+        android:pathData="M240,40 L240,190"/>
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1"
+        android:strokeAlpha="0.3"
+        android:pathData="M290,40 L290,190"/>
+
+    <!-- Chart Line (Trending Up) dengan koordinat yang presisi -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M50,190 L90,170 L140,150 L190,130 L240,110 L290,90 L310,70"/>
+
+    <!-- Data Points dengan ukuran konsisten -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeColor="#00DF82"
+        android:strokeWidth="2"
+        android:pathData="M50,190 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeColor="#00DF82"
+        android:strokeWidth="2"
+        android:pathData="M90,170 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeColor="#00DF82"
+        android:strokeWidth="2"
+        android:pathData="M140,150 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeColor="#00DF82"
+        android:strokeWidth="2"
+        android:pathData="M190,130 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeColor="#00DF82"
+        android:strokeWidth="2"
+        android:pathData="M240,110 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeColor="#00DF82"
+        android:strokeWidth="2"
+        android:pathData="M290,90 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeColor="#00DF82"
+        android:strokeWidth="2"
+        android:pathData="M310,70 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0"/>
+
+    <!-- Y Axis yang lebih tebal dan presisi -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3"
+        android:pathData="M40,30 L40,210"/>
+
+    <!-- X Axis yang lebih tebal dan presisi -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3"
+        android:pathData="M40,210 L320,210"/>
+
+    <!-- Y Axis Arrow -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3"
+        android:pathData="M35,35 L40,25 L45,35"/>
+
+    <!-- X Axis Arrow -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3"
+        android:pathData="M315,205 L325,210 L315,215"/>
+
+</vector>

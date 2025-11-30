@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/pengaturan"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#5DD62C">
+
+    <!-- Header Background -->
+    <View
+        android:id="@+id/header_background"
+        android:layout_width="match_parent"
+        android:layout_height="180dp"
+        android:layout_alignParentTop="true"
+        android:background="@drawable/gelombang1" />
+
+    <!-- Logo -->
+    <ImageView
+        android:id="@+id/logo_mitra"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:src="@drawable/logo_mitra"
+        android:contentDescription="Logo TPQ" />
+
+    <!-- Judul TPQ -->
+    <TextView
+        android:id="@+id/tpq_roudlot"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/logo_mitra"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="35dp"
+        android:text="TPQ\nROUDLOTUL ILMI"
+        android:textColor="#000000"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:lineSpacingExtra="8sp" />
+
+    <!-- Background Putih Utama dengan rounded corners -->
+    <View
+        android:id="@+id/main_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/header_background"
+        android:layout_marginTop="-30dp"
+        android:layout_above="@id/navbar"
+        android:background="@drawable/rectangle_4_rounded_top" />
+
+    <!-- ScrollView untuk konten pengaturan -->
+    <ScrollView
+        android:id="@+id/scroll_view_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/header_background"
+        android:layout_marginTop="-30dp"
+        android:layout_above="@id/navbar"
+        android:paddingTop="30dp"
+        android:fillViewport="true"
+        android:scrollbars="vertical"
+        android:overScrollMode="never">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="40dp">
+
+            <!-- Judul Pengaturan -->
+            <TextView
+                android:id="@+id/pengaturan_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="Pengaturan"
+                android:textColor="#000000"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="40dp" />
+
+            <!-- ========== MENU PROFIL SAYA ========== -->
+            <RelativeLayout
+                android:id="@+id/menu_profil_container"
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginBottom="15dp"
+                android:background="@drawable/rectangle_8"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:id="@+id/text_profil"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:text="Profil Saya"
+                    android:textColor="#000000"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/arrow_profil"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/back"
+                    android:contentDescription="Arrow" />
+
+            </RelativeLayout>
+
+            <!-- ========== MENU BAHASA ========== -->
+            <RelativeLayout
+                android:id="@+id/menu_bahasa_container"
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginBottom="15dp"
+                android:background="@drawable/rectangle_8"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:id="@+id/text_bahasa"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:text="Bahasa / Language"
+                    android:textColor="#000000"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/arrow_bahasa"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/back"
+                    android:contentDescription="Arrow" />
+
+            </RelativeLayout>
+
+            <!-- ========== MENU EMAIL ========== -->
+            <RelativeLayout
+                android:id="@+id/menu_email_container"
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginBottom="15dp"
+                android:background="@drawable/rectangle_8"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:id="@+id/text_email"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:text="eka123@gmail.com"
+                    android:textColor="#000000"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+            </RelativeLayout>
+
+            <!-- ========== MENU UBAH KATA SANDI ========== -->
+            <RelativeLayout
+                android:id="@+id/menu_password_container"
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginBottom="15dp"
+                android:background="@drawable/rectangle_8"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:id="@+id/text_password"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:text="Ubah kata sandi"
+                    android:textColor="#000000"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/arrow_password"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/back"
+                    android:contentDescription="Arrow" />
+
+            </RelativeLayout>
+
+            <!-- ========== TOMBOL LOGOUT ========== -->
+            <RelativeLayout
+                android:id="@+id/button_logout_container"
+                android:layout_width="200dp"
+                android:layout_height="55dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="50dp"
+                android:background="@drawable/rounded_button_bg"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:id="@+id/text_logout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:text="Log Out"
+                    android:textColor="#000000"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+            </RelativeLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- ========== BOTTOM NAVIGATION ========== -->
+
+    <!-- Navbar Background -->
+    <View
+        android:id="@+id/navbar"
+        android:layout_width="match_parent"
+        android:layout_height="92dp"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/rounded_bottom_nav" />
+
+    <!-- Tombol Home Container -->
+    <RelativeLayout
+        android:id="@+id/home_button_container"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="30dp"
+        android:layout_marginBottom="24dp"
+        android:clickable="true"
+        android:focusable="true">
+
+        <View
+            android:id="@+id/home_circle"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:background="@drawable/circle_green" />
+
+        <ImageView
+            android:id="@+id/home_icon"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_centerInParent="true"
+            android:src="@drawable/home"
+            android:contentDescription="Home" />
+
+    </RelativeLayout>
+
+    <!-- Tombol Setting Container -->
+    <RelativeLayout
+        android:id="@+id/setting_button_container"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="30dp"
+        android:layout_marginBottom="24dp"
+        android:clickable="true"
+        android:focusable="true">
+
+        <View
+            android:id="@+id/setting_circle"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:background="@drawable/circle_green" />
+
+        <ImageView
+            android:id="@+id/settings_icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_centerInParent="true"
+            android:contentDescription="Settings"
+            android:src="@drawable/setting" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

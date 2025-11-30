@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="#5DD62C">
+
+    <RelativeLayout
+        android:id="@+id/keamanan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#5DD62C">
+
+        <!-- Header Background -->
+        <View
+            android:id="@+id/header_background"
+            android:layout_width="match_parent"
+            android:layout_height="161dp"
+            android:layout_alignParentTop="true"
+            android:background="@drawable/gelombang1" />
+
+        <!-- Logo -->
+        <ImageView
+            android:id="@+id/logo_mitra"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:src="@drawable/logo_mitra"
+            android:contentDescription="Logo TPQ" />
+
+        <!-- Judul TPQ -->
+        <TextView
+            android:id="@+id/tpq_roudlot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/logo_mitra"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="20dp"
+            android:text="TPQ\nROUDLOTUL ILMI"
+            android:textColor="#000000"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:lineSpacingExtra="2sp" />
+
+        <!-- Background Putih Utama -->
+        <View
+            android:id="@+id/main_background"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="120dp"
+            android:minHeight="500dp"
+            android:background="@drawable/rectangle_main" />
+
+        <!-- Navigation Bar -->
+        <View
+            android:id="@+id/nav_bar"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="140dp"
+            android:background="@drawable/rectangle_1" />
+
+        <!-- Back Button -->
+        <ImageView
+            android:id="@+id/back_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="150dp"
+            android:src="@drawable/back_to"
+            android:contentDescription="Back" />
+
+        <TextView
+            android:id="@+id/back_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/back_icon"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="152dp"
+            android:text="Keamanan"
+            android:textColor="#000000"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <!-- ========== FIELD PASSWORD LAMA ========== -->
+        <TextView
+            android:id="@+id/label_password_lama"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="210dp"
+            android:text="Password Lama"
+            android:textColor="#000000"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/input_password_lama"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginTop="240dp"
+            android:background="@drawable/rectangle_input"
+            android:hint="Masukkan Password Lama"
+            android:inputType="textPassword"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:textColor="#000000"
+            android:textColorHint="#666666"
+            android:textSize="14sp" />
+
+        <!-- ========== FIELD PASSWORD BARU ========== -->
+        <TextView
+            android:id="@+id/label_password_baru"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="310dp"
+            android:text="Password Baru"
+            android:textColor="#000000"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/input_password_baru"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginTop="340dp"
+            android:background="@drawable/rectangle_input"
+            android:hint="Masukkan Password Baru"
+            android:inputType="textPassword"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:textColor="#000000"
+            android:textColorHint="#666666"
+            android:textSize="14sp" />
+
+        <!-- Tombol Konfirmasi -->
+        <Button
+            android:id="@+id/konfirmasi_button"
+            android:layout_width="160dp"
+            android:layout_height="48dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="420dp"
+            android:layout_marginBottom="100dp"
+            android:backgroundTint="#32CD32"
+            android:text="Konfirmasi"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <!-- Bottom Navigation -->
+        <View
+            android:id="@+id/bottom_nav"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_alignParentBottom="true"
+            android:background="@drawable/rounded_bottom_nav" />
+
+        <!-- Tombol Home -->
+        <ImageView
+            android:id="@+id/home_icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginLeft="40dp"
+            android:layout_marginBottom="15dp"
+            android:src="@drawable/home"
+            android:contentDescription="Home"
+            android:background="?attr/selectableItemBackgroundBorderless" />
+
+        <!-- Tombol Setting -->
+        <ImageView
+            android:id="@+id/settings_icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="40dp"
+            android:layout_marginBottom="15dp"
+            android:src="@drawable/setting"
+            android:contentDescription="Settings"
+            android:background="?attr/selectableItemBackgroundBorderless" />
+
+    </RelativeLayout>
+</ScrollView>

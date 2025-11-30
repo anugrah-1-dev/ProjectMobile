@@ -1,11 +1,5 @@
 package com.example.projektpq
 
-// Data class untuk list santri
-data class Santri(
-    val no_induk: String,
-    val nama: String
-)
-
 // Data class untuk detail santri
 data class SantriDetail(
     val no_induk: String,
