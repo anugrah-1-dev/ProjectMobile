@@ -113,8 +113,8 @@ class MySQLApiService {
                         id_user = dataObj.getInt("id_user"),
                         username = dataObj.getString("username"),
                         role = dataObj.getString("role"),
-                        email = if (dataObj.has("email")) dataObj.optString("email", "") else "",
-                        nomor_telepon = if (dataObj.has("nomor_telepon")) dataObj.optString("nomor_telepon", "") else ""
+                        email = if (dataObj.has("email")) dataObj.optString("email", null) else null,
+                        nomor_telepon = if (dataObj.has("nomor_telepon")) dataObj.optString("nomor_telepon", null) else null
                     )
                 } else null
 
@@ -122,154 +122,6 @@ class MySQLApiService {
 
             } catch (e: Exception) {
                 Log.e(TAG, "Login error: ${e.message}", e)
-                Result.failure(e)
-            } finally {
-                connection?.disconnect()
-            }
-        }
-    }
-
-    // ==================== GET USER PROFILE ====================
-    suspend fun getUserProfile(idUser: Int): Result<UserProfileResponse> {
-        return withContext(Dispatchers.IO) {
-            var connection: HttpURLConnection? = null
-            try {
-                val url = URL("$BASE_URL/get_user_profile.php?id_user=$idUser")
-                connection = url.openConnection() as HttpURLConnection
-
-                connection.apply {
-                    requestMethod = "GET"
-                    setRequestProperty("Accept", "application/json")
-                    connectTimeout = CONNECT_TIMEOUT
-                    readTimeout = READ_TIMEOUT
-                    doInput = true
-                    useCaches = false
-                }
-
-                Log.d(TAG, "Get Profile URL: $url")
-
-                val responseCode = connection.responseCode
-                Log.d(TAG, "Response Code: $responseCode")
-
-                val inputStream = if (responseCode == HttpURLConnection.HTTP_OK) {
-                    connection.inputStream
-                } else {
-                    connection.errorStream
-                }
-
-                val response = BufferedReader(InputStreamReader(inputStream, Charsets.UTF_8)).use { reader ->
-                    reader.readText()
-                }
-
-                Log.d(TAG, "Response: $response")
-
-                if (response.isBlank()) {
-                    return@withContext Result.failure(Exception("Empty response from server"))
-                }
-
-                val jsonResponse = JSONObject(response)
-                val success = jsonResponse.getBoolean("success")
-                val message = jsonResponse.getString("message")
-
-                val profileData = if (success && jsonResponse.has("data")) {
-                    val dataObj = jsonResponse.getJSONObject("data")
-                    UserProfileData(
-                        id_user = dataObj.getInt("id_user"),
-                        username = dataObj.getString("username"),
-                        email = dataObj.optString("email", ""),
-                        nomor_telepon = dataObj.optString("nomor_telepon", ""),
-                        role = dataObj.getString("role")
-                    )
-                } else null
-
-                Result.success(UserProfileResponse(success, message, profileData))
-
-            } catch (e: Exception) {
-                Log.e(TAG, "Get profile error: ${e.message}", e)
-                Result.failure(e)
-            } finally {
-                connection?.disconnect()
-            }
-        }
-    }
-
-    // ==================== UPDATE USER PROFILE ====================
-    suspend fun updateUserProfile(
-        idUser: Int,
-        username: String,
-        email: String,
-        nomorTelepon: String
-    ): Result<UserProfileResponse> {
-        return withContext(Dispatchers.IO) {
-            var connection: HttpURLConnection? = null
-            try {
-                val url = URL("$BASE_URL/update_user_profile.php")
-                connection = url.openConnection() as HttpURLConnection
-
-                connection.apply {
-                    requestMethod = "POST"
-                    setRequestProperty("Content-Type", "application/json; charset=utf-8")
-                    setRequestProperty("Accept", "application/json")
-                    connectTimeout = CONNECT_TIMEOUT
-                    readTimeout = READ_TIMEOUT
-                    doOutput = true
-                    doInput = true
-                    useCaches = false
-                }
-
-                val jsonInput = JSONObject().apply {
-                    put("id_user", idUser)
-                    put("username", username)
-                    put("email", email)
-                    put("nomor_telepon", nomorTelepon)
-                }
-
-                Log.d(TAG, "Update Profile URL: $url")
-                Log.d(TAG, "Request: $jsonInput")
-
-                OutputStreamWriter(connection.outputStream, Charsets.UTF_8).use { writer ->
-                    writer.write(jsonInput.toString())
-                    writer.flush()
-                }
-
-                val responseCode = connection.responseCode
-                Log.d(TAG, "Response Code: $responseCode")
-
-                val inputStream = if (responseCode == HttpURLConnection.HTTP_OK) {
-                    connection.inputStream
-                } else {
-                    connection.errorStream
-                }
-
-                val response = BufferedReader(InputStreamReader(inputStream, Charsets.UTF_8)).use { reader ->
-                    reader.readText()
-                }
-
-                Log.d(TAG, "Response: $response")
-
-                if (response.isBlank()) {
-                    return@withContext Result.failure(Exception("Empty response from server"))
-                }
-
-                val jsonResponse = JSONObject(response)
-                val success = jsonResponse.getBoolean("success")
-                val message = jsonResponse.getString("message")
-
-                val profileData = if (success && jsonResponse.has("data")) {
-                    val dataObj = jsonResponse.getJSONObject("data")
-                    UserProfileData(
-                        id_user = dataObj.getInt("id_user"),
-                        username = dataObj.getString("username"),
-                        email = dataObj.optString("email", ""),
-                        nomor_telepon = dataObj.optString("nomor_telepon", ""),
-                        role = dataObj.getString("role")
-                    )
-                } else null
-
-                Result.success(UserProfileResponse(success, message, profileData))
-
-            } catch (e: Exception) {
-                Log.e(TAG, "Update profile error: ${e.message}", e)
                 Result.failure(e)
             } finally {
                 connection?.disconnect()
@@ -338,7 +190,9 @@ class MySQLApiService {
                     UserData(
                         id_user = dataObj.getInt("id_user"),
                         username = dataObj.getString("username"),
-                        role = dataObj.getString("role")
+                        role = dataObj.getString("role"),
+                        email = if (dataObj.has("email")) dataObj.optString("email", null) else null,
+                        nomor_telepon = if (dataObj.has("nomor_telepon")) dataObj.optString("nomor_telepon", null) else null
                     )
                 } else null
 
@@ -346,6 +200,154 @@ class MySQLApiService {
 
             } catch (e: Exception) {
                 Log.e(TAG, "Register error: ${e.message}", e)
+                Result.failure(e)
+            } finally {
+                connection?.disconnect()
+            }
+        }
+    }
+
+    // ==================== GET USER PROFILE ====================
+    suspend fun getUserProfile(idUser: Int): Result<UserProfileResponse> {
+        return withContext(Dispatchers.IO) {
+            var connection: HttpURLConnection? = null
+            try {
+                val url = URL("$BASE_URL/get_user_profile.php?id_user=$idUser")
+                connection = url.openConnection() as HttpURLConnection
+
+                connection.apply {
+                    requestMethod = "GET"
+                    setRequestProperty("Accept", "application/json")
+                    connectTimeout = CONNECT_TIMEOUT
+                    readTimeout = READ_TIMEOUT
+                    doInput = true
+                    useCaches = false
+                }
+
+                Log.d(TAG, "Get Profile URL: $url")
+
+                val responseCode = connection.responseCode
+                Log.d(TAG, "Response Code: $responseCode")
+
+                val inputStream = if (responseCode == HttpURLConnection.HTTP_OK) {
+                    connection.inputStream
+                } else {
+                    connection.errorStream
+                }
+
+                val response = BufferedReader(InputStreamReader(inputStream, Charsets.UTF_8)).use { reader ->
+                    reader.readText()
+                }
+
+                Log.d(TAG, "Response: $response")
+
+                if (response.isBlank()) {
+                    return@withContext Result.failure(Exception("Empty response from server"))
+                }
+
+                val jsonResponse = JSONObject(response)
+                val success = jsonResponse.getBoolean("success")
+                val message = jsonResponse.getString("message")
+
+                val profileData = if (success && jsonResponse.has("data")) {
+                    val dataObj = jsonResponse.getJSONObject("data")
+                    UserProfileData(
+                        id_user = dataObj.getInt("id_user"),
+                        username = dataObj.getString("username"),
+                        email = if (dataObj.has("email")) dataObj.optString("email", null) else null,
+                        nomor_telepon = if (dataObj.has("nomor_telepon")) dataObj.optString("nomor_telepon", null) else null,
+                        role = dataObj.getString("role")
+                    )
+                } else null
+
+                Result.success(UserProfileResponse(success, message, profileData))
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Get profile error: ${e.message}", e)
+                Result.failure(e)
+            } finally {
+                connection?.disconnect()
+            }
+        }
+    }
+
+    // ==================== UPDATE USER PROFILE ====================
+    suspend fun updateUserProfile(
+        idUser: Int,
+        username: String,
+        email: String?,
+        nomorTelepon: String?
+    ): Result<UserProfileResponse> {
+        return withContext(Dispatchers.IO) {
+            var connection: HttpURLConnection? = null
+            try {
+                val url = URL("$BASE_URL/update_user_profile.php")
+                connection = url.openConnection() as HttpURLConnection
+
+                connection.apply {
+                    requestMethod = "POST"
+                    setRequestProperty("Content-Type", "application/json; charset=utf-8")
+                    setRequestProperty("Accept", "application/json")
+                    connectTimeout = CONNECT_TIMEOUT
+                    readTimeout = READ_TIMEOUT
+                    doOutput = true
+                    doInput = true
+                    useCaches = false
+                }
+
+                val jsonInput = JSONObject().apply {
+                    put("id_user", idUser)
+                    put("username", username)
+                    if (email != null) put("email", email)
+                    if (nomorTelepon != null) put("nomor_telepon", nomorTelepon)
+                }
+
+                Log.d(TAG, "Update Profile URL: $url")
+                Log.d(TAG, "Request: $jsonInput")
+
+                OutputStreamWriter(connection.outputStream, Charsets.UTF_8).use { writer ->
+                    writer.write(jsonInput.toString())
+                    writer.flush()
+                }
+
+                val responseCode = connection.responseCode
+                Log.d(TAG, "Response Code: $responseCode")
+
+                val inputStream = if (responseCode == HttpURLConnection.HTTP_OK) {
+                    connection.inputStream
+                } else {
+                    connection.errorStream
+                }
+
+                val response = BufferedReader(InputStreamReader(inputStream, Charsets.UTF_8)).use { reader ->
+                    reader.readText()
+                }
+
+                Log.d(TAG, "Response: $response")
+
+                if (response.isBlank()) {
+                    return@withContext Result.failure(Exception("Empty response from server"))
+                }
+
+                val jsonResponse = JSONObject(response)
+                val success = jsonResponse.getBoolean("success")
+                val message = jsonResponse.getString("message")
+
+                val profileData = if (success && jsonResponse.has("data")) {
+                    val dataObj = jsonResponse.getJSONObject("data")
+                    UserProfileData(
+                        id_user = dataObj.getInt("id_user"),
+                        username = dataObj.getString("username"),
+                        email = if (dataObj.has("email")) dataObj.optString("email", null) else null,
+                        nomor_telepon = if (dataObj.has("nomor_telepon")) dataObj.optString("nomor_telepon", null) else null,
+                        role = dataObj.getString("role")
+                    )
+                } else null
+
+                Result.success(UserProfileResponse(success, message, profileData))
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Update profile error: ${e.message}", e)
                 Result.failure(e)
             } finally {
                 connection?.disconnect()

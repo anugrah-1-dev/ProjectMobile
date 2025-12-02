@@ -52,6 +52,11 @@ class LoginActivity : AppCompatActivity() {
         private const val KEY_USER_ID = "user_id"
         private const val KEY_USERNAME = "username"
         private const val KEY_USER_ROLE = "user_role"
+
+        // Role constants untuk konsistensi
+        private const val ROLE_SUPER_ADMIN = "SUPER ADMIN"
+        private const val ROLE_ADMIN_BIASA = "admin biasa"
+        private const val ROLE_USER = "user"
     }
 
     private val googleSignInLauncher = registerForActivityResult(
@@ -257,45 +262,36 @@ class LoginActivity : AppCompatActivity() {
         passwordInput.setSelection(passwordInput.text?.length ?: 0)
     }
 
-    // ==================== NOTIFIKASI LOGIN BERHASIL (DI ATAS) ====================
+    // ==================== NOTIFIKASI LOGIN BERHASIL ====================
 
     private fun showLoginSuccessNotification() {
         try {
-            // Inflate custom layout
             val notificationView = layoutInflater.inflate(R.layout.login_berhasil, null)
 
-            // Buat AlertDialog dengan custom view
             val dialog = AlertDialog.Builder(this)
                 .setView(notificationView)
                 .setCancelable(false)
                 .create()
 
-            // Set background transparent
             dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-
-            // Posisikan dialog di atas layar
             dialog.window?.setGravity(Gravity.TOP)
 
-            // Tambahkan margin dari atas (optional)
             val params = dialog.window?.attributes
-            params?.y = 50 // Margin 50px dari atas, sesuaikan jika perlu
+            params?.y = 700
             dialog.window?.attributes = params
 
-            // Tampilkan dialog
             dialog.show()
 
-            Log.d(TAG, "✓ Login success notification displayed at top")
+            Log.d(TAG, "✓ Login success notification displayed")
 
-            // Auto dismiss setelah 2 detik dan navigasi ke Home
             lifecycleScope.launch {
-                kotlinx.coroutines.delay(2000)
+                kotlinx.coroutines.delay(3000)
                 dialog.dismiss()
-                navigateToHome()
+                navigateToHomeBasedOnRole()
             }
         } catch (e: Exception) {
             Log.e(TAG, "✗ Error showing success notification", e)
-            // Fallback: langsung navigasi ke home jika error
-            navigateToHome()
+            navigateToHomeBasedOnRole()
         }
     }
 
@@ -344,8 +340,8 @@ class LoginActivity : AppCompatActivity() {
                 if (user != null) {
                     Log.d(TAG, "✓ Email login successful")
                     saveUserToDatabase(user)
-                    saveUserSession(user.uid, user.email ?: "", "user", true)
-                    showLoginSuccessNotification() // TAMPILKAN NOTIFIKASI
+                    saveUserSession(user.uid, user.email ?: "", ROLE_USER, true)
+                    showLoginSuccessNotification()
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "✗ Login gagal: ${e.message}")
@@ -428,10 +424,10 @@ class LoginActivity : AppCompatActivity() {
                     saveUserSession(
                         userId = user.uid,
                         username = user.email ?: user.displayName ?: "Google User",
-                        role = "user",
+                        role = ROLE_USER,
                         isGoogle = true
                     )
-                    showLoginSuccessNotification() // TAMPILKAN NOTIFIKASI
+                    showLoginSuccessNotification()
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "✗ Google authentication gagal", e)
@@ -477,30 +473,44 @@ class LoginActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 setButtonLoading(loginButton, true, "Loading...")
+                Log.d(TAG, "→ Attempting MySQL login for: $username")
 
                 val result = mysqlApiService.login(username, password)
 
                 if (result.isSuccess) {
                     val response = result.getOrNull()
+
+                    Log.d(TAG, "Response received - Success: ${response?.success}, Message: ${response?.message}")
+
                     if (response?.success == true && response.data != null) {
                         val userData = response.data
+
+                        Log.d(TAG, "✓ MySQL Login successful")
+                        Log.d(TAG, "  User ID: ${userData.id_user}")
+                        Log.d(TAG, "  Username: ${userData.username}")
+                        Log.d(TAG, "  Role: ${userData.role}")
+
                         saveUserSession(
                             userData.id_user.toString(),
                             userData.username,
                             userData.role,
                             false
                         )
-                        showLoginSuccessNotification() // TAMPILKAN NOTIFIKASI
+
+                        showLoginSuccessNotification()
                     } else {
-                        Toast.makeText(this@LoginActivity, response?.message ?: "Login gagal", Toast.LENGTH_LONG).show()
+                        val errorMsg = response?.message ?: "Login gagal"
+                        Log.e(TAG, "✗ Login failed: $errorMsg")
+                        Toast.makeText(this@LoginActivity, errorMsg, Toast.LENGTH_LONG).show()
                     }
                 } else {
                     val error = result.exceptionOrNull()
-                    Toast.makeText(this@LoginActivity, "Koneksi gagal: ${error?.message}", Toast.LENGTH_LONG).show()
-                    Log.e(TAG, "MySQL login failed", error)
+                    val errorMsg = "Koneksi gagal: ${error?.message}"
+                    Log.e(TAG, "✗ $errorMsg", error)
+                    Toast.makeText(this@LoginActivity, errorMsg, Toast.LENGTH_LONG).show()
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "MySQL login error", e)
+                Log.e(TAG, "✗ MySQL login error", e)
                 Toast.makeText(this@LoginActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
             } finally {
                 setButtonLoading(loginButton, false, "Login dengan SQL")
@@ -534,7 +544,7 @@ class LoginActivity : AppCompatActivity() {
                             userData.role,
                             false
                         )
-                        showLoginSuccessNotification() // TAMPILKAN NOTIFIKASI
+                        showLoginSuccessNotification()
                     } else {
                         Toast.makeText(this@LoginActivity, response?.message ?: "Registrasi gagal", Toast.LENGTH_LONG).show()
                     }
@@ -552,24 +562,42 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    // ==================== HELPER METHODS ====================
+    // ==================== NAVIGATION HELPER ====================
 
-    private fun setButtonLoading(button: Button, isLoading: Boolean, text: String) {
-        button.isEnabled = !isLoading
-        button.text = text
-    }
-
-    private fun navigateToHome() {
+    /**
+     * Navigate user to appropriate home screen based on their role
+     * - SUPER ADMIN -> HomeDevActivity
+     * - admin biasa -> HomeActivity
+     * - user (Firebase/Google) -> HomeActivity
+     */
+    private fun navigateToHomeBasedOnRole() {
         try {
             val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             val userRole = prefs.getString(KEY_USER_ROLE, "") ?: ""
             val username = prefs.getString(KEY_USERNAME, "") ?: ""
+            val isGoogleLogin = prefs.getBoolean(KEY_LOGIN_MODE, true)
 
-            Log.d(TAG, "→ Navigating to Home")
-            Log.d(TAG, "  - Username: $username")
-            Log.d(TAG, "  - Role: $userRole")
+            Log.d(TAG, "→ Navigating to Home based on role")
+            Log.d(TAG, "  Username: $username")
+            Log.d(TAG, "  Role: $userRole")
+            Log.d(TAG, "  Login Mode: ${if (isGoogleLogin) "Google/Firebase" else "MySQL"}")
 
-            val intent = Intent(this, HomeActivity::class.java).apply {
+            val intent = when (userRole) {
+                ROLE_SUPER_ADMIN -> {
+                    Log.d(TAG, "  Destination: HomeDevActivity (SUPER ADMIN)")
+                    Intent(this, HomeDev::class.java)
+                }
+                ROLE_ADMIN_BIASA, ROLE_USER -> {
+                    Log.d(TAG, "  Destination: HomeActivity (Admin Biasa/User)")
+                    Intent(this, HomeActivity::class.java)
+                }
+                else -> {
+                    Log.w(TAG, "  Unknown role: $userRole, defaulting to HomeActivity")
+                    Intent(this, HomeActivity::class.java)
+                }
+            }
+
+            intent.apply {
                 putExtra("USER_ROLE", userRole)
                 putExtra("USERNAME", username)
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -585,6 +613,13 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    // ==================== HELPER METHODS ====================
+
+    private fun setButtonLoading(button: Button, isLoading: Boolean, text: String) {
+        button.isEnabled = !isLoading
+        button.text = text
+    }
+
     override fun onStart() {
         super.onStart()
 
@@ -597,7 +632,7 @@ class LoginActivity : AppCompatActivity() {
                 val currentUser = auth.currentUser
                 if (currentUser != null) {
                     Log.d(TAG, "✓ User sudah login dengan Firebase, redirect ke Home")
-                    navigateToHome()
+                    navigateToHomeBasedOnRole()
                     return
                 } else {
                     Log.d(TAG, "✗ Firebase session expired")
@@ -605,7 +640,7 @@ class LoginActivity : AppCompatActivity() {
                 }
             } else {
                 Log.d(TAG, "✓ User sudah login dengan MySQL, redirect ke Home")
-                navigateToHome()
+                navigateToHomeBasedOnRole()
                 return
             }
         }

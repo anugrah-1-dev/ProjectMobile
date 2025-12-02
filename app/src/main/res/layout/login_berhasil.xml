@@ -2,8 +2,8 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/login_container"
-    android:layout_width="358dp"
-    android:layout_height="82dp"
+    android:layout_width="400dp"
+    android:layout_height="920dp"
     android:clipToOutline="true"
     android:background="@drawable/login_berhasil">
 

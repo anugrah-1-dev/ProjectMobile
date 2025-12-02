@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Izin internet untuk Firebase dan MySQL API -->
+    <!-- Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -57,9 +57,16 @@
                 android:value=".LoginActivity" />
         </activity>
 
-        <!-- HomeActivity untuk user -->
+        <!-- HomeActivity untuk Admin Biasa dan User -->
         <activity
             android:name=".HomeActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
+
+        <!-- HomeDevActivity untuk SUPER ADMIN - ADDED -->
+        <activity
+            android:name=".HomeDev"
             android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
@@ -88,9 +95,21 @@
                 android:value=".ManajemenMuridActivity" />
         </activity>
 
-        <!-- AkunActivity - ADDED -->
+        <!-- AkunActivity -->
         <activity
             android:name=".AkunActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme"
+            android:parentActivityName=".HomeActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".HomeActivity" />
+        </activity>
+
+        <!-- PengaturanActivity -->
+        <activity
+            android:name=".PengaturanActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme"
