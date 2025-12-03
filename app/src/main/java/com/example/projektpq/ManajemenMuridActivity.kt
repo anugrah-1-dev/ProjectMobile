@@ -21,8 +21,8 @@ class ManajemenMuridActivity : AppCompatActivity() {
     private lateinit var btnHome: ImageButton
     private lateinit var btnSettings: ImageButton
 
-    private val santriList = mutableListOf<Santri>()
-    private val filteredList = mutableListOf<Santri>()
+    private val santriList = mutableListOf<SantriDetail>()
+    private val filteredList = mutableListOf<SantriDetail>()
 
     private val API_URL = "https://kampunginggrisori.com/api/api_santri.php"
 
@@ -110,7 +110,7 @@ class ManajemenMuridActivity : AppCompatActivity() {
                         for (i in 0 until dataArray.length()) {
                             val item = dataArray.getJSONObject(i)
                             santriList.add(
-                                Santri(
+                                SantriDetail(
                                     no_induk = item.optString("no_induk", ""),
                                     nama = item.optString("nama", "")
                                 )
@@ -198,7 +198,7 @@ class ManajemenMuridActivity : AppCompatActivity() {
         }
     }
 
-    private fun createSantriItemView(number: Int, santri: Santri): View {
+    private fun createSantriItemView(number: Int, santri: SantriDetail): View {
         val itemLayout = LinearLayout(this).apply {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,

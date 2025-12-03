@@ -9,6 +9,19 @@ import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
 
+// Tambahkan data class SantriDetail di sini
+data class SantriDetail(
+    val no_induk: String = "-",
+    val nama: String = "-",
+    val tempat_tanggal_lahir: String = "-",
+    val alamat: String = "-",
+    val jilid: String = "-",
+    val nik: String = "-",
+    val no_kk: String = "-",
+    val tahun_masuk: String = "-",
+    val keterangan: String = "-"
+)
+
 class DetailSiswaActivity : AppCompatActivity() {
 
     private lateinit var btnBack: Button
