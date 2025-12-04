@@ -1,55 +1,68 @@
-package com.example.projektpq
-
+package com.example.tpqapp
 
 import android.content.Intent
-import android.os.Bundle
-import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.view.View
+import android.widget.LinearLayout
+import android.widget.Toast
 
 class HomeDev : AppCompatActivity() {
 
-    private lateinit var cardKelolaAkun: LinearLayout
-    private lateinit var cardActivity: LinearLayout
-    private lateinit var btnHome: LinearLayout
-    private lateinit var btnSettings: LinearLayout
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.home_dev)
+        setContentView(R.layout.activity_home) // Asumsi menggunakan layout yang sama
 
-        initViews()
-        setupClickListeners()
-    }
+        // Inisialisasi elemen UI yang sama
+        val cardManajemenSoal = findViewById<LinearLayout>(R.id.card_manajemen_soal)
+        val cardManajemenMurid = findViewById<LinearLayout>(R.id.card_manajemen_murid)
+        val cardAkun = findViewById<LinearLayout>(R.id.card_akun)
+        val cardHistori = findViewById<LinearLayout>(R.id.card_histori)
+        val btnHome = findViewById<LinearLayout>(R.id.btn_home)
+        val btnSettings = findViewById<LinearLayout>(R.id.btn_settings)
 
-    private fun initViews() {
-        cardKelolaAkun = findViewById(R.id.card_kelola_akun)
-        cardActivity = findViewById(R.id.card_activity)
-        btnHome = findViewById(R.id.btn_home)
-        btnSettings = findViewById(R.id.btn_settings)
-    }
-
-    private fun setupClickListeners() {
-        // Card Kelola Akun
-        cardKelolaAkun.setOnClickListener {
-            val intent = Intent(this, KelolaAkunActivity::class.java)
+        // Klik pada Card Manajemen Soal
+        cardManajemenSoal.setOnClickListener {
+            val intent = Intent(this, PilihJilidActivity::class.java)
+            intent.putExtra("IS_SUPER_ADMIN", true) // Flag untuk super admin
             startActivity(intent)
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
         }
 
-        // Card Activity
-        cardActivity.setOnClickListener {
-            val intent = Intent(this, ActivityListActivity::class.java)
+        // Klik pada Card Manajemen Murid
+        cardManajemenMurid.setOnClickListener {
+            val intent = Intent(this, ManajemenMuridActivity::class.java)
+            intent.putExtra("IS_SUPER_ADMIN", true)
             startActivity(intent)
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
         }
 
-        // Button Home
+        // Klik pada Card Akun
+        cardAkun.setOnClickListener {
+            val intent = Intent(this, AkunActivity::class.java)
+            intent.putExtra("IS_SUPER_ADMIN", true)
+            startActivity(intent)
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
+        }
+
+        // Klik pada Card Histori
+        cardHistori.setOnClickListener {
+            val intent = Intent(this, HistoriActivity::class.java)
+            intent.putExtra("IS_SUPER_ADMIN", true)
+            startActivity(intent)
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
+        }
+
+        // Tombol home dan settings sama seperti HomeActivity
         btnHome.setOnClickListener {
-            // Sudah di home, bisa refresh atau tidak melakukan apa-apa
+            Toast.makeText(this, "Super Admin - Halaman Utama", Toast.LENGTH_SHORT).show()
         }
 
-        // Button Settings
         btnSettings.setOnClickListener {
-            val intent = Intent(this, SettingsActivity::class.java)
+            val intent = Intent(this, PengaturanActivity::class.java)
+            intent.putExtra("IS_SUPER_ADMIN", true)
             startActivity(intent)
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
         }
     }
 }

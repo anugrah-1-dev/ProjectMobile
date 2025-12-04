@@ -1,5 +1,6 @@
 package com.example.projektpq
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.*
@@ -9,175 +10,167 @@ import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
 
-// Tambahkan data class SantriDetail di sini
-data class SantriDetail(
-    val no_induk: String = "-",
-    val nama: String = "-",
-    val tempat_tanggal_lahir: String = "-",
-    val alamat: String = "-",
-    val jilid: String = "-",
-    val nik: String = "-",
-    val no_kk: String = "-",
-    val tahun_masuk: String = "-",
-    val keterangan: String = "-"
-)
-
 class DetailSiswaActivity : AppCompatActivity() {
 
-    private lateinit var btnBack: Button
-    private lateinit var namaSiswa: TextView
-    private lateinit var nomorInduk: TextView
-    private lateinit var tempatTanggalLahir: TextView
-    private lateinit var jilid: TextView
-    private lateinit var btnHome: ImageButton
-    private lateinit var btnSettings: ImageButton
-
-    private var noInduk: String? = null
-
-    private val API_URL = "https://kampunginggrisori.com/api/api_santri.php"
+    companion object {
+        private const val TAG = "DetailSiswaActivity"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.detail_siswa)
 
-        noInduk = intent.getStringExtra("no_induk")
-        Log.d("DetailSiswa", "No Induk received: $noInduk")
+        Log.d(TAG, "DetailSiswaActivity onCreate")
 
-        initViews()
-        setupListeners()
+        setupViews()
+        displayStudentData()
 
-        if (noInduk != null && noInduk!!.isNotEmpty()) {
-            loadDetailSantri(noInduk!!)
+        // Coba load data tambahan dari API jika no_induk tersedia
+        val noInduk = intent.getStringExtra("no_induk")
+        if (!noInduk.isNullOrEmpty()) {
+            loadDetailFromApi(noInduk)
+        }
+    }
+
+    private fun setupViews() {
+        Log.d(TAG, "Setting up views")
+
+        // Tombol back
+        findViewById<Button>(R.id.btn_back).setOnClickListener {
+            Log.d(TAG, "Tombol back diklik")
+            finish()
+        }
+
+        // Bottom navigation
+        findViewById<ImageButton>(R.id.btn_home).setOnClickListener {
+            Log.d(TAG, "Tombol home diklik")
+            val intent = Intent(this, HomeActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            startActivity(intent)
+            finish()
+        }
+
+        findViewById<ImageButton>(R.id.btn_settings).setOnClickListener {
+            Log.d(TAG, "Tombol settings diklik")
+            Toast.makeText(this, "Pengaturan", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun displayStudentData() {
+        Log.d(TAG, "Displaying student data from intent")
+
+        // Ambil data dari intent
+        val noInduk = intent.getStringExtra("no_induk") ?: "-"
+        val nama = intent.getStringExtra("nama") ?: "-"
+        val tempatLahir = intent.getStringExtra("tempat_lahir") ?: "-"
+        val tanggalLahir = intent.getStringExtra("tanggal_lahir") ?: "-"
+        val alamat = intent.getStringExtra("alamat") ?: "-"
+        val jilid = intent.getStringExtra("jilid") ?: "-"
+
+        Log.d(TAG, "Data dari intent:")
+        Log.d(TAG, "  No Induk: $noInduk")
+        Log.d(TAG, "  Nama: $nama")
+        Log.d(TAG, "  Tempat Lahir: $tempatLahir")
+        Log.d(TAG, "  Tanggal Lahir: $tanggalLahir")
+        Log.d(TAG, "  Alamat: $alamat")
+        Log.d(TAG, "  Jilid: $jilid")
+
+        // Format tempat tanggal lahir
+        val tempatTanggalLahir = if (tempatLahir != "-" && tanggalLahir != "-") {
+            "$tempatLahir, $tanggalLahir"
+        } else if (tempatLahir != "-") {
+            tempatLahir
+        } else if (tanggalLahir != "-") {
+            tanggalLahir
         } else {
-            Toast.makeText(this, "Data tidak valid", Toast.LENGTH_SHORT).show()
-            finish()
+            "Belum diisi"
         }
-    }
 
-    private fun initViews() {
+        // Tampilkan data
         try {
-            btnBack = findViewById(R.id.btn_back)
-            namaSiswa = findViewById(R.id.nama_siswa)
-            nomorInduk = findViewById(R.id.nomor_induk)
-            tempatTanggalLahir = findViewById(R.id.tempat_tanggal_lahir)
-            jilid = findViewById(R.id.jilid)
-            btnHome = findViewById(R.id.btn_home)
-            btnSettings = findViewById(R.id.btn_settings)
+            findViewById<TextView>(R.id.nama_siswa).text = nama
+            findViewById<TextView>(R.id.nomor_induk).text = noInduk
+            findViewById<TextView>(R.id.tempat_tanggal_lahir).text = tempatTanggalLahir
 
-            Log.d("DetailSiswa", "All views initialized successfully")
+            val jilidText = if (jilid != "-" && jilid.isNotEmpty()) {
+                "Jilid $jilid"
+            } else {
+                "Belum ditentukan"
+            }
+            findViewById<TextView>(R.id.jilid).text = jilidText
+
+            Log.d(TAG, "Data berhasil ditampilkan di UI")
         } catch (e: Exception) {
-            Log.e("DetailSiswa", "Error initializing views: ${e.message}", e)
-            Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+            Log.e(TAG, "Error menampilkan data: ${e.message}")
+            Toast.makeText(this, "Error menampilkan data", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun setupListeners() {
-        btnBack.setOnClickListener {
-            finish()
-        }
+    private fun loadDetailFromApi(noInduk: String) {
+        Log.d(TAG, "Memuat detail dari API untuk no_induk: $noInduk")
 
-        btnHome.setOnClickListener {
-            finish()
-        }
-
-        btnSettings.setOnClickListener {
-            Toast.makeText(this, "Settings", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun loadDetailSantri(noInduk: String) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val urlString = "$API_URL?no_induk=$noInduk"
-                Log.d("DetailSiswa", "Fetching URL: $urlString")
+                val apiUrl = "https://kampunginggrisori.com/api/api_santri.php?no_induk=$noInduk"
+                Log.d(TAG, "Mengakses API: $apiUrl")
 
-                val url = URL(urlString)
+                val url = URL(apiUrl)
                 val connection = url.openConnection() as HttpURLConnection
                 connection.requestMethod = "GET"
                 connection.connectTimeout = 15000
                 connection.readTimeout = 15000
                 connection.setRequestProperty("Accept", "application/json")
+                connection.setRequestProperty("User-Agent", "TPQ-App-Android")
 
                 val responseCode = connection.responseCode
-                Log.d("DetailSiswa", "Response Code: $responseCode")
+                Log.d(TAG, "API Response Code: $responseCode")
 
                 if (responseCode == HttpURLConnection.HTTP_OK) {
-                    val response = connection.inputStream.bufferedReader().readText()
-                    Log.d("DetailSiswa", "Response: $response")
+                    val response = connection.inputStream.bufferedReader().use { it.readText() }
+                    Log.d(TAG, "API Response: ${response.substring(0, kotlin.math.min(200, response.length))}...")
 
                     val jsonObject = JSONObject(response)
 
                     if (jsonObject.getBoolean("success")) {
                         val data = jsonObject.getJSONObject("data")
 
-                        val santriDetail = SantriDetail(
-                            no_induk = data.optString("no_induk", "-"),
-                            nama = data.optString("nama", "-"),
-                            tempat_tanggal_lahir = data.optString("Tempat_tanggal_lahir", "-"),
-                            alamat = data.optString("Alamat", "-"),
-                            jilid = data.optString("jilid", "-"),
-                            nik = data.optString("NIK", "-"),
-                            no_kk = data.optString("NO_KK", "-"),
-                            tahun_masuk = data.optString("Tahun_masuk", "-"),
-                            keterangan = data.optString("Keterangan", "-")
-                        )
-
                         withContext(Dispatchers.Main) {
-                            displaySantriDetail(santriDetail)
+                            try {
+                                // Update UI dengan data tambahan dari API
+                                val nik = data.optString("nik", "")
+                                val noKk = data.optString("no_kk", "")
+                                val tahunMasuk = data.optString("tahun_masuk", "")
+                                val keterangan = data.optString("keterangan", "")
+
+                                // Jika ada TextView tambahan di layout, bisa diupdate di sini
+                                // Contoh: findViewById<TextView>(R.id.tv_nik).text = nik
+
+                                Log.d(TAG, "Data tambahan dari API:")
+                                Log.d(TAG, "  NIK: $nik")
+                                Log.d(TAG, "  No KK: $noKk")
+                                Log.d(TAG, "  Tahun Masuk: $tahunMasuk")
+                                Log.d(TAG, "  Keterangan: $keterangan")
+
+                            } catch (e: Exception) {
+                                Log.e(TAG, "Error update UI dari API: ${e.message}")
+                            }
                         }
                     } else {
-                        val message = jsonObject.optString("message", "Data tidak ditemukan")
-                        Log.w("DetailSiswa", "API returned success=false: $message")
-
-                        withContext(Dispatchers.Main) {
-                            Toast.makeText(
-                                this@DetailSiswaActivity,
-                                message,
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            finish()
-                        }
+                        val errorMessage = jsonObject.optString("message", "Gagal memuat detail")
+                        Log.w(TAG, "API error: $errorMessage")
                     }
                 } else {
-                    Log.e("DetailSiswa", "HTTP Error: $responseCode")
-
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(
-                            this@DetailSiswaActivity,
-                            "Gagal memuat data (HTTP $responseCode)",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        finish()
-                    }
+                    Log.w(TAG, "HTTP Error: $responseCode")
                 }
                 connection.disconnect()
             } catch (e: Exception) {
-                e.printStackTrace()
-                Log.e("DetailSiswa", "Error loading detail: ${e.message}", e)
-
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(
-                        this@DetailSiswaActivity,
-                        "Error: ${e.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    finish()
-                }
+                Log.e(TAG, "Error load detail dari API: ${e.message}")
             }
         }
     }
 
-    private fun displaySantriDetail(santri: SantriDetail) {
-        try {
-            namaSiswa.text = santri.nama
-            nomorInduk.text = santri.no_induk
-            tempatTanggalLahir.text = santri.tempat_tanggal_lahir
-            jilid.text = santri.jilid
-
-            Log.d("DetailSiswa", "Data displayed successfully")
-        } catch (e: Exception) {
-            Log.e("DetailSiswa", "Error displaying data: ${e.message}", e)
-            Toast.makeText(this, "Error menampilkan data", Toast.LENGTH_SHORT).show()
-        }
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d(TAG, "DetailSiswaActivity onDestroy")
     }
 }

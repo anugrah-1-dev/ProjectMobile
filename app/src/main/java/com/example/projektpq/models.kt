@@ -4,12 +4,10 @@ import java.util.Date
 
 // ==================== SANTRI DETAIL ====================
 data class SantriDetail(
-    val id_santri: Int = 0,
     val no_induk: String,
     val nama: String,
     val tempat_lahir: String? = null,
     val tanggal_lahir: String? = null,
-    val tempat_tanggal_lahir: String? = null,
     val alamat: String? = null,
     val jilid: String? = null,
     val nik: String? = null,

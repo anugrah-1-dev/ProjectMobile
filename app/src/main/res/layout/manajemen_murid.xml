@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/card_manajemen_murid"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -54,90 +55,132 @@
         android:orientation="horizontal">
 
         <ImageView
-            android:id="@+id/search"
+            android:id="@+id/search_icon"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@drawable/ic_search"
             android:contentDescription="Search icon" />
 
-        <TextView
-            android:id="@+id/cari_nama"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <!-- EDIT TEXT UNTUK PENCARIAN -->
+        <EditText
+            android:id="@+id/search_input"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
             android:layout_marginStart="12dp"
-            android:text="Cari nama"
-            android:textColor="#999595"
-            android:textSize="16sp" />
+            android:hint="Cari nama atau nomor induk"
+            android:textColor="@android:color/black"
+            android:textColorHint="@android:color/darker_gray"
+            android:textSize="16sp"
+            android:background="@null"
+            android:padding="0dp"
+            android:maxLines="1"
+            android:inputType="text" />
 
     </LinearLayout>
 
-    <!-- SCROLLVIEW UNTUK DAFTAR SISWA -->
-    <ScrollView
+    <!-- CONTAINER UTAMA DENGAN LOADING INDICATOR -->
+    <RelativeLayout
+        android:id="@+id/main_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/search_container"
         android:layout_above="@id/bottom_nav"
-        android:layout_marginTop="20dp"
-        android:fillViewport="true">
+        android:layout_marginTop="20dp">
 
-        <!-- CONTAINER DAFTAR SISWA -->
-        <LinearLayout
-            android:id="@+id/list_container"
-            android:layout_width="match_parent"
+        <!-- LOADING INDICATOR -->
+        <ProgressBar
+            android:id="@+id/loading_indicator"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
-            android:orientation="vertical">
+            android:layout_centerInParent="true"
+            android:visibility="gone" />
 
-            <!-- HEADER DAFTAR -->
+        <!-- SCROLLVIEW UNTUK DAFTAR SISWA -->
+        <ScrollView
+            android:id="@+id/scroll_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+
+            <!-- CONTAINER DAFTAR SISWA -->
             <LinearLayout
+                android:id="@+id/list_container"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:orientation="horizontal">
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+                android:orientation="vertical">
 
-                <!-- KOTAK NOMOR -->
-                <RelativeLayout
-                    android:layout_width="80dp"
-                    android:layout_height="match_parent"
+                <!-- HEADER DAFTAR -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:orientation="horizontal"
                     android:background="@drawable/rectangle_3">
 
-                    <TextView
-                        android:id="@+id/no"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerInParent="true"
-                        android:text="NO"
-                        android:textColor="#000000"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
+                    <!-- KOTAK NOMOR -->
+                    <RelativeLayout
+                        android:layout_width="80dp"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/rectangle_3">
 
-                </RelativeLayout>
+                        <TextView
+                            android:id="@+id/no_header"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:text="NO"
+                            android:textColor="#000000"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
 
-                <!-- KOTAK NAMA -->
-                <RelativeLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:background="@drawable/rectangle_3">
+                    </RelativeLayout>
 
-                    <TextView
-                        android:id="@+id/nama_murid"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerInParent="true"
-                        android:text="Nama Murid"
-                        android:textColor="#000000"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
+                    <!-- KOTAK NAMA -->
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/rectangle_3">
 
-                </RelativeLayout>
+                        <TextView
+                            android:id="@+id/nama_murid_header"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:text="Nama Murid"
+                            android:textColor="#000000"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                    </RelativeLayout>
+
+                    <!-- KOTAK AKSI -->
+                    <RelativeLayout
+                        android:layout_width="50dp"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/rectangle_3">
+
+                        <TextView
+                            android:id="@+id/aksi_header"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:text="▶"
+                            android:textColor="#000000"
+                            android:textSize="16sp" />
+
+                    </RelativeLayout>
+
+                </LinearLayout>
 
             </LinearLayout>
 
-        </LinearLayout>
+        </ScrollView>
 
-    </ScrollView>
+    </RelativeLayout>
 
     <!-- ===================== BOTTOM NAVIGATION ===================== -->
     <View
@@ -148,7 +191,7 @@
         android:background="@drawable/rounded_bottom_nav"
         android:elevation="8dp" />
 
-    <!-- Home Button - DIPERBAIKI -->
+    <!-- Home Button -->
     <ImageButton
         android:id="@+id/btn_home"
         android:layout_width="60dp"
@@ -165,7 +208,7 @@
         android:clickable="true"
         android:focusable="true" />
 
-    <!-- Settings Button - DIPERBAIKI -->
+    <!-- Settings Button -->
     <ImageButton
         android:id="@+id/btn_settings"
         android:layout_width="60dp"
