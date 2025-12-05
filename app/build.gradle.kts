@@ -37,7 +37,7 @@ android {
         jvmToolchain(21)
     }
 
-    // TAMBAHKAN INI
+    // TAMBAHKAN INI - PERBAIKAN: viewBinding sudah true, tambahkan buildFeatures di dalam android block
     buildFeatures {
         viewBinding = true
     }
@@ -62,7 +62,10 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
 
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    // CardView - TAMBAHKAN INI untuk CardView di PilihJilidActivity
+    implementation("androidx.cardview:cardview:1.0.0")
+
+    implementation("com.android.volley:volley:1.2.1")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

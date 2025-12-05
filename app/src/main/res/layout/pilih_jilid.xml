@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:cardview="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/pilih_jilid"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -81,18 +81,19 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?android:attr/selectableItemBackground"
-                    cardview:cardCornerRadius="20dp"
-                    cardview:cardElevation="8dp"
-                    cardview:cardBackgroundColor="#FFFFFF">
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="8dp"
+                    app:cardBackgroundColor="#FFFFFF">
 
                     <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:text="JILID I"
-                        android:textSize="28sp"
-                        android:textStyle="bold"
-                        android:gravity="center"
-                        android:textColor="#000000" />
+                        android:id="@+id/tv_jilid1"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="JILID I"
+                    android:textSize="28sp"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:textColor="#000000" />
                 </androidx.cardview.widget.CardView>
 
                 <!-- JILID II -->
@@ -104,18 +105,19 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?android:attr/selectableItemBackground"
-                    cardview:cardCornerRadius="20dp"
-                    cardview:cardElevation="8dp"
-                    cardview:cardBackgroundColor="#FFFFFF">
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="8dp"
+                    app:cardBackgroundColor="#FFFFFF">
 
                     <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:text="JILID II"
-                        android:textSize="28sp"
-                        android:textStyle="bold"
-                        android:gravity="center"
-                        android:textColor="#000000" />
+                        android:id="@+id/tv_jilid2"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="JILID II"
+                    android:textSize="28sp"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:textColor="#000000" />
                 </androidx.cardview.widget.CardView>
 
                 <!-- JILID III -->
@@ -127,18 +129,19 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?android:attr/selectableItemBackground"
-                    cardview:cardCornerRadius="20dp"
-                    cardview:cardElevation="8dp"
-                    cardview:cardBackgroundColor="#FFFFFF">
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="8dp"
+                    app:cardBackgroundColor="#FFFFFF">
 
                     <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:text="JILID III"
-                        android:textSize="28sp"
-                        android:textStyle="bold"
-                        android:gravity="center"
-                        android:textColor="#000000" />
+                        android:id="@+id/tv_jilid3"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="JILID III"
+                    android:textSize="28sp"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:textColor="#000000" />
                 </androidx.cardview.widget.CardView>
 
                 <!-- JILID IV -->
@@ -150,18 +153,19 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?android:attr/selectableItemBackground"
-                    cardview:cardCornerRadius="20dp"
-                    cardview:cardElevation="8dp"
-                    cardview:cardBackgroundColor="#FFFFFF">
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="8dp"
+                    app:cardBackgroundColor="#FFFFFF">
 
                     <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:text="JILID IV"
-                        android:textSize="28sp"
-                        android:textStyle="bold"
-                        android:gravity="center"
-                        android:textColor="#000000" />
+                        android:id="@+id/tv_jilid4"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="JILID IV"
+                    android:textSize="28sp"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:textColor="#000000" />
                 </androidx.cardview.widget.CardView>
 
                 <!-- JILID V -->
@@ -173,18 +177,19 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?android:attr/selectableItemBackground"
-                    cardview:cardCornerRadius="20dp"
-                    cardview:cardElevation="8dp"
-                    cardview:cardBackgroundColor="#FFFFFF">
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="8dp"
+                    app:cardBackgroundColor="#FFFFFF">
 
                     <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:text="JILID V"
-                        android:textSize="28sp"
-                        android:textStyle="bold"
-                        android:gravity="center"
-                        android:textColor="#000000" />
+                        android:id="@+id/tv_jilid5"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="JILID V"
+                    android:textSize="28sp"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:textColor="#000000" />
                 </androidx.cardview.widget.CardView>
 
                 <!-- JILID VI -->
@@ -196,18 +201,19 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?android:attr/selectableItemBackground"
-                    cardview:cardCornerRadius="20dp"
-                    cardview:cardElevation="8dp"
-                    cardview:cardBackgroundColor="#FFFFFF">
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="8dp"
+                    app:cardBackgroundColor="#FFFFFF">
 
                     <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:text="JILID VI"
-                        android:textSize="28sp"
-                        android:textStyle="bold"
-                        android:gravity="center"
-                        android:textColor="#000000" />
+                        android:id="@+id/tv_jilid6"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="JILID VI"
+                    android:textSize="28sp"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:textColor="#000000" />
                 </androidx.cardview.widget.CardView>
 
                 <!-- AL-QUR'AN -->
@@ -219,18 +225,19 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?android:attr/selectableItemBackground"
-                    cardview:cardCornerRadius="20dp"
-                    cardview:cardElevation="8dp"
-                    cardview:cardBackgroundColor="#FFFFFF">
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="8dp"
+                    app:cardBackgroundColor="#FFFFFF">
 
                     <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:text="AL-QUR'AN"
-                        android:textSize="28sp"
-                        android:textStyle="bold"
-                        android:gravity="center"
-                        android:textColor="#000000" />
+                        android:id="@+id/tv_alquran"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="AL-QUR'AN"
+                    android:textSize="28sp"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:textColor="#000000" />
                 </androidx.cardview.widget.CardView>
 
             </LinearLayout>

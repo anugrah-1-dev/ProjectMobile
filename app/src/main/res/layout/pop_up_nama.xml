@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#80000000"
+    android:padding="24dp">
+
+    <RelativeLayout
+        android:id="@+id/pop_up_mula"
+        android:layout_width="360dp"
+        android:layout_height="245dp"
+        android:layout_gravity="center"
+        android:background="#FFFFFF"
+        android:clipToOutline="true"
+        android:elevation="8dp">
+
+        <!-- Background rectangle -->
+        <View
+            android:id="@+id/rectangle_1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/rectangle_1" />
+
+        <!-- "Masukkan Nama" label -->
+        <TextView
+            android:id="@+id/masukkan_na"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="24dp"
+            android:text="Masukkan Nama"
+            android:textColor="#000000"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <!-- First input field background -->
+        <View
+            android:id="@+id/rectangle_2_top"
+            android:layout_width="match_parent"
+            android:layout_height="43dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="56dp"
+            android:layout_marginEnd="24dp"
+            android:background="@drawable/rectangle_2" />
+
+        <!-- "Nomor Induk" label -->
+        <TextView
+            android:id="@+id/nomor_induk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="112dp"
+            android:text="Nomor Induk"
+            android:textColor="#000000"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <!-- Second input field background -->
+        <View
+            android:id="@+id/rectangle_2_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="43dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="144dp"
+            android:layout_marginEnd="24dp"
+            android:background="@drawable/rectangle_2" />
+
+        <!-- Button container -->
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="16dp">
+
+            <!-- Green button background -->
+            <View
+                android:id="@+id/rectangle_3"
+                android:layout_width="100dp"
+                android:layout_height="30dp"
+                android:background="@drawable/rectangle_3" />
+
+            <!-- "Mulai" button text -->
+            <TextView
+                android:id="@+id/mulai"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="Mulai"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+</FrameLayout>

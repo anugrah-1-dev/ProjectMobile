@@ -1,4 +1,4 @@
 package com.example.projektpq
 
-class HistoriActivity {
+class TambahSoalActivity {
 }

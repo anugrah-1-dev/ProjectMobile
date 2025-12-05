@@ -19,6 +19,7 @@ class MySQLApiService {
         private const val READ_TIMEOUT = 15000
     }
 
+    // ==================== DATA CLASSES ====================
     data class LoginResponse(
         val success: Boolean,
         val message: String,
@@ -52,6 +53,103 @@ class MySQLApiService {
         val role: String
     )
 
+    // ==================== SOAL DATA CLASSES ====================
+    data class SoalData(
+        val id_soal: Int,
+        val nomor_soal: Int,
+        val isi_soal: String,
+        val tipe_soal: String,
+        val bobot_nilai: Int,
+        val jawaban: String?,
+        val id_jilid: Int,
+        val created_at: String?
+    )
+
+    data class SoalListResponse(
+        val success: Boolean,
+        val message: String,
+        val data: List<SoalData>? = null
+    )
+
+    data class SoalResponse(
+        val success: Boolean,
+        val message: String,
+        val data: SoalData? = null
+    )
+
+    // ==================== JILID DATA CLASSES ====================
+    data class JilidData(
+        val id_jilid: Int,
+        val nama_jilid: String,
+        val deskripsi: String?,
+        val created_at: String?,
+        val updated_at: String?
+    )
+
+    data class JilidListResponse(
+        val success: Boolean,
+        val message: String,
+        val data: List<JilidData>? = null
+    )
+
+    // ==================== HASIL TES DATA CLASSES ====================
+    data class HasilTesData(
+        val id_hasil_tes: Int,
+        val id_user: Int,
+        val id_jilid: Int,
+        val total_nilai: Int,
+        val total_bobot: Int,
+        val tanggal_tes: String,
+        val created_at: String?,
+        val nama_jilid: String?,
+        val username: String?
+    )
+
+    data class HasilTesResponse(
+        val success: Boolean,
+        val message: String,
+        val data: List<HasilTesData>? = null
+    )
+
+    data class SubmitJawabanData(
+        val id_soal: Int,
+        val jawaban_user: String,
+        val is_correct: Boolean? = null
+    )
+
+    data class SubmitTesRequest(
+        val id_user: Int,
+        val id_jilid: Int,
+        val jawaban: List<SubmitJawabanData>
+    )
+
+    data class SubmitTesResponse(
+        val success: Boolean,
+        val message: String,
+        val data: Map<String, Any>? = null
+    )
+
+    // ==================== GENERIC API RESPONSE ====================
+    data class ApiResponse<T>(
+        val success: Boolean,
+        val message: String,
+        val data: T? = null
+    )
+
+    // ==================== PRIVATE HELPER METHODS ====================
+    private fun parseJsonResponse(response: String): JSONObject {
+        return JSONObject(response)
+    }
+
+    private fun handleErrorResponse(response: String): String {
+        return try {
+            val json = JSONObject(response)
+            json.optString("message", "Unknown error occurred")
+        } catch (e: Exception) {
+            "Failed to parse error response"
+        }
+    }
+
     // ==================== LOGIN ====================
     suspend fun login(username: String, password: String): Result<LoginResponse> {
         return withContext(Dispatchers.IO) {
@@ -77,7 +175,7 @@ class MySQLApiService {
                 }
 
                 Log.d(TAG, "Login URL: $url")
-                Log.d(TAG, "Request: $jsonInput")
+                Log.d(TAG, "Request: username=$username")
 
                 OutputStreamWriter(connection.outputStream, Charsets.UTF_8).use { writer ->
                     writer.write(jsonInput.toString())
@@ -103,7 +201,7 @@ class MySQLApiService {
                     return@withContext Result.failure(Exception("Empty response from server"))
                 }
 
-                val jsonResponse = JSONObject(response)
+                val jsonResponse = parseJsonResponse(response)
                 val success = jsonResponse.getBoolean("success")
                 val message = jsonResponse.getString("message")
 
@@ -113,8 +211,8 @@ class MySQLApiService {
                         id_user = dataObj.getInt("id_user"),
                         username = dataObj.getString("username"),
                         role = dataObj.getString("role"),
-                        email = if (dataObj.has("email")) dataObj.optString("email", null) else null,
-                        nomor_telepon = if (dataObj.has("nomor_telepon")) dataObj.optString("nomor_telepon", null) else null
+                        email = dataObj.optString("email", null).takeIf { it != "null" && it.isNotEmpty() },
+                        nomor_telepon = dataObj.optString("nomor_telepon", null).takeIf { it != "null" && it.isNotEmpty() }
                     )
                 } else null
 
@@ -122,7 +220,7 @@ class MySQLApiService {
 
             } catch (e: Exception) {
                 Log.e(TAG, "Login error: ${e.message}", e)
-                Result.failure(e)
+                Result.failure(Exception("Network error: ${e.message}"))
             } finally {
                 connection?.disconnect()
             }
@@ -155,7 +253,7 @@ class MySQLApiService {
                 }
 
                 Log.d(TAG, "Register URL: $url")
-                Log.d(TAG, "Request: $jsonInput")
+                Log.d(TAG, "Request: username=$username")
 
                 OutputStreamWriter(connection.outputStream, Charsets.UTF_8).use { writer ->
                     writer.write(jsonInput.toString())
@@ -181,7 +279,7 @@ class MySQLApiService {
                     return@withContext Result.failure(Exception("Empty response from server"))
                 }
 
-                val jsonResponse = JSONObject(response)
+                val jsonResponse = parseJsonResponse(response)
                 val success = jsonResponse.getBoolean("success")
                 val message = jsonResponse.getString("message")
 
@@ -191,8 +289,8 @@ class MySQLApiService {
                         id_user = dataObj.getInt("id_user"),
                         username = dataObj.getString("username"),
                         role = dataObj.getString("role"),
-                        email = if (dataObj.has("email")) dataObj.optString("email", null) else null,
-                        nomor_telepon = if (dataObj.has("nomor_telepon")) dataObj.optString("nomor_telepon", null) else null
+                        email = dataObj.optString("email", null).takeIf { it != "null" && it.isNotEmpty() },
+                        nomor_telepon = dataObj.optString("nomor_telepon", null).takeIf { it != "null" && it.isNotEmpty() }
                     )
                 } else null
 
@@ -200,7 +298,7 @@ class MySQLApiService {
 
             } catch (e: Exception) {
                 Log.e(TAG, "Register error: ${e.message}", e)
-                Result.failure(e)
+                Result.failure(Exception("Network error: ${e.message}"))
             } finally {
                 connection?.disconnect()
             }
@@ -245,7 +343,7 @@ class MySQLApiService {
                     return@withContext Result.failure(Exception("Empty response from server"))
                 }
 
-                val jsonResponse = JSONObject(response)
+                val jsonResponse = parseJsonResponse(response)
                 val success = jsonResponse.getBoolean("success")
                 val message = jsonResponse.getString("message")
 
@@ -254,8 +352,8 @@ class MySQLApiService {
                     UserProfileData(
                         id_user = dataObj.getInt("id_user"),
                         username = dataObj.getString("username"),
-                        email = if (dataObj.has("email")) dataObj.optString("email", null) else null,
-                        nomor_telepon = if (dataObj.has("nomor_telepon")) dataObj.optString("nomor_telepon", null) else null,
+                        email = dataObj.optString("email", null).takeIf { it != "null" && it.isNotEmpty() },
+                        nomor_telepon = dataObj.optString("nomor_telepon", null).takeIf { it != "null" && it.isNotEmpty() },
                         role = dataObj.getString("role")
                     )
                 } else null
@@ -264,7 +362,7 @@ class MySQLApiService {
 
             } catch (e: Exception) {
                 Log.e(TAG, "Get profile error: ${e.message}", e)
-                Result.failure(e)
+                Result.failure(Exception("Network error: ${e.message}"))
             } finally {
                 connection?.disconnect()
             }
@@ -298,8 +396,8 @@ class MySQLApiService {
                 val jsonInput = JSONObject().apply {
                     put("id_user", idUser)
                     put("username", username)
-                    if (email != null) put("email", email)
-                    if (nomorTelepon != null) put("nomor_telepon", nomorTelepon)
+                    put("email", email ?: "")
+                    put("nomor_telepon", nomorTelepon ?: "")
                 }
 
                 Log.d(TAG, "Update Profile URL: $url")
@@ -329,7 +427,7 @@ class MySQLApiService {
                     return@withContext Result.failure(Exception("Empty response from server"))
                 }
 
-                val jsonResponse = JSONObject(response)
+                val jsonResponse = parseJsonResponse(response)
                 val success = jsonResponse.getBoolean("success")
                 val message = jsonResponse.getString("message")
 
@@ -338,8 +436,8 @@ class MySQLApiService {
                     UserProfileData(
                         id_user = dataObj.getInt("id_user"),
                         username = dataObj.getString("username"),
-                        email = if (dataObj.has("email")) dataObj.optString("email", null) else null,
-                        nomor_telepon = if (dataObj.has("nomor_telepon")) dataObj.optString("nomor_telepon", null) else null,
+                        email = dataObj.optString("email", null).takeIf { it != "null" && it.isNotEmpty() },
+                        nomor_telepon = dataObj.optString("nomor_telepon", null).takeIf { it != "null" && it.isNotEmpty() },
                         role = dataObj.getString("role")
                     )
                 } else null
@@ -348,7 +446,7 @@ class MySQLApiService {
 
             } catch (e: Exception) {
                 Log.e(TAG, "Update profile error: ${e.message}", e)
-                Result.failure(e)
+                Result.failure(Exception("Network error: ${e.message}"))
             } finally {
                 connection?.disconnect()
             }
@@ -385,7 +483,6 @@ class MySQLApiService {
                 }
 
                 Log.d(TAG, "Change Password URL: $url")
-                Log.d(TAG, "Request: username=$username (password hidden for security)")
 
                 OutputStreamWriter(connection.outputStream, Charsets.UTF_8).use { writer ->
                     writer.write(jsonInput.toString())
@@ -411,7 +508,7 @@ class MySQLApiService {
                     return@withContext Result.failure(Exception("Empty response from server"))
                 }
 
-                val jsonResponse = JSONObject(response)
+                val jsonResponse = parseJsonResponse(response)
                 val success = jsonResponse.getBoolean("success")
                 val message = jsonResponse.getString("message")
 
@@ -421,10 +518,568 @@ class MySQLApiService {
 
             } catch (e: Exception) {
                 Log.e(TAG, "Change password error: ${e.message}", e)
-                Result.failure(e)
+                Result.failure(Exception("Network error: ${e.message}"))
             } finally {
                 connection?.disconnect()
             }
         }
     }
-}
+
+    // ==================== GET ALL SOAL BY JILID ====================
+    suspend fun getSoalByJilid(idJilid: Int): Result<ApiResponse<List<SoalData>>> {
+        return withContext(Dispatchers.IO) {
+            var connection: HttpURLConnection? = null
+            try {
+                val url = URL("$BASE_URL/get_soal_by_jilid.php?id_jilid=$idJilid")
+                connection = url.openConnection() as HttpURLConnection
+
+                connection.apply {
+                    requestMethod = "GET"
+                    setRequestProperty("Accept", "application/json")
+                    connectTimeout = CONNECT_TIMEOUT
+                    readTimeout = READ_TIMEOUT
+                    doInput = true
+                    useCaches = false
+                }
+
+                Log.d(TAG, "Get Soal by Jilid URL: $url")
+
+                val responseCode = connection.responseCode
+                Log.d(TAG, "Response Code: $responseCode")
+
+                val inputStream = if (responseCode == HttpURLConnection.HTTP_OK) {
+                    connection.inputStream
+                } else {
+                    connection.errorStream
+                }
+
+                val response = BufferedReader(InputStreamReader(inputStream, Charsets.UTF_8)).use { reader ->
+                    reader.readText()
+                }
+
+                Log.d(TAG, "Response: $response")
+
+                if (response.isBlank()) {
+                    return@withContext Result.failure(Exception("Empty response from server"))
+                }
+
+                val jsonResponse = parseJsonResponse(response)
+                val success = jsonResponse.getBoolean("success")
+                val message = jsonResponse.getString("message")
+
+                val soalList = if (success && jsonResponse.has("data")) {
+                    val dataArray = jsonResponse.getJSONArray("data")
+                    List(dataArray.length()) { i ->
+                        val obj = dataArray.getJSONObject(i)
+                        SoalData(
+                            id_soal = obj.getInt("id_soal"),
+                            nomor_soal = obj.getInt("nomor_soal"),
+                            isi_soal = obj.getString("isi_soal"),
+                            tipe_soal = obj.getString("tipe_soal"),
+                            bobot_nilai = obj.getInt("bobot_nilai"),
+                            jawaban = obj.optString("jawaban", null).takeIf { it != "null" && it.isNotEmpty() },
+                            id_jilid = obj.getInt("id_jilid"),
+                            created_at = obj.optString("created_at", null)
+                        )
+                    }
+                } else null
+
+                Result.success(ApiResponse(success, message, soalList))
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Get soal by jilid error: ${e.message}", e)
+                Result.failure(Exception("Network error: ${e.message}"))
+            } finally {
+                connection?.disconnect()
+            }
+        }
+    }
+
+    // ==================== GET SOAL BY ID ====================
+    suspend fun getSoalById(idSoal: Int): Result<ApiResponse<SoalData>> {
+        return withContext(Dispatchers.IO) {
+            var connection: HttpURLConnection? = null
+            try {
+                val url = URL("$BASE_URL/get_soal_by_id.php?id_soal=$idSoal")
+                connection = url.openConnection() as HttpURLConnection
+
+                connection.apply {
+                    requestMethod = "GET"
+                    setRequestProperty("Accept", "application/json")
+                    connectTimeout = CONNECT_TIMEOUT
+                    readTimeout = READ_TIMEOUT
+                    doInput = true
+                    useCaches = false
+                }
+
+                Log.d(TAG, "Get Soal by ID URL: $url")
+
+                val responseCode = connection.responseCode
+                Log.d(TAG, "Response Code: $responseCode")
+
+                val inputStream = if (responseCode == HttpURLConnection.HTTP_OK) {
+                    connection.inputStream
+                } else {
+                    connection.errorStream
+                }
+
+                val response = BufferedReader(InputStreamReader(inputStream, Charsets.UTF_8)).use { reader ->
+                    reader.readText()
+                }
+
+                Log.d(TAG, "Response: $response")
+
+                if (response.isBlank()) {
+                    return@withContext Result.failure(Exception("Empty response from server"))
+                }
+
+                val jsonResponse = parseJsonResponse(response)
+                val success = jsonResponse.getBoolean("success")
+                val message = jsonResponse.getString("message")
+
+                val soalData = if (success && jsonResponse.has("data")) {
+                    val obj = jsonResponse.getJSONObject("data")
+                    SoalData(
+                        id_soal = obj.getInt("id_soal"),
+                        nomor_soal = obj.getInt("nomor_soal"),
+                        isi_soal = obj.getString("isi_soal"),
+                        tipe_soal = obj.getString("tipe_soal"),
+                        bobot_nilai = obj.getInt("bobot_nilai"),
+                        jawaban = obj.optString("jawaban", null).takeIf { it != "null" && it.isNotEmpty() },
+                        id_jilid = obj.getInt("id_jilid"),
+                        created_at = obj.optString("created_at", null)
+                    )
+                } else null
+
+                Result.success(ApiResponse(success, message, soalData))
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Get soal by id error: ${e.message}", e)
+                Result.failure(Exception("Network error: ${e.message}"))
+            } finally {
+                connection?.disconnect()
+            }
+        }
+    }
+
+    // ==================== CREATE SOAL ====================
+    suspend fun createSoal(
+        nomorSoal: Int,
+        isiSoal: String,
+        tipeSoal: String,
+        bobotNilai: Int,
+        jawaban: String?,
+        idJilid: Int
+    ): Result<ApiResponse<SoalData>> {
+        return withContext(Dispatchers.IO) {
+            var connection: HttpURLConnection? = null
+            try {
+                val url = URL("$BASE_URL/create_soal.php")
+                connection = url.openConnection() as HttpURLConnection
+
+                connection.apply {
+                    requestMethod = "POST"
+                    setRequestProperty("Content-Type", "application/json; charset=utf-8")
+                    setRequestProperty("Accept", "application/json")
+                    connectTimeout = CONNECT_TIMEOUT
+                    readTimeout = READ_TIMEOUT
+                    doOutput = true
+                    doInput = true
+                    useCaches = false
+                }
+
+                val jsonInput = JSONObject().apply {
+                    put("nomor_soal", nomorSoal)
+                    put("isi_soal", isiSoal)
+                    put("tipe_soal", tipeSoal)
+                    put("bobot_nilai", bobotNilai)
+                    put("jawaban", jawaban ?: "")
+                    put("id_jilid", idJilid)
+                }
+
+                Log.d(TAG, "Create Soal URL: $url")
+                Log.d(TAG, "Request: $jsonInput")
+
+                OutputStreamWriter(connection.outputStream, Charsets.UTF_8).use { writer ->
+                    writer.write(jsonInput.toString())
+                    writer.flush()
+                }
+
+                val responseCode = connection.responseCode
+                Log.d(TAG, "Response Code: $responseCode")
+
+                val inputStream = if (responseCode == HttpURLConnection.HTTP_OK) {
+                    connection.inputStream
+                } else {
+                    connection.errorStream
+                }
+
+                val response = BufferedReader(InputStreamReader(inputStream, Charsets.UTF_8)).use { reader ->
+                    reader.readText()
+                }
+
+                Log.d(TAG, "Response: $response")
+
+                if (response.isBlank()) {
+                    return@withContext Result.failure(Exception("Empty response from server"))
+                }
+
+                val jsonResponse = parseJsonResponse(response)
+                val success = jsonResponse.getBoolean("success")
+                val message = jsonResponse.getString("message")
+
+                val soalData = if (success && jsonResponse.has("data")) {
+                    val obj = jsonResponse.getJSONObject("data")
+                    SoalData(
+                        id_soal = obj.getInt("id_soal"),
+                        nomor_soal = obj.getInt("nomor_soal"),
+                        isi_soal = obj.getString("isi_soal"),
+                        tipe_soal = obj.getString("tipe_soal"),
+                        bobot_nilai = obj.getInt("bobot_nilai"),
+                        jawaban = obj.optString("jawaban", null).takeIf { it != "null" && it.isNotEmpty() },
+                        id_jilid = obj.getInt("id_jilid"),
+                        created_at = obj.optString("created_at", null)
+                    )
+                } else null
+
+                Result.success(ApiResponse(success, message, soalData))
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Create soal error: ${e.message}", e)
+                Result.failure(Exception("Network error: ${e.message}"))
+            } finally {
+                connection?.disconnect()
+            }
+        }
+    }
+
+    // ==================== UPDATE SOAL (FULL) ====================
+    suspend fun updateSoal(
+        idSoal: Int,
+        nomorSoal: Int,
+        isiSoal: String,
+        tipeSoal: String,
+        bobotNilai: Int,
+        jawaban: String?,
+        idJilid: Int
+    ): Result<ApiResponse<SoalData>> {
+        return withContext(Dispatchers.IO) {
+            var connection: HttpURLConnection? = null
+            try {
+                val url = URL("$BASE_URL/update_soal.php")
+                connection = url.openConnection() as HttpURLConnection
+
+                connection.apply {
+                    requestMethod = "POST"
+                    setRequestProperty("Content-Type", "application/json; charset=utf-8")
+                    setRequestProperty("Accept", "application/json")
+                    connectTimeout = CONNECT_TIMEOUT
+                    readTimeout = READ_TIMEOUT
+                    doOutput = true
+                    doInput = true
+                    useCaches = false
+                }
+
+                val jsonInput = JSONObject().apply {
+                    put("id_soal", idSoal)
+                    put("nomor_soal", nomorSoal)
+                    put("isi_soal", isiSoal)
+                    put("tipe_soal", tipeSoal)
+                    put("bobot_nilai", bobotNilai)
+                    put("jawaban", jawaban ?: "")
+                    put("id_jilid", idJilid)
+                }
+
+                Log.d(TAG, "Update Soal (Full) URL: $url")
+                Log.d(TAG, "Request: $jsonInput")
+
+                OutputStreamWriter(connection.outputStream, Charsets.UTF_8).use { writer ->
+                    writer.write(jsonInput.toString())
+                    writer.flush()
+                }
+
+                val responseCode = connection.responseCode
+                Log.d(TAG, "Response Code: $responseCode")
+
+                val inputStream = if (responseCode == HttpURLConnection.HTTP_OK) {
+                    connection.inputStream
+                } else {
+                    connection.errorStream
+                }
+
+                val response = BufferedReader(InputStreamReader(inputStream, Charsets.UTF_8)).use { reader ->
+                    reader.readText()
+                }
+
+                Log.d(TAG, "Response: $response")
+
+                if (response.isBlank()) {
+                    return@withContext Result.failure(Exception("Empty response from server"))
+                }
+
+                val jsonResponse = parseJsonResponse(response)
+                val success = jsonResponse.getBoolean("success")
+                val message = jsonResponse.getString("message")
+
+                val soalData = if (success && jsonResponse.has("data")) {
+                    val obj = jsonResponse.getJSONObject("data")
+                    SoalData(
+                        id_soal = obj.getInt("id_soal"),
+                        nomor_soal = obj.getInt("nomor_soal"),
+                        isi_soal = obj.getString("isi_soal"),
+                        tipe_soal = obj.getString("tipe_soal"),
+                        bobot_nilai = obj.getInt("bobot_nilai"),
+                        jawaban = obj.optString("jawaban", null).takeIf { it != "null" && it.isNotEmpty() },
+                        id_jilid = obj.getInt("id_jilid"),
+                        created_at = obj.optString("created_at", null)
+                    )
+                } else null
+
+                Result.success(ApiResponse(success, message, soalData))
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Update soal (full) error: ${e.message}", e)
+                Result.failure(Exception("Network error: ${e.message}"))
+            } finally {
+                connection?.disconnect()
+            }
+        }
+    }
+
+    // ==================== UPDATE SOAL (SIMPLIFIED) ====================
+    suspend fun updateSoal(
+        idSoal: Int,
+        isiSoal: String,
+        bobotNilai: Int
+    ): Result<ApiResponse<SoalData>> {
+        return withContext(Dispatchers.IO) {
+            var connection: HttpURLConnection? = null
+            try {
+                val url = URL("$BASE_URL/update_soal.php")
+                connection = url.openConnection() as HttpURLConnection
+
+                connection.apply {
+                    requestMethod = "POST"
+                    setRequestProperty("Content-Type", "application/json; charset=utf-8")
+                    setRequestProperty("Accept", "application/json")
+                    connectTimeout = CONNECT_TIMEOUT
+                    readTimeout = READ_TIMEOUT
+                    doOutput = true
+                    doInput = true
+                    useCaches = false
+                }
+
+                val jsonInput = JSONObject().apply {
+                    put("id_soal", idSoal)
+                    put("isi_soal", isiSoal)
+                    put("bobot_nilai", bobotNilai)
+                }
+
+                Log.d(TAG, "Update Soal (Simplified) URL: $url")
+                Log.d(TAG, "Request: $jsonInput")
+
+                OutputStreamWriter(connection.outputStream, Charsets.UTF_8).use { writer ->
+                    writer.write(jsonInput.toString())
+                    writer.flush()
+                }
+
+                val responseCode = connection.responseCode
+                Log.d(TAG, "Response Code: $responseCode")
+
+                val inputStream = if (responseCode == HttpURLConnection.HTTP_OK) {
+                    connection.inputStream
+                } else {
+                    connection.errorStream
+                }
+
+                val response = BufferedReader(InputStreamReader(inputStream, Charsets.UTF_8)).use { reader ->
+                    reader.readText()
+                }
+
+                Log.d(TAG, "Response: $response")
+
+                if (response.isBlank()) {
+                    return@withContext Result.failure(Exception("Empty response from server"))
+                }
+
+                val jsonResponse = parseJsonResponse(response)
+                val success = jsonResponse.getBoolean("success")
+                val message = jsonResponse.getString("message")
+
+                val soalData = if (success && jsonResponse.has("data")) {
+                    val obj = jsonResponse.getJSONObject("data")
+                    SoalData(
+                        id_soal = obj.getInt("id_soal"),
+                        nomor_soal = obj.getInt("nomor_soal"),
+                        isi_soal = obj.getString("isi_soal"),
+                        tipe_soal = obj.getString("tipe_soal"),
+                        bobot_nilai = obj.getInt("bobot_nilai"),
+                        jawaban = obj.optString("jawaban", null).takeIf { it != "null" && it.isNotEmpty() },
+                        id_jilid = obj.getInt("id_jilid"),
+                        created_at = obj.optString("created_at", null)
+                    )
+                } else null
+
+                Result.success(ApiResponse(success, message, soalData))
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Update soal (simplified) error: ${e.message}", e)
+                Result.failure(Exception("Network error: ${e.message}"))
+            } finally {
+                connection?.disconnect()
+            }
+        }
+    }
+
+    // ==================== DELETE SOAL ====================
+    suspend fun deleteSoal(idSoal: Int): Result<ApiResponse<Any>> {
+        return withContext(Dispatchers.IO) {
+            var connection: HttpURLConnection? = null
+            try {
+                val url = URL("$BASE_URL/delete_soal.php")
+                connection = url.openConnection() as HttpURLConnection
+
+                connection.apply {
+                    requestMethod = "POST"
+                    setRequestProperty("Content-Type", "application/json; charset=utf-8")
+                    setRequestProperty("Accept", "application/json")
+                    connectTimeout = CONNECT_TIMEOUT
+                    readTimeout = READ_TIMEOUT
+                    doOutput = true
+                    doInput = true
+                    useCaches = false
+                }
+
+                val jsonInput = JSONObject().apply {
+                    put("id_soal", idSoal)
+                }
+
+                Log.d(TAG, "Delete Soal URL: $url")
+                Log.d(TAG, "Request: $jsonInput")
+
+                OutputStreamWriter(connection.outputStream, Charsets.UTF_8).use { writer ->
+                    writer.write(jsonInput.toString())
+                    writer.flush()
+                }
+
+                val responseCode = connection.responseCode
+                Log.d(TAG, "Response Code: $responseCode")
+
+                val inputStream = if (responseCode == HttpURLConnection.HTTP_OK) {
+                    connection.inputStream
+                } else {
+                    connection.errorStream
+                }
+
+                val response = BufferedReader(InputStreamReader(inputStream, Charsets.UTF_8)).use { reader ->
+                    reader.readText()
+                }
+
+                Log.d(TAG, "Response: $response")
+
+                if (response.isBlank()) {
+                    return@withContext Result.failure(Exception("Empty response from server"))
+                }
+
+                val jsonResponse = parseJsonResponse(response)
+                val success = jsonResponse.getBoolean("success")
+                val message = jsonResponse.getString("message")
+
+                Result.success(ApiResponse(success, message, null))
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Delete soal error: ${e.message}", e)
+                Result.failure(Exception("Network error: ${e.message}"))
+            } finally {
+                connection?.disconnect()
+            }
+        }
+    }
+
+    // ==================== ADD SOAL ====================
+    suspend fun addSoal(
+        jilidId: Int,
+        isiSoal: String,
+        bobotNilai: Int
+    ): Result<ApiResponse<SoalData>> {
+        return withContext(Dispatchers.IO) {
+            var connection: HttpURLConnection? = null
+            try {
+                val url = URL("$BASE_URL/addSoal.php")
+                connection = url.openConnection() as HttpURLConnection
+
+                connection.apply {
+                    requestMethod = "POST"
+                    setRequestProperty("Content-Type", "application/json; charset=utf-8")
+                    setRequestProperty("Accept", "application/json")
+                    connectTimeout = CONNECT_TIMEOUT
+                    readTimeout = READ_TIMEOUT
+                    doOutput = true
+                    doInput = true
+                    useCaches = false
+                }
+
+                val jsonInput = JSONObject().apply {
+                    put("jilid_id", jilidId)
+                    put("isi_soal", isiSoal)
+                    put("bobot_nilai", bobotNilai)
+                }
+
+                Log.d(TAG, "Add Soal URL: $url")
+                Log.d(TAG, "Request: $jsonInput")
+
+                OutputStreamWriter(connection.outputStream, Charsets.UTF_8).use { writer ->
+                    writer.write(jsonInput.toString())
+                    writer.flush()
+                }
+
+                val responseCode = connection.responseCode
+                Log.d(TAG, "Response Code: $responseCode")
+
+                val inputStream = if (responseCode == HttpURLConnection.HTTP_OK) {
+                    connection.inputStream
+                } else {
+                    connection.errorStream
+                }
+
+                val response =
+                    BufferedReader(InputStreamReader(inputStream, Charsets.UTF_8)).use { reader ->
+                        reader.readText()
+                    }
+
+                Log.d(TAG, "Response: $response")
+
+                if (response.isBlank()) {
+                    return@withContext Result.failure(Exception("Empty response from server"))
+                }
+
+                val jsonResponse = parseJsonResponse(response)
+                val success = jsonResponse.getBoolean("success")
+                val message = jsonResponse.getString("message")
+
+                val soalData = if (success && jsonResponse.has("data")) {
+                    val obj = jsonResponse.getJSONObject("data")
+                    SoalData(
+                        id_soal = obj.getInt("id_soal"),
+                        nomor_soal = obj.getInt("nomor_soal"),
+                        isi_soal = obj.getString("isi_soal"),
+                        tipe_soal = obj.getString("tipe_soal"),
+                        bobot_nilai = obj.getInt("bobot_nilai"),
+                        jawaban = obj.optString("jawaban", null)
+                            .takeIf { it != "null" && it.isNotEmpty() },
+                        id_jilid = obj.getInt("id_jilid"),
+                        created_at = obj.optString("created_at", null)
+                    )
+                } else null
+
+                Result.success(ApiResponse(success, message, soalData))
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Add soal error: ${e.message}", e)
+                Result.failure(Exception("Network error: ${e.message}"))
+            } finally {
+                connection?.disconnect()
+            }
+        }
+    }
+    }

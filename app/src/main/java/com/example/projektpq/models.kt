@@ -106,3 +106,9 @@ data class GrafikNilai(
     val tahun: Int,
     val rata_rata_nilai: Double
 )
+
+// Data class untuk ujian
+data class UjianData(
+    val tanggalUjian: String,
+    val nilaiTotal: Double)
+
