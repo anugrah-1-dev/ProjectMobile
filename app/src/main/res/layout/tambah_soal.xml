@@ -100,19 +100,24 @@
         android:layout_marginLeft="37dp"
         android:background="@drawable/rectangle_input" />
 
-    <!-- Nomor Soal Hint -->
-    <TextView
-        android:id="@+id/masukkan_no"
-        android:layout_width="191dp"
-        android:layout_height="24dp"
+    <!-- NOMOR SOAL INPUT (EDIT TEXT) -->
+    <EditText
+        android:id="@+id/edit_nomor_soal"
+        android:layout_width="335dp"
+        android:layout_height="43dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_marginTop="305dp"
-        android:layout_marginLeft="42dp"
-        android:gravity="top"
-        android:text="Masukkan Nomor Soal"
-        android:textColor="#403C3C"
-        android:textSize="20sp" />
+        android:layout_marginTop="295dp"
+        android:layout_marginLeft="37dp"
+        android:hint="Masukkan Nomor Soal"
+        android:textColor="#000000"
+        android:textColorHint="#403C3C"
+        android:textSize="18sp"
+        android:background="@android:color/transparent"
+        android:paddingStart="12dp"
+        android:paddingTop="10dp"
+        android:inputType="number"
+        android:maxLines="1" />
 
     <!-- Soal Label -->
     <TextView
@@ -139,19 +144,25 @@
         android:layout_marginLeft="37dp"
         android:background="@drawable/rectangle_input" />
 
-    <!-- Soal Hint -->
-    <TextView
-        android:id="@+id/masukkan_so"
-        android:layout_width="191dp"
-        android:layout_height="24dp"
+    <!-- SOAL INPUT (EDIT TEXT) -->
+    <EditText
+        android:id="@+id/edit_soal"
+        android:layout_width="335dp"
+        android:layout_height="108dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_marginTop="377dp"
-        android:layout_marginLeft="42dp"
+        android:layout_marginTop="367dp"
+        android:layout_marginLeft="37dp"
+        android:hint="Masukkan Soal"
+        android:textColor="#000000"
+        android:textColorHint="#403C3C"
+        android:textSize="18sp"
+        android:background="@android:color/transparent"
+        android:paddingStart="12dp"
+        android:paddingTop="10dp"
         android:gravity="top"
-        android:text="Masukkan  Soal"
-        android:textColor="#403C3C"
-        android:textSize="20sp" />
+        android:inputType="textMultiLine"
+        android:maxLines="5" />
 
     <!-- Plus Button -->
     <View

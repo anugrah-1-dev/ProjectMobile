@@ -22,7 +22,7 @@ import java.util.*
 import com.example.projektpq.models.UjianData
 import com.example.projektpq.TambahSoalActivity
 import com.example.projektpq.LihatSoalActivity
-import com.example.projektpq.UjianActivity
+import com.example.projektpq.MulaiUjianActivity
 import com.example.projektpq.EditSoalActivity
 import com.example.projektpq.PengaturanActivity
 import com.example.projektpq.PilihJilidActivity
@@ -87,7 +87,7 @@ class ManajemenSoalActivity : AppCompatActivity() {
 
         // Klik pada tombol Mulai (untuk ujian)
         btnMulai?.setOnClickListener {
-            val intent = Intent(this, UjianActivity::class.java)
+            val intent = Intent(this, MulaiUjianActivity::class.java)
             intent.putExtra("JILID", jilid)
             startActivity(intent)
         }

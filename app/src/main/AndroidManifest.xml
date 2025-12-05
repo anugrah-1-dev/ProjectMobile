@@ -65,7 +65,7 @@
 
         <!-- HomeDevActivity untuk SUPER ADMIN -->
         <activity
-            android:name=".HomeDev"
+            android:name="HomeDev"
             android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
@@ -129,7 +129,7 @@
 
         <!-- UjianActivity - BARU DITAMBAHKAN -->
         <activity
-            android:name=".UjianActivity"
+            android:name=".MulaiUjianActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
