@@ -12,4 +12,5 @@
     <item name="jilid_1" type="id" />
     <item name="list_jilid" type="id" />
     <item name="pilih_jilid" type="id" />
+    <item name="chart_image" type="id" />
 </resources>

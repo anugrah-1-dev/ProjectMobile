@@ -37,7 +37,6 @@ android {
         jvmToolchain(21)
     }
 
-    // TAMBAHKAN INI - PERBAIKAN: viewBinding sudah true, tambahkan buildFeatures di dalam android block
     buildFeatures {
         viewBinding = true
     }
@@ -62,10 +61,14 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
 
-    // CardView - TAMBAHKAN INI untuk CardView di PilihJilidActivity
+    // CardView
     implementation("androidx.cardview:cardview:1.0.0")
 
+    // Volley for networking
     implementation("com.android.volley:volley:1.2.1")
+
+    // TAMBAHAN: MPAndroidChart untuk diagram dinamis
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

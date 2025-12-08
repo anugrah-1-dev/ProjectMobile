@@ -1,6 +1,8 @@
 package com.example.projektpq
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -16,7 +18,8 @@ class EditSoalActivity : AppCompatActivity() {
 
     private lateinit var apiService: MySQLApiService
     private var soalList: List<MySQLApiService.SoalData> = listOf()
-    private var currentJilidId: Int = 1
+    private var currentJilidId: Int = 0
+    private lateinit var currentNamaJilid: String
     private var currentPageIndex: Int = 0
     private val itemsPerPage: Int = 4
 
@@ -33,7 +36,7 @@ class EditSoalActivity : AppCompatActivity() {
     private lateinit var question3TextView: TextView
     private lateinit var question4TextView: TextView
 
-    // Edit Buttons - PERBAIKAN: Gunakan ID yang sesuai dengan layout
+    // Edit Buttons
     private lateinit var editButton1: View
     private lateinit var editButton2: View
     private lateinit var editButton3: View
@@ -45,21 +48,29 @@ class EditSoalActivity : AppCompatActivity() {
     private lateinit var container3: View
     private lateinit var container4: View
 
+    companion object {
+        private const val TAG = "EditSoalActivity"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.edit_soal)
 
         apiService = MySQLApiService()
 
-        // Get jilid_id from intent
-        currentJilidId = intent.getIntExtra("jilid_id", 1).also {
-            // Validasi jilid_id
-            if (it !in 1..6) {
-                Toast.makeText(this, "Jilid ID tidak valid", Toast.LENGTH_SHORT).show()
-                finish()
-                return
-            }
+        // PERUBAHAN: Ambil data dari intent dengan KEY yang benar
+        currentJilidId = intent.getIntExtra("ID_JILID", 0)
+        currentNamaJilid = intent.getStringExtra("NAMA_JILID") ?: "JILID I"
+
+        // Validasi jilid_id
+        if (currentJilidId == 0) {
+            Toast.makeText(this, "Error: ID Jilid tidak valid", Toast.LENGTH_SHORT).show()
+            Log.e(TAG, "ID Jilid tidak ditemukan dari intent")
+            finish()
+            return
         }
+
+        Log.d(TAG, "Received - ID Jilid: $currentJilidId, Nama Jilid: $currentNamaJilid")
 
         initViews()
         setupClickListeners()
@@ -69,6 +80,7 @@ class EditSoalActivity : AppCompatActivity() {
     private fun initViews() {
         // Title
         jilidTitle = findViewById(R.id.jilid_i)
+        jilidTitle.text = currentNamaJilid
 
         // Navigation Buttons
         backButton = findViewById(R.id.back_button)
@@ -82,8 +94,7 @@ class EditSoalActivity : AppCompatActivity() {
         question3TextView = findViewById(R.id.bacakan_kal_3)
         question4TextView = findViewById(R.id.bacakan_kal_4)
 
-        // Edit Buttons - PERBAIKAN: Cek apakah ID ini benar-benar ada di layout edit_soal.xml
-        // Jika tidak ada, Anda perlu menambahkannya di XML atau gunakan ID yang sudah ada
+        // Edit Buttons
         editButton1 = findViewById(R.id.edit_pencil_1)
         editButton2 = findViewById(R.id.edit_pencil_2)
         editButton3 = findViewById(R.id.edit_pencil_3)
@@ -94,9 +105,6 @@ class EditSoalActivity : AppCompatActivity() {
         container2 = findViewById(R.id.rectangle_1_2)
         container3 = findViewById(R.id.rectangle_1_3)
         container4 = findViewById(R.id.rectangle_1_4)
-
-        // Set jilid title
-        updateJilidTitle()
     }
 
     private fun setupClickListeners() {
@@ -120,7 +128,7 @@ class EditSoalActivity : AppCompatActivity() {
         }
 
         cancelButton.setOnClickListener {
-            finish()
+            navigateBackToManajemen()
         }
 
         choosePageButton.setOnClickListener {
@@ -146,22 +154,13 @@ class EditSoalActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateJilidTitle() {
-        jilidTitle.text = when (currentJilidId) {
-            1 -> "JILID I"
-            2 -> "JILID II"
-            3 -> "JILID III"
-            4 -> "JILID IV"
-            5 -> "JILID V"
-            6 -> "JILID VI"
-            else -> "JILID $currentJilidId"
-        }
-    }
-
     private fun loadSoalData() {
         lifecycleScope.launch {
             try {
-                // PERBAIKAN: Periksa tipe return dari getSoalByJilid
+                Toast.makeText(this@EditSoalActivity, "Memuat data soal...", Toast.LENGTH_SHORT).show()
+
+                Log.d(TAG, "Loading soal for Jilid ID: $currentJilidId")
+
                 val result = apiService.getSoalByJilid(currentJilidId)
 
                 result.onSuccess { response ->
@@ -169,7 +168,15 @@ class EditSoalActivity : AppCompatActivity() {
                         soalList = response.data
                         currentPageIndex = 0 // Reset ke halaman pertama
                         displayCurrentPage()
-                        Log.d("EditSoalActivity", "Loaded ${soalList.size} soal for jilid $currentJilidId")
+                        Log.d(TAG, "Loaded ${soalList.size} soal for jilid $currentJilidId")
+
+                        if (soalList.isEmpty()) {
+                            Toast.makeText(
+                                this@EditSoalActivity,
+                                "Belum ada soal untuk $currentNamaJilid",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     } else {
                         Toast.makeText(
                             this@EditSoalActivity,
@@ -185,7 +192,7 @@ class EditSoalActivity : AppCompatActivity() {
                         "Error: ${exception.message}",
                         Toast.LENGTH_SHORT
                     ).show()
-                    Log.e("EditSoalActivity", "Error loading soal", exception)
+                    Log.e(TAG, "Error loading soal", exception)
                 }
             } catch (e: Exception) {
                 Toast.makeText(
@@ -193,7 +200,7 @@ class EditSoalActivity : AppCompatActivity() {
                     "Error: ${e.message}",
                     Toast.LENGTH_SHORT
                 ).show()
-                Log.e("EditSoalActivity", "Exception loading soal", e)
+                Log.e(TAG, "Exception loading soal", e)
             }
         }
     }
@@ -204,7 +211,6 @@ class EditSoalActivity : AppCompatActivity() {
 
         // Cek apakah ada data
         if (startIndex >= soalList.size) {
-            // Kosongkan semua container
             clearAllContainers()
             updateNavigationButtons()
             return
@@ -254,7 +260,6 @@ class EditSoalActivity : AppCompatActivity() {
             }
         }
 
-        // Update navigation buttons state
         updateNavigationButtons()
     }
 
@@ -278,11 +283,9 @@ class EditSoalActivity : AppCompatActivity() {
     private fun updateNavigationButtons() {
         val totalPages = if (soalList.isEmpty()) 0 else (soalList.size + itemsPerPage - 1) / itemsPerPage
 
-        // Enable/disable back button
         backButton.isEnabled = currentPageIndex > 0
         backButton.alpha = if (currentPageIndex > 0) 1.0f else 0.5f
 
-        // Enable/disable next button
         nextButton.isEnabled = currentPageIndex < totalPages - 1
         nextButton.alpha = if (currentPageIndex < totalPages - 1) 1.0f else 0.5f
     }
@@ -298,11 +301,7 @@ class EditSoalActivity : AppCompatActivity() {
 
         val soal = soalList[actualIndex]
 
-        // PERBAIKAN: Pastikan nama layout dialog benar
-        // Jika layout dialog adalah dialog_edit_soal (bukan dialog_edit_soul)
         val dialogView = layoutInflater.inflate(R.layout.dialog_edit_soal, null)
-
-        // PERBAIKAN: Pastikan ID ini ada di layout dialog_edit_soal.xml
         val questionEditText = dialogView.findViewById<EditText>(R.id.edit_question)
         val bobotEditText = dialogView.findViewById<EditText>(R.id.edit_bobot)
 
@@ -317,7 +316,6 @@ class EditSoalActivity : AppCompatActivity() {
                 val newBobot = bobotEditText.text.toString().toIntOrNull() ?: (soal.bobot_nilai ?: 10)
 
                 if (newQuestion.isNotEmpty()) {
-                    // Validasi bobot nilai
                     if (newBobot in 1..100) {
                         updateSoal(soal.id_soal, newQuestion, newBobot)
                     } else {
@@ -335,16 +333,12 @@ class EditSoalActivity : AppCompatActivity() {
     }
 
     private fun showAddQuestionDialog() {
-        // PERBAIKAN: Pastikan nama layout dialog benar
         val dialogView = layoutInflater.inflate(R.layout.dialog_edit_soal, null)
-
-        // PERBAIKAN: Pastikan ID ini ada di layout dialog_edit_soal.xml
         val questionEditText = dialogView.findViewById<EditText>(R.id.edit_question)
         val bobotEditText = dialogView.findViewById<EditText>(R.id.edit_bobot)
 
-        // Fokus ke input question
         questionEditText.requestFocus()
-        bobotEditText.setText("10") // Default bobot nilai
+        bobotEditText.setText("10")
 
         AlertDialog.Builder(this)
             .setTitle("Tambah Soal Baru")
@@ -354,7 +348,6 @@ class EditSoalActivity : AppCompatActivity() {
                 val bobot = bobotEditText.text.toString().toIntOrNull() ?: 10
 
                 if (newQuestion.isNotEmpty()) {
-                    // Validasi bobot
                     if (bobot in 1..100) {
                         addNewSoal(newQuestion, bobot)
                     } else {
@@ -382,7 +375,6 @@ class EditSoalActivity : AppCompatActivity() {
     private fun updateSoal(soalId: Int, newQuestion: String, newBobot: Int) {
         lifecycleScope.launch {
             try {
-                // PERBAIKAN: Periksa apakah method updateSoal ada di MySQLApiService
                 val result = apiService.updateSoal(soalId, newQuestion, newBobot)
 
                 result.onSuccess { response ->
@@ -392,8 +384,6 @@ class EditSoalActivity : AppCompatActivity() {
                             "Soal berhasil diperbarui",
                             Toast.LENGTH_SHORT
                         ).show()
-
-                        // Reload data
                         loadSoalData()
                     } else {
                         Toast.makeText(
@@ -424,7 +414,6 @@ class EditSoalActivity : AppCompatActivity() {
     private fun addNewSoal(newQuestion: String, bobot: Int) {
         lifecycleScope.launch {
             try {
-                // PERBAIKAN: Periksa apakah method addSoal ada di MySQLApiService
                 val result = apiService.addSoal(currentJilidId, newQuestion, bobot)
 
                 result.onSuccess { response ->
@@ -434,8 +423,6 @@ class EditSoalActivity : AppCompatActivity() {
                             "Soal berhasil ditambahkan",
                             Toast.LENGTH_SHORT
                         ).show()
-
-                        // Reload data
                         loadSoalData()
                     } else {
                         Toast.makeText(
@@ -466,7 +453,6 @@ class EditSoalActivity : AppCompatActivity() {
     private fun deleteSoal(soalId: Int) {
         lifecycleScope.launch {
             try {
-                // PERBAIKAN: Periksa apakah method deleteSoal ada di MySQLApiService
                 val result = apiService.deleteSoal(soalId)
 
                 result.onSuccess { response ->
@@ -476,8 +462,6 @@ class EditSoalActivity : AppCompatActivity() {
                             "Soal berhasil dihapus",
                             Toast.LENGTH_SHORT
                         ).show()
-
-                        // Reload data
                         loadSoalData()
                     } else {
                         Toast.makeText(
@@ -503,5 +487,19 @@ class EditSoalActivity : AppCompatActivity() {
                 ).show()
             }
         }
+    }
+
+    private fun navigateBackToManajemen() {
+        val intent = Intent(this, ManajemenSoalActivity::class.java)
+        intent.putExtra("ID_JILID", currentJilidId)
+        intent.putExtra("NAMA_JILID", currentNamaJilid)
+        startActivity(intent)
+        finish()
+    }
+
+    @SuppressLint("GestureBackNavigation")
+    override fun onBackPressed() {
+        super.onBackPressed()
+        navigateBackToManajemen()
     }
 }

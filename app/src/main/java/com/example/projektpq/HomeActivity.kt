@@ -50,8 +50,8 @@ class HomeActivity : AppCompatActivity() {
         findViewById<LinearLayout>(R.id.card_histori).setOnClickListener {
             Toast.makeText(this, "Histori", Toast.LENGTH_SHORT).show()
             // TODO: Navigate to HistoriActivity
-            // val intent = Intent(this, HistoriActivity::class.java)
-            // startActivity(intent)
+             val intent = Intent(this, HistoriActivity::class.java)
+             startActivity(intent)
         }
 
         // Bottom Navigation

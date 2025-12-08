@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
-    <!-- Izinkan cleartext traffic untuk development -->
+    <!-- Base configuration - Allow cleartext for development -->
     <base-config cleartextTrafficPermitted="true">
         <trust-anchors>
             <certificates src="system" />
@@ -8,11 +8,31 @@
         </trust-anchors>
     </base-config>
 
-    <!-- Domain khusus untuk hosting Anda -->
-    <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="true">your-domain.com</domain>
-        <domain includeSubdomains="true">localhost</domain>
-        <domain includeSubdomains="true">127.0.0.1</domain>
-        <domain includeSubdomains="true">10.0.2.2</domain>
+    <!-- Specific configuration for kampunginggrisori.com -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">kampunginggrisori.com</domain>
+        <trust-anchors>
+            <!-- Trust system certificates -->
+            <certificates src="system" />
+            <!-- Also trust user-installed certificates for debugging -->
+            <certificates src="user" />
+        </trust-anchors>
+        <!-- Pin certificates if needed (optional) -->
     </domain-config>
+
+    <!-- Allow localhost and local IPs for development -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="true">10.0.2.2</domain>
+        <domain includeSubdomains="true">127.0.0.1</domain>
+        <domain includeSubdomains="true">192.168.1.1</domain>
+    </domain-config>
+
+    <!-- Debug overrides for testing (remove in production) -->
+    <debug-overrides>
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </debug-overrides>
 </network-security-config>

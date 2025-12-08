@@ -62,7 +62,7 @@ class MySQLApiService {
         val bobot_nilai: Int,
         val jawaban: String?,
         val id_jilid: Int,
-        val created_at: String?
+        val created_at: String? = null
     )
 
     data class SoalListResponse(
@@ -134,6 +134,12 @@ class MySQLApiService {
         val success: Boolean,
         val message: String,
         val data: T? = null
+    )
+
+    // ==================== SIMPLE API RESPONSE ====================
+    data class SimpleApiResponse(
+        val success: Boolean,
+        val message: String
     )
 
     // ==================== PRIVATE HELPER METHODS ====================
@@ -582,7 +588,7 @@ class MySQLApiService {
                             created_at = obj.optString("created_at", null)
                         )
                     }
-                } else null
+                } else emptyList()
 
                 Result.success(ApiResponse(success, message, soalList))
 
@@ -1042,10 +1048,9 @@ class MySQLApiService {
                     connection.errorStream
                 }
 
-                val response =
-                    BufferedReader(InputStreamReader(inputStream, Charsets.UTF_8)).use { reader ->
-                        reader.readText()
-                    }
+                val response = BufferedReader(InputStreamReader(inputStream, Charsets.UTF_8)).use { reader ->
+                    reader.readText()
+                }
 
                 Log.d(TAG, "Response: $response")
 
@@ -1065,8 +1070,7 @@ class MySQLApiService {
                         isi_soal = obj.getString("isi_soal"),
                         tipe_soal = obj.getString("tipe_soal"),
                         bobot_nilai = obj.getInt("bobot_nilai"),
-                        jawaban = obj.optString("jawaban", null)
-                            .takeIf { it != "null" && it.isNotEmpty() },
+                        jawaban = obj.optString("jawaban", null).takeIf { it != "null" && it.isNotEmpty() },
                         id_jilid = obj.getInt("id_jilid"),
                         created_at = obj.optString("created_at", null)
                     )
@@ -1082,4 +1086,97 @@ class MySQLApiService {
             }
         }
     }
+
+    // ==================== SAVE UJIAN (FIXED) ====================
+    suspend fun saveUjian(
+        noInduk: String,
+        idJilid: Int,
+        nilaiTotal: Double,
+        tanggalUjian: String
+    ): Result<SimpleApiResponse> {
+        return withContext(Dispatchers.IO) {
+            var connection: HttpURLConnection? = null
+            try {
+                val url = URL("$BASE_URL/save_ujian.php")
+                connection = url.openConnection() as HttpURLConnection
+
+                connection.apply {
+                    requestMethod = "POST"
+                    setRequestProperty("Content-Type", "application/json; charset=UTF-8")
+                    setRequestProperty("Accept", "application/json")
+                    connectTimeout = CONNECT_TIMEOUT
+                    readTimeout = READ_TIMEOUT
+                    doOutput = true
+                    doInput = true
+                    useCaches = false
+                }
+
+                // PERBAIKAN: Nama field sesuai dengan yang di PHP
+                val jsonData = JSONObject().apply {
+                    put("no_induk", noInduk)
+                    put("id_jilid", idJilid)
+                    put("nilai_total", nilaiTotal)
+                    put("tanggal_ujian", tanggalUjian)
+                    put("status", "selesai")
+                }
+
+                val jsonString = jsonData.toString()
+                Log.d(TAG, "===== SAVE UJIAN REQUEST =====")
+                Log.d(TAG, "URL: $url")
+                Log.d(TAG, "Request Body: $jsonString")
+
+                // Write data
+                OutputStreamWriter(connection.outputStream, Charsets.UTF_8).use { writer ->
+                    writer.write(jsonString)
+                    writer.flush()
+                }
+
+                val responseCode = connection.responseCode
+                Log.d(TAG, "Response Code: $responseCode")
+
+                val inputStream = if (responseCode in 200..299) {
+                    connection.inputStream
+                } else {
+                    connection.errorStream
+                }
+
+                val response = BufferedReader(InputStreamReader(inputStream, Charsets.UTF_8)).use { reader ->
+                    reader.readText()
+                }
+
+                Log.d(TAG, "Response Body: $response")
+
+                if (response.isBlank()) {
+                    Log.e(TAG, "Empty response from server")
+                    return@withContext Result.failure(Exception("Empty response from server"))
+                }
+
+                val jsonResponse = try {
+                    parseJsonResponse(response)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to parse JSON response: ${e.message}")
+                    Log.e(TAG, "Raw response: $response")
+                    return@withContext Result.failure(Exception("Invalid JSON response: ${e.message}"))
+                }
+
+                val success = jsonResponse.optBoolean("success", false)
+                val message = jsonResponse.optString("message", "Unknown error")
+
+                Log.d(TAG, "Success: $success, Message: $message")
+
+                if (success) {
+                    Result.success(SimpleApiResponse(success = true, message = message))
+                } else {
+                    Result.failure(Exception(message))
+                }
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Save ujian error: ${e.message}", e)
+                e.printStackTrace()
+                Result.failure(e)
+            } finally {
+                connection?.disconnect()
+            }
+        }
     }
+}

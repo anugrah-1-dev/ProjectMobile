@@ -46,7 +46,7 @@
         app:layout_constraintStart_toEndOf="@id/logo_mitra"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- JILID 1 Container -->
+    <!-- JILID Container (FIXED ID) -->
     <LinearLayout
         android:id="@+id/jilid_container"
         android:layout_width="0dp"
@@ -145,7 +145,7 @@
             android:orientation="vertical"
             android:paddingBottom="16dp">
 
-            <!-- Chart Container -->
+            <!-- Chart Container (FIXED) -->
             <FrameLayout
                 android:id="@+id/chart_container"
                 android:layout_width="match_parent"
@@ -162,134 +162,15 @@
                     android:layout_height="match_parent"
                     android:background="#00DF82" />
 
-                <!-- Container untuk chart dan label -->
-                <LinearLayout
+                <!-- Placeholder ImageView (akan diganti dengan LineChart secara dinamis) -->
+                <ImageView
+                    android:id="@+id/chart_image"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:padding="8dp">
+                    android:src="@drawable/chart_placeholder"
+                    android:scaleType="fitCenter"
+                    android:padding="16dp" />
 
-                    <!-- Bagian atas untuk chart dan Y axis labels -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
-
-                        <!-- Y Axis Labels Container -->
-                        <LinearLayout
-                            android:layout_width="18dp"
-                            android:layout_height="match_parent"
-                            android:orientation="vertical"
-                            android:gravity="center_horizontal">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="0dp"
-                                android:layout_weight="1"
-                                android:gravity="center"
-                                android:text="40"
-                                android:textColor="#FFFFFF"
-                                android:textSize="9sp"
-                                android:textStyle="bold"
-                                android:paddingTop="5dp" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="0dp"
-                                android:layout_weight="1"
-                                android:gravity="center"
-                                android:text="30"
-                                android:textColor="#FFFFFF"
-                                android:textSize="9sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="0dp"
-                                android:layout_weight="1"
-                                android:gravity="center"
-                                android:text="20"
-                                android:textColor="#FFFFFF"
-                                android:textSize="9sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="0dp"
-                                android:layout_weight="1"
-                                android:gravity="center"
-                                android:text="10"
-                                android:textColor="#FFFFFF"
-                                android:textSize="9sp"
-                                android:textStyle="bold"
-                                android:paddingBottom="5dp" />
-                        </LinearLayout>
-
-                        <!-- Chart Area -->
-                        <ImageView
-                            android:id="@+id/chart_image"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:src="@drawable/chart_placeholder"
-                            android:scaleType="fitCenter"
-                            android:layout_marginStart="4dp"
-                            android:layout_marginEnd="2dp" />
-                    </LinearLayout>
-
-                    <!-- X Axis Labels Container -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="18dp"
-                        android:orientation="horizontal"
-                        android:gravity="center"
-                        android:layout_marginStart="22dp"
-                        android:layout_marginEnd="2dp"
-                        android:layout_marginTop="2dp">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:text="Muharram"
-                            android:textColor="#FFFFFF"
-                            android:textSize="7sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:text="September"
-                            android:textColor="#FFFFFF"
-                            android:textSize="7sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:text="Oktober"
-                            android:textColor="#FFFFFF"
-                            android:textSize="7sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:text="November"
-                            android:textColor="#FFFFFF"
-                            android:textSize="7sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-                </LinearLayout>
             </FrameLayout>
 
             <!-- Table Container with Card Style -->
@@ -345,153 +226,7 @@
                         android:textStyle="bold" />
                 </LinearLayout>
 
-                <!-- Data Rows - Empty rows for data -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="36dp"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="0.8"
-                        android:background="@drawable/button_border"
-                        android:gravity="center"
-                        android:text=""
-                        android:textSize="12sp"
-                        android:textColor="#000000" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1.5"
-                        android:background="@drawable/button_border"
-                        android:gravity="center"
-                        android:text=""
-                        android:textSize="12sp"
-                        android:textColor="#000000" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1.7"
-                        android:background="@drawable/button_border"
-                        android:gravity="center"
-                        android:text=""
-                        android:textSize="12sp"
-                        android:textColor="#000000" />
-                </LinearLayout>
-
-                <!-- Row 2 -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="36dp"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="0.8"
-                        android:background="@drawable/button_border"
-                        android:gravity="center"
-                        android:text=""
-                        android:textSize="12sp"
-                        android:textColor="#000000" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1.5"
-                        android:background="@drawable/button_border"
-                        android:gravity="center"
-                        android:text=""
-                        android:textSize="12sp"
-                        android:textColor="#000000" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1.7"
-                        android:background="@drawable/button_border"
-                        android:gravity="center"
-                        android:text=""
-                        android:textSize="12sp"
-                        android:textColor="#000000" />
-                </LinearLayout>
-
-                <!-- Row 3 -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="36dp"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="0.8"
-                        android:background="@drawable/button_border"
-                        android:gravity="center"
-                        android:text=""
-                        android:textSize="12sp"
-                        android:textColor="#000000" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1.5"
-                        android:background="@drawable/button_border"
-                        android:gravity="center"
-                        android:text=""
-                        android:textSize="12sp"
-                        android:textColor="#000000" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1.7"
-                        android:background="@drawable/button_border"
-                        android:gravity="center"
-                        android:text=""
-                        android:textSize="12sp"
-                        android:textColor="#000000" />
-                </LinearLayout>
-
-                <!-- Row 4 -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="36dp"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="0.8"
-                        android:background="@drawable/button_border"
-                        android:gravity="center"
-                        android:text=""
-                        android:textSize="12sp"
-                        android:textColor="#000000" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1.5"
-                        android:background="@drawable/button_border"
-                        android:gravity="center"
-                        android:text=""
-                        android:textSize="12sp"
-                        android:textColor="#000000" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1.7"
-                        android:background="@drawable/button_border"
-                        android:gravity="center"
-                        android:text=""
-                        android:textSize="12sp"
-                        android:textColor="#000000" />
-                </LinearLayout>
+                <!-- Data rows akan ditambahkan secara dinamis -->
 
             </LinearLayout>
 
