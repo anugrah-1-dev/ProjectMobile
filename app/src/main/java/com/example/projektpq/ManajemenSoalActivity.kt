@@ -9,1016 +9,638 @@ import android.widget.Toast
 import android.widget.LinearLayout
 import android.graphics.Color
 import android.util.Log
-import android.content.Context.CONNECTIVITY_SERVICE
+import androidx.core.graphics.toColorInt
 import kotlinx.coroutines.*
 import org.json.JSONObject
-import org.json.JSONException
 import java.io.BufferedReader
-import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.*
 import com.example.projektpq.models.UjianData
-// Import untuk MPAndroidChart (Library untuk membuat grafik)
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.formatter.ValueFormatter
-import android.widget.ImageView
 import android.widget.FrameLayout
 
-/**
- * Activity untuk menampilkan grafik nilai dan tabel histori ujian
- * Menampilkan data berdasarkan Jilid yang dipilih
- */
 class ManajemenSoalActivity : AppCompatActivity() {
 
-    // Variable untuk menyimpan ID dan Nama Jilid dari halaman sebelumnya
     private var idJilid: Int = 0
     private lateinit var namaJilid: String
-
-    // Map untuk menyimpan data nilai per bulan
-    // Format: "Desember 2025" -> [24.0, 30.0, 28.5]
     private val monthlyData = mutableMapOf<String, MutableList<Double>>()
-
-    // Coroutine scope untuk operasi async (background task)
     private val scope = CoroutineScope(Dispatchers.Main + Job())
-
-    // Container untuk chart/grafik
     private lateinit var chartContainer: FrameLayout
+    private var lineChart: LineChart? = null
 
     companion object {
-        private const val TAG = "ManajemenSoalActivity" // Untuk logging di Logcat
-        private const val BASE_URL = "https://kampunginggrisori.com/api" // URL API
+        private const val TAG = "ManajemenSoalActivity"
+        private const val BASE_URL = "https://kampunginggrisori.com/api"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.soal) // Set layout XML
+        setContentView(R.layout.soal)
 
-        // Ambil data ID_JILID dan NAMA_JILID dari Intent
+        Log.d(TAG, "============================================")
+        Log.d(TAG, "MEMULAI ManajemenSoalActivity")
+        Log.d(TAG, "============================================")
+
         idJilid = intent.getIntExtra("ID_JILID", 0)
         namaJilid = intent.getStringExtra("NAMA_JILID") ?: "JILID 1"
 
-        // Validasi: Jika ID Jilid tidak valid, tutup activity
         if (idJilid == 0) {
             Toast.makeText(this, "Error: ID Jilid tidak valid", Toast.LENGTH_SHORT).show()
-            Log.e(TAG, "ID Jilid tidak ditemukan dari intent")
             finish()
             return
         }
 
-        // Log untuk debugging
-        Log.d(TAG, "============================================")
-        Log.d(TAG, "MEMULAI ManajemenSoalActivity")
         Log.d(TAG, "ID Jilid: $idJilid, Nama Jilid: $namaJilid")
-        Log.d(TAG, "============================================")
 
-        // Set judul JILID di tampilan (misalnya "JILID V")
         try {
             val jilidContainer = findViewById<LinearLayout>(R.id.jilid_container)
             val jilidText = jilidContainer.getChildAt(0) as TextView
             jilidText.text = namaJilid
-            Log.d(TAG, "Judul jilid berhasil diset")
         } catch (e: Exception) {
-            Log.e(TAG, "Error saat set judul jilid: ${e.message}", e)
+            Log.e(TAG, "Error set judul: ${e.message}")
         }
 
-        // Inisialisasi container untuk chart
         chartContainer = findViewById(R.id.chart_container)
 
-        // Cek koneksi internet
-        testNetworkConnectivity()
-
-        // Setup chart (grafik garis)
         setupDynamicChart()
-
-        // Load data dari API
-        loadHistoryData()
-
-        // Setup semua tombol (Tambah, Lihat, Edit, Mulai, dll)
         setupButtons()
-    }
 
-    /**
-     * Fungsi untuk mengecek koneksi internet
-     * Menampilkan toast jika tidak ada koneksi
-     */
-    private fun testNetworkConnectivity() {
-        scope.launch {
-            try {
-                Log.d(TAG, "🔍 Mengecek koneksi internet...")
-
-                val connectivityManager = getSystemService(CONNECTIVITY_SERVICE) as android.net.ConnectivityManager
-
-                // Gunakan API modern untuk Android M (API 23) ke atas
-                val isConnected = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                    val network = connectivityManager.activeNetwork
-                    val capabilities = connectivityManager.getNetworkCapabilities(network)
-                    // Cek apakah ada koneksi WiFi, Cellular, atau Ethernet
-                    capabilities != null && (
-                            capabilities.hasTransport(android.net.NetworkCapabilities.TRANSPORT_WIFI) ||
-                                    capabilities.hasTransport(android.net.NetworkCapabilities.TRANSPORT_CELLULAR) ||
-                                    capabilities.hasTransport(android.net.NetworkCapabilities.TRANSPORT_ETHERNET)
-                            )
-                } else {
-                    // Fallback untuk Android versi lama
-                    @Suppress("DEPRECATION")
-                    val activeNetwork = connectivityManager.activeNetworkInfo
-                    @Suppress("DEPRECATION")
-                    activeNetwork?.isConnectedOrConnecting == true
-                }
-
-                Log.d(TAG, "📶 Status koneksi: $isConnected")
-
-                // Jika tidak ada koneksi, tampilkan peringatan
-                if (!isConnected) {
-                    Log.e(TAG, "❌ Tidak ada koneksi internet!")
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(
-                            this@ManajemenSoalActivity,
-                            "Tidak ada koneksi internet",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Error saat cek koneksi: ${e.message}", e)
-            }
+        chartContainer.post {
+            loadHistoryData()
         }
     }
 
-    /**
-     * Fungsi untuk membuat LineChart (grafik garis) secara dinamis
-     * Mengganti placeholder ImageView dengan chart yang bisa menampilkan data
-     */
     private fun setupDynamicChart() {
         try {
-            Log.d(TAG, "🎨 Membuat grafik dinamis...")
+            Log.d(TAG, "🎨 Membuat grafik dengan sumbu hitam...")
+            chartContainer.removeAllViews()
 
-            // Hapus placeholder image jika ada
-            val chartImage = chartContainer.findViewById<ImageView>(R.id.chart_image)
-            if (chartImage != null) {
-                chartContainer.removeView(chartImage)
-                Log.d(TAG, "Placeholder image dihapus")
-            }
-
-            // Buat LineChart baru dengan konfigurasi
-            val lineChart = LineChart(this).apply {
-                id = R.id.chart_image // Gunakan ID yang sama dengan placeholder
+            lineChart = LineChart(this).apply {
+                id = R.id.chart_image
                 layoutParams = FrameLayout.LayoutParams(
                     FrameLayout.LayoutParams.MATCH_PARENT,
                     FrameLayout.LayoutParams.MATCH_PARENT
                 ).apply {
-                    // Tambahkan margin agar tidak terlalu mepet
-                    setMargins(16, 16, 16, 16)
+                    setMargins(32, 32, 32, 32)
                 }
 
-                // Konfigurasi tampilan chart
-                description.isEnabled = false // Sembunyikan deskripsi
-                setTouchEnabled(true) // Bisa disentuh untuk interaksi
-                isDragEnabled = true // Bisa di-drag
-                setScaleEnabled(true) // Bisa di-zoom
-                setPinchZoom(false) // Disable pinch zoom
-                setDrawGridBackground(false) // Tanpa background grid
-                legend.isEnabled = false // Sembunyikan legend
-
-                // Konfigurasi touch
-                isDoubleTapToZoomEnabled = false // Disable double tap zoom
-                setNoDataText("Belum ada data untuk ditampilkan") // Pesan jika tidak ada data
-                setNoDataTextColor(Color.WHITE)
-
-                // Background transparan agar terlihat background hijau dari layout
+                description.isEnabled = false
+                setTouchEnabled(true)
+                isDragEnabled = true
+                setScaleEnabled(false)
+                setPinchZoom(false)
+                setDrawGridBackground(false)
+                legend.isEnabled = false
+                isDoubleTapToZoomEnabled = false
                 setBackgroundColor(Color.TRANSPARENT)
+                setExtraOffsets(20f, 20f, 20f, 40f)
 
-                // Tambah spacing ekstra
-                setExtraOffsets(10f, 10f, 10f, 20f)
+                setNoDataText("Memuat data...")
+                setNoDataTextColor(Color.BLACK)
 
-                // Konfigurasi Sumbu X (horizontal, untuk bulan)
+                // SUMBU X - HITAM
                 xAxis.apply {
-                    position = XAxis.XAxisPosition.BOTTOM // Label di bawah
-                    setDrawGridLines(true) // Tampilkan garis grid
-                    gridColor = Color.parseColor("#80FFFFFF") // Putih semi-transparan
-                    textColor = Color.WHITE // Warna teks putih
-                    textSize = 10f
-                    granularity = 1f // Jarak antar titik minimal 1
-                    setDrawAxisLine(false) // Sembunyikan garis axis
-                    setAvoidFirstLastClipping(true) // Hindari label terpotong
-                    yOffset = 10f // Offset ke bawah
+                    position = XAxis.XAxisPosition.BOTTOM
+                    setDrawGridLines(true)
+                    gridColor = "#40000000".toColorInt()
+                    gridLineWidth = 1f
+                    textColor = Color.BLACK
+                    textSize = 14f
+                    granularity = 1f
+                    setDrawAxisLine(true)
+                    axisLineColor = Color.BLACK
+                    axisLineWidth = 2f
+                    setAvoidFirstLastClipping(true)
+                    yOffset = 20f
+                    labelRotationAngle = 0f
+                    setCenterAxisLabels(false)
                 }
 
-                // Konfigurasi Sumbu Y Kiri (vertical, untuk nilai 0-100)
+                // SUMBU Y - HITAM
                 axisLeft.apply {
                     setDrawGridLines(true)
-                    gridColor = Color.parseColor("#80FFFFFF")
-                    textColor = Color.WHITE
-                    textSize = 10f
-                    axisMinimum = 0f // Nilai minimal 0
-                    axisMaximum = 100f // Nilai maksimal 100
-                    setDrawAxisLine(false)
-                    setLabelCount(5, true) // 5 label: 0, 25, 50, 75, 100
-                    setDrawZeroLine(true) // Tampilkan garis di angka 0
-                    zeroLineColor = Color.parseColor("#80FFFFFF")
-                    xOffset = 10f
+                    gridColor = "#40000000".toColorInt()
+                    gridLineWidth = 1f
+                    textColor = Color.BLACK
+                    textSize = 12f
+                    axisMinimum = 0f
+                    axisMaximum = 100f
+                    setDrawAxisLine(true)
+                    axisLineColor = Color.BLACK
+                    axisLineWidth = 2f
+                    setLabelCount(6, true)
+                    setDrawZeroLine(true)
+                    zeroLineColor = Color.BLACK
+                    zeroLineWidth = 2f
+                    xOffset = 15f
                 }
 
-                // Sembunyikan Sumbu Y Kanan
                 axisRight.isEnabled = false
             }
 
-            // Tambahkan chart ke container
-            chartContainer.addView(lineChart, 0)
+            chartContainer.addView(lineChart)
+            lineChart?.invalidate()
 
-            Log.d(TAG, "✅ Grafik berhasil dibuat")
-            Log.d(TAG, "   Ukuran container: ${chartContainer.width}x${chartContainer.height}")
+            Log.d(TAG, "✅ Grafik dengan sumbu hitam berhasil dibuat")
 
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Error saat buat grafik: ${e.message}", e)
-            e.printStackTrace()
+            Log.e(TAG, "❌ Error setup grafik: ${e.message}", e)
         }
     }
 
-    /**
-     * Fungsi untuk setup semua tombol di halaman
-     */
     private fun setupButtons() {
-        val btnTambah = findViewById<Button>(R.id.btn_tambah)
-        val btnLihat = findViewById<Button>(R.id.btn_lihat)
-        val btnEdit = findViewById<Button>(R.id.btn_edit)
-        val btnMulai = findViewById<Button>(R.id.btn_mulai)
-        val btnHome = findViewById<LinearLayout>(R.id.btn_home)
-        val btnSettings = findViewById<LinearLayout>(R.id.btn_settings)
-
-        // Tombol Tambah - Ke halaman tambah soal
-        btnTambah?.setOnClickListener {
-            val intent = Intent(this, TambahSoalActivity::class.java)
-            intent.putExtra("ID_JILID", idJilid)
-            intent.putExtra("NAMA_JILID", namaJilid)
-            startActivity(intent)
+        findViewById<Button>(R.id.btn_tambah)?.setOnClickListener {
+            startActivity(Intent(this, TambahSoalActivity::class.java).apply {
+                putExtra("ID_JILID", idJilid)
+                putExtra("NAMA_JILID", namaJilid)
+            })
         }
 
-        // Tombol Lihat - Ke halaman lihat soal
-        btnLihat?.setOnClickListener {
-            val intent = Intent(this, LihatSoalActivity::class.java)
-            intent.putExtra("ID_JILID", idJilid)
-            intent.putExtra("NAMA_JILID", namaJilid)
-            startActivity(intent)
+        findViewById<Button>(R.id.btn_lihat)?.setOnClickListener {
+            startActivity(Intent(this, LihatSoalActivity::class.java).apply {
+                putExtra("ID_JILID", idJilid)
+                putExtra("NAMA_JILID", namaJilid)
+            })
         }
 
-        // Tombol Edit - Ke halaman edit soal
-        btnEdit?.setOnClickListener {
-            val intent = Intent(this, EditSoalActivity::class.java)
-            intent.putExtra("ID_JILID", idJilid)
-            intent.putExtra("NAMA_JILID", namaJilid)
-            startActivity(intent)
+        findViewById<Button>(R.id.btn_edit)?.setOnClickListener {
+            startActivity(Intent(this, EditSoalActivity::class.java).apply {
+                putExtra("ID_JILID", idJilid)
+                putExtra("NAMA_JILID", namaJilid)
+            })
         }
 
-        // Tombol Mulai - Ke halaman mulai ujian
-        btnMulai?.setOnClickListener {
-            val intent = Intent(this, MulaiUjianActivity::class.java)
-            intent.putExtra("ID_JILID", idJilid)
-            intent.putExtra("NAMA_JILID", namaJilid)
-            startActivity(intent)
+        findViewById<Button>(R.id.btn_mulai)?.setOnClickListener {
+            startActivity(Intent(this, MulaiUjianActivity::class.java).apply {
+                putExtra("ID_JILID", idJilid)
+                putExtra("NAMA_JILID", namaJilid)
+            })
         }
 
-        // Tombol Home - Kembali ke halaman pilih jilid
-        btnHome?.setOnClickListener {
-            navigateBack()
+        findViewById<LinearLayout>(R.id.btn_home)?.setOnClickListener {
+            startActivity(Intent(this, PilihJilidActivity::class.java))
+            finish()
         }
 
-        // Tombol Settings - Ke halaman pengaturan
-        btnSettings?.setOnClickListener {
-            val intent = Intent(this, PengaturanActivity::class.java)
-            startActivity(intent)
+        findViewById<LinearLayout>(R.id.btn_settings)?.setOnClickListener {
+            startActivity(Intent(this, PengaturanActivity::class.java))
         }
     }
 
-    /**
-     * Fungsi utama untuk load data histori ujian dari API
-     * Dipanggil di onCreate dan onResume
-     */
     private fun loadHistoryData() {
         scope.launch {
             try {
-                Log.d(TAG, "============================================")
-                Log.d(TAG, "MEMUAT DATA HISTORI")
-                Log.d(TAG, "============================================")
+                Log.d(TAG, "📊 Memuat data histori untuk ID Jilid: $idJilid")
 
-                Toast.makeText(this@ManajemenSoalActivity, "Memuat data...", Toast.LENGTH_SHORT).show()
-
-                // Panggil API di background thread (IO)
                 val result = withContext(Dispatchers.IO) {
                     getUjianDataByJilidId(idJilid)
                 }
 
-                Log.d(TAG, "Hasil diterima - Berhasil: ${result.isSuccess}")
+                Log.d(TAG, "📊 Result success: ${result.isSuccess}")
 
                 if (result.isSuccess) {
                     val data = result.getOrNull()
-                    Log.d(TAG, "Jumlah data: ${data?.size ?: 0}")
+                    Log.d(TAG, "📊 Data retrieved: ${data?.size ?: 0} items")
 
                     if (data != null && data.isNotEmpty()) {
-                        Log.d(TAG, "Memproses ${data.size} record ujian...")
+                        Log.d(TAG, "✅ Data diterima: ${data.size} ujian")
 
-                        // Proses data: kelompokkan per bulan
                         processUjianData(data)
 
-                        // Pastikan data sudah berhasil diproses
                         if (monthlyData.isNotEmpty()) {
-                            Log.d(TAG, "📊 Data bulanan tersedia: ${monthlyData.keys}")
-
-                            // Update grafik dan tabel
                             updateChart()
                             updateTable()
-
-                            Toast.makeText(
-                                this@ManajemenSoalActivity,
-                                "Data berhasil dimuat: ${data.size} ujian",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            Log.d(TAG, "✅ Data berhasil dimuat dan ditampilkan")
+                            Toast.makeText(this@ManajemenSoalActivity,
+                                "Data dimuat: ${data.size} ujian", Toast.LENGTH_SHORT).show()
                         } else {
-                            // Jika data kosong setelah diproses
                             Log.e(TAG, "❌ Data bulanan kosong setelah diproses!")
-                            Toast.makeText(
-                                this@ManajemenSoalActivity,
-                                "Error: Data tidak dapat diproses",
-                                Toast.LENGTH_LONG
-                            ).show()
+                            showEmptyChart()
                         }
                     } else {
-                        // Jika tidak ada data dari API
-                        Toast.makeText(
-                            this@ManajemenSoalActivity,
-                            "Belum ada data ujian untuk $namaJilid",
-                            Toast.LENGTH_LONG
-                        ).show()
-                        Log.w(TAG, "⚠️ Tidak ada data untuk Jilid ID: $idJilid")
-
-                        // Bersihkan grafik dan tabel
-                        val lineChart = chartContainer.findViewById<LineChart>(R.id.chart_image)
-                        lineChart?.clear()
-                        lineChart?.invalidate()
-                        clearTable()
+                        Log.w(TAG, "⚠️ Tidak ada data ujian")
+                        showEmptyChart()
+                        Toast.makeText(this@ManajemenSoalActivity,
+                            "Belum ada data ujian untuk jilid ini", Toast.LENGTH_LONG).show()
                     }
                 } else {
-                    // Jika API gagal
                     val error = result.exceptionOrNull()
-                    val errorMsg = error?.message ?: "Error tidak diketahui"
-
-                    Log.e(TAG, "❌ Gagal memuat data: $errorMsg")
+                    Log.e(TAG, "❌ Error mengambil data: ${error?.message}")
+                    Log.e(TAG, "❌ Error type: ${error?.javaClass?.simpleName}")
                     error?.printStackTrace()
 
-                    Toast.makeText(
-                        this@ManajemenSoalActivity,
-                        "Gagal memuat data: $errorMsg",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    showEmptyChart()
+
+                    val errorMessage = when {
+                        error?.message?.contains("timeout", ignoreCase = true) == true ->
+                            "Timeout: Koneksi terlalu lama"
+                        error?.message?.contains("Unable to resolve host", ignoreCase = true) == true ->
+                            "Tidak ada koneksi internet"
+                        error?.message?.contains("HTTP", ignoreCase = true) == true ->
+                            "Server error: ${error.message}"
+                        else -> "Gagal mengambil data: ${error?.message ?: "Unknown error"}"
+                    }
+
+                    Toast.makeText(this@ManajemenSoalActivity,
+                        errorMessage, Toast.LENGTH_LONG).show()
                 }
 
             } catch (e: Exception) {
                 Log.e(TAG, "❌ Exception di loadHistoryData: ${e.message}", e)
                 e.printStackTrace()
-
-                Toast.makeText(
-                    this@ManajemenSoalActivity,
-                    "Error: ${e.message}",
-                    Toast.LENGTH_LONG
-                ).show()
+                showEmptyChart()
+                Toast.makeText(this@ManajemenSoalActivity,
+                    "Error: ${e.message ?: "Unknown error"}", Toast.LENGTH_LONG).show()
             }
         }
     }
 
-    /**
-     * Fungsi untuk mengambil data ujian dari API berdasarkan ID Jilid
-     * @param jilidId ID Jilid yang ingin diambil datanya
-     * @return Result<List<UjianData>> - Success jika berhasil, Failure jika gagal
-     */
+    private fun showEmptyChart() {
+        lineChart?.apply {
+            clear()
+            setNoDataText("Belum ada data ujian")
+            setNoDataTextColor(Color.BLACK)
+            invalidate()
+        }
+        clearTable()
+    }
+
     private suspend fun getUjianDataByJilidId(jilidId: Int): Result<List<UjianData>> {
         return withContext(Dispatchers.IO) {
             var connection: HttpURLConnection? = null
             try {
-                // Buat URL dengan parameter id_jilid
                 val urlString = "$BASE_URL/get_ujian_by_jilid.php?id_jilid=$jilidId"
-                Log.d(TAG, "📡 Request ke: $urlString")
+                Log.d(TAG, "📡 Request URL: $urlString")
 
                 val url = URL(urlString)
                 connection = url.openConnection() as HttpURLConnection
-
-                // Konfigurasi koneksi HTTP
                 connection.apply {
-                    requestMethod = "GET" // Method GET
-                    setRequestProperty("Accept", "application/json") // Terima JSON
-                    setRequestProperty("Content-Type", "application/json; charset=UTF-8")
-                    setRequestProperty("User-Agent", "TPQ-Android-App") // User agent custom
-                    connectTimeout = 30000  // Timeout koneksi 30 detik
-                    readTimeout = 30000     // Timeout baca 30 detik
-                    doInput = true // Izinkan input
-                    useCaches = false // Jangan gunakan cache
-
-                    // Log protocol yang digunakan (HTTP atau HTTPS)
-                    if (url.protocol.equals("https", ignoreCase = true)) {
-                        Log.d(TAG, "Menggunakan koneksi HTTPS")
-                    } else {
-                        Log.d(TAG, "Menggunakan koneksi HTTP")
-                    }
+                    requestMethod = "GET"
+                    connectTimeout = 15000
+                    readTimeout = 15000
+                    setRequestProperty("Accept", "application/json")
+                    setRequestProperty("Content-Type", "application/json; charset=utf-8")
+                    doInput = true
+                    useCaches = false
                 }
 
-                // Mulai koneksi
-                Log.d(TAG, "Menghubungkan...")
                 connection.connect()
-                Log.d(TAG, "Koneksi berhasil")
-
-                // Cek response code
                 val responseCode = connection.responseCode
-                val responseMessage = connection.responseMessage
                 Log.d(TAG, "📡 Response Code: $responseCode")
-                Log.d(TAG, "📡 Response Message: $responseMessage")
 
-                // Baca response dari server
-                val inputStream = if (responseCode == HttpURLConnection.HTTP_OK) {
-                    Log.d(TAG, "Membaca dari input stream")
-                    connection.inputStream
-                } else {
-                    Log.e(TAG, "❌ Response code buruk: $responseCode - $responseMessage")
-                    connection.errorStream ?: connection.inputStream
+                if (responseCode != HttpURLConnection.HTTP_OK) {
+                    val errorStream = connection.errorStream
+                    val errorText = errorStream?.bufferedReader()?.use { it.readText() }
+                        ?: "No error details available"
+                    Log.e(TAG, "❌ HTTP Error $responseCode: $errorText")
+                    return@withContext Result.failure(Exception("HTTP $responseCode: $errorText"))
                 }
 
-                // Konversi stream ke string
-                val response = BufferedReader(InputStreamReader(inputStream, Charsets.UTF_8)).use { reader ->
-                    val text = reader.readText()
-                    Log.d(TAG, "Selesai membaca response")
-                    text
-                }
+                val inputStream = connection.inputStream
+                    ?: return@withContext Result.failure(Exception("Server tidak mengembalikan data"))
 
-                Log.d(TAG, "📡 Panjang Response: ${response.length}")
-                Log.d(TAG, "📡 Response: $response")
+                val response = inputStream.bufferedReader().use { it.readText() }
+                Log.d(TAG, "📡 Response length: ${response.length} chars")
+                Log.d(TAG, "📡 Response preview: ${response.take(500)}")
 
-                // Validasi: response tidak boleh kosong
                 if (response.isBlank()) {
-                    Log.e(TAG, "❌ Response kosong dari server")
+                    Log.e(TAG, "❌ Response kosong!")
                     return@withContext Result.failure(Exception("Server mengembalikan response kosong"))
                 }
 
-                // Parse JSON response
-                val jsonResponse = try {
-                    JSONObject(response)
-                } catch (e: JSONException) {
-                    Log.e(TAG, "❌ Error parsing JSON: ${e.message}")
-                    Log.e(TAG, "Response yang gagal di-parse: $response")
-                    e.printStackTrace()
-                    return@withContext Result.failure(Exception("Format response tidak valid: ${e.message}"))
+                val json = JSONObject(response)
+
+                val success = json.optBoolean("success", false)
+                val message = json.optString("message", "")
+                Log.d(TAG, "📡 API Success: $success, Message: $message")
+
+                if (!success) {
+                    Log.w(TAG, "⚠️ API returned success=false: $message")
+                    return@withContext Result.success(emptyList())
                 }
 
-                // Cek field "success"
-                val success = jsonResponse.optBoolean("success", false)
-                Log.d(TAG, "📊 Success flag: $success")
+                if (!json.has("data")) {
+                    Log.e(TAG, "❌ JSON tidak memiliki field 'data'")
+                    Log.e(TAG, "JSON keys: ${json.keys().asSequence().toList()}")
+                    return@withContext Result.failure(Exception("Response tidak memiliki data"))
+                }
 
-                if (success) {
-                    // Jika success = true, ambil data
-                    if (!jsonResponse.has("data")) {
-                        Log.w(TAG, "⚠️ Response tidak punya field 'data'")
-                        return@withContext Result.success(emptyList())
-                    }
+                val dataArray = json.getJSONArray("data")
+                Log.d(TAG, "📡 Data array length: ${dataArray.length()}")
 
-                    val dataArray = jsonResponse.getJSONArray("data")
-                    Log.d(TAG, "📊 Panjang array data: ${dataArray.length()}")
+                if (dataArray.length() == 0) {
+                    Log.w(TAG, "⚠️ Data array kosong")
+                    return@withContext Result.success(emptyList())
+                }
 
-                    if (dataArray.length() == 0) {
-                        Log.w(TAG, "⚠️ Array data kosong")
-                        return@withContext Result.success(emptyList())
-                    }
+                val list = mutableListOf<UjianData>()
 
-                    val ujianList = mutableListOf<UjianData>()
+                for (i in 0 until dataArray.length()) {
+                    try {
+                        val item = dataArray.getJSONObject(i)
+                        Log.d(TAG, "  Processing item $i: ${item}")
 
-                    // Loop setiap item di array
-                    for (i in 0 until dataArray.length()) {
-                        try {
-                            val item = dataArray.getJSONObject(i)
+                        val tanggal = item.optString("Tanggal_ujian", "")
+                            .takeIf { it.isNotBlank() }
+                            ?: item.optString("tanggal_ujian", "")
 
-                            // Debug: Print semua key yang ada di object
-                            val keys = item.keys().asSequence().toList()
-                            Log.d(TAG, "📋 Item $i keys: $keys")
-
-                            // Cari field tanggal (bisa berbeda-beda nama fieldnya)
-                            val tanggal = when {
-                                item.has("Tanggal_ujian") && !item.isNull("Tanggal_ujian") -> {
-                                    item.getString("Tanggal_ujian")
-                                }
-                                item.has("tanggal_ujian") && !item.isNull("tanggal_ujian") -> {
-                                    item.getString("tanggal_ujian")
-                                }
-                                item.has("created_at") && !item.isNull("created_at") -> {
-                                    item.getString("created_at")
-                                }
-                                else -> {
-                                    // Jika tidak ada field tanggal, gunakan tanggal hari ini
-                                    Log.e(TAG, "❌ Field tanggal tidak ditemukan di item $i")
-                                    SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-                                }
-                            }
-
-                            // Ambil nilai ujian
-                            val nilai = when {
-                                item.has("nilai_total") && !item.isNull("nilai_total") -> {
-                                    val nilaiStr = item.getString("nilai_total")
-                                    try {
-                                        nilaiStr.toDouble()
-                                    } catch (e: Exception) {
-                                        Log.e(TAG, "❌ Gagal parse nilai: $nilaiStr")
-                                        0.0
-                                    }
-                                }
-                                else -> {
-                                    Log.w(TAG, "⚠️ nilai_total null atau tidak ada untuk item $i")
-                                    0.0
-                                }
-                            }
-
-                            // Pastikan format tanggal YYYY-MM-DD (10 karakter)
-                            val tanggalFormatted = if (tanggal.length >= 10) {
-                                tanggal.substring(0, 10)
-                            } else {
-                                tanggal
-                            }
-
-                            // Buat object UjianData
-                            val ujianData = UjianData(
-                                tanggalUjian = tanggalFormatted,
-                                nilaiTotal = nilai
-                            )
-
-                            ujianList.add(ujianData)
-
-                            Log.d(TAG, "✅ Item $i: tanggal=$tanggalFormatted, nilai=$nilai")
-
-                        } catch (e: Exception) {
-                            Log.e(TAG, "❌ Error parsing item $i: ${e.message}", e)
-                            e.printStackTrace()
+                        if (tanggal.isBlank()) {
+                            Log.w(TAG, "⚠️ Item $i: tanggal kosong, skip")
+                            continue
                         }
+
+                        val nilai = item.optDouble("nilai_total", -1.0)
+
+                        if (nilai < 0) {
+                            Log.w(TAG, "⚠️ Item $i: nilai tidak valid ($nilai), skip")
+                            continue
+                        }
+
+                        val cleanTanggal = tanggal.take(10)
+                        val ujianData = UjianData(
+                            tanggalUjian = cleanTanggal,
+                            nilaiTotal = nilai
+                        )
+
+                        list.add(ujianData)
+                        Log.d(TAG, "  ✓ Item $i: $cleanTanggal = $nilai")
+
+                    } catch (e: Exception) {
+                        Log.e(TAG, "❌ Error parsing item $i: ${e.message}", e)
                     }
-
-                    Log.d(TAG, "✅ Berhasil parse ${ujianList.size}/${dataArray.length()} record")
-
-                    if (ujianList.isEmpty()) {
-                        Log.w(TAG, "⚠️ Tidak ada data valid setelah parsing")
-                    }
-
-                    Result.success(ujianList)
-                } else {
-                    // Jika success = false
-                    val message = jsonResponse.optString("message", "Tidak ada data")
-                    Log.w(TAG, "⚠️ API return success=false: $message")
-                    Result.success(emptyList())
                 }
 
-            } catch (e: javax.net.ssl.SSLException) {
-                // Error SSL/Certificate
-                val errorMsg = "SSL Error: ${e.message ?: "Validasi sertifikat gagal"}"
-                Log.e(TAG, "❌ $errorMsg", e)
-                e.printStackTrace()
-                Result.failure(Exception(errorMsg))
+                Log.d(TAG, "✅ Successfully parsed: ${list.size} items")
+
+                if (list.isEmpty()) {
+                    Log.w(TAG, "⚠️ Tidak ada data valid yang bisa di-parse")
+                }
+
+                Result.success(list)
+
             } catch (e: java.net.UnknownHostException) {
-                // Error tidak bisa connect ke server
-                val errorMsg = "Network Error: Tidak dapat terhubung ke server. Periksa koneksi internet Anda."
-                Log.e(TAG, "❌ $errorMsg", e)
-                e.printStackTrace()
-                Result.failure(Exception(errorMsg))
+                Log.e(TAG, "❌ Network Error - Unknown Host: ${e.message}")
+                Result.failure(Exception("Tidak dapat terhubung ke server. Periksa koneksi internet."))
             } catch (e: java.net.SocketTimeoutException) {
-                // Error timeout
-                val errorMsg = "Timeout: Server tidak merespons. Coba lagi."
-                Log.e(TAG, "❌ $errorMsg", e)
-                e.printStackTrace()
-                Result.failure(Exception(errorMsg))
+                Log.e(TAG, "❌ Network Error - Timeout: ${e.message}")
+                Result.failure(Exception("Koneksi timeout. Server tidak merespons."))
             } catch (e: java.io.IOException) {
-                // Error IO (baca/tulis)
-                val errorMsg = "IO Error: ${e.message ?: "Gagal membaca data dari server"}"
-                Log.e(TAG, "❌ $errorMsg", e)
-                e.printStackTrace()
-                Result.failure(Exception(errorMsg))
+                Log.e(TAG, "❌ IO Error: ${e.message}", e)
+                Result.failure(Exception("Error koneksi: ${e.message}"))
             } catch (e: Exception) {
-                // Error lainnya
-                val errorMsg = "Error: ${e.javaClass.simpleName} - ${e.message ?: "Unknown error"}"
-                Log.e(TAG, "❌ Exception di getUjianDataByJilidId: $errorMsg", e)
-                e.printStackTrace()
-                Result.failure(Exception(errorMsg))
+                Log.e(TAG, "❌ Unexpected Error: ${e.javaClass.simpleName} - ${e.message}", e)
+                Result.failure(e)
             } finally {
-                // Pastikan koneksi ditutup
-                try {
-                    connection?.disconnect()
-                    Log.d(TAG, "🔌 Koneksi ditutup")
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error saat tutup koneksi: ${e.message}", e)
-                }
+                connection?.disconnect()
+                Log.d(TAG, "📡 Connection closed")
             }
         }
     }
 
-    /**
-     * Fungsi untuk memproses data ujian
-     * Mengelompokkan data per bulan dan menghitung rata-rata
-     * @param ujianList List data ujian dari API
-     */
     private fun processUjianData(ujianList: List<UjianData>) {
-        monthlyData.clear() // Bersihkan data lama
+        monthlyData.clear()
 
-        // Format untuk parsing tanggal dari database (YYYY-MM-DD)
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        // Format untuk nama bulan dalam bahasa Indonesia (Desember 2025)
         val monthFormat = SimpleDateFormat("MMMM yyyy", Locale.forLanguageTag("id-ID"))
 
-        Log.d(TAG, "📊 Memproses ${ujianList.size} record ujian...")
+        Log.d(TAG, "📊 Processing ${ujianList.size} ujian...")
 
-        // Loop setiap data ujian
-        for ((index, ujian) in ujianList.withIndex()) {
+        for (ujian in ujianList) {
             try {
-                Log.d(TAG, "Memproses item $index: tanggal='${ujian.tanggalUjian}' nilai=${ujian.nilaiTotal}")
-
-                // Parse tanggal dari string ke Date object
                 val date = dateFormat.parse(ujian.tanggalUjian)
-                if (date != null) {
-                    // Convert Date ke nama bulan (contoh: "Desember 2025")
-                    val monthName = monthFormat.format(date)
-
-                    // Jika bulan ini belum ada di map, buat entry baru
-                    if (!monthlyData.containsKey(monthName)) {
-                        monthlyData[monthName] = mutableListOf()
-                        Log.d(TAG, "📅 Buat entry bulan baru: $monthName")
-                    }
-                    // Tambahkan nilai ke bulan tersebut
-                    monthlyData[monthName]?.add(ujian.nilaiTotal)
-
-                    Log.d(TAG, "✅ Ditambahkan ke $monthName: ${ujian.nilaiTotal}")
-                } else {
-                    Log.e(TAG, "❌ Gagal parse tanggal: ${ujian.tanggalUjian}")
+                if (date == null) {
+                    Log.w(TAG, "  ✗ Cannot parse date: ${ujian.tanggalUjian}")
+                    continue
                 }
+
+                val monthName = monthFormat.format(date)
+
+                monthlyData.getOrPut(monthName) { mutableListOf() }.add(ujian.nilaiTotal)
+
+                Log.d(TAG, "  ✓ $monthName: ${ujian.nilaiTotal}")
             } catch (e: Exception) {
-                Log.e(TAG, "❌ Error memproses item $index: ${e.message}", e)
-                e.printStackTrace()
+                Log.e(TAG, "  ✗ Error processing ${ujian.tanggalUjian}: ${e.message}")
             }
         }
 
-        // Log ringkasan data
-        if (monthlyData.isEmpty()) {
-            Log.e(TAG, "⚠️ PERINGATAN: Data bulanan kosong setelah diproses!")
-            Log.e(TAG, "   Ini mungkin karena masalah parsing tanggal")
-        } else {
-            Log.d(TAG, "📊 Ringkasan data bulanan:")
-            for ((month, values) in monthlyData) {
-                val avg = values.average()
-                Log.d(TAG, "   $month: ${values.size} ujian, rata-rata = $avg, nilai = $values")
-            }
+        Log.d(TAG, "📊 Total months: ${monthlyData.size}")
+        monthlyData.forEach { (month, values) ->
+            val avg = values.average()
+            Log.d(TAG, "  $month: ${values.size} ujian, avg=${String.format(Locale.getDefault(), "%.2f", avg)}")
         }
     }
 
-    /**
-     * Fungsi untuk update grafik dengan data terbaru
-     * Menampilkan 3 bulan terakhir di grafik garis
-     */
     private fun updateChart() {
         try {
-            Log.d(TAG, "📈 Update grafik...")
+            Log.d(TAG, "📈 Updating chart...")
 
-            // Cari LineChart yang sudah dibuat
-            val lineChart = chartContainer.findViewById<LineChart>(R.id.chart_image)
             if (lineChart == null) {
-                Log.e(TAG, "❌ LineChart tidak ditemukan!")
+                Log.e(TAG, "⚠️ Chart is null!")
                 return
             }
 
-            // Jika tidak ada data bulanan, kosongkan grafik
             if (monthlyData.isEmpty()) {
-                Log.d(TAG, "⚠️ Tidak ada data bulanan untuk ditampilkan")
-                lineChart.clear()
-                lineChart.invalidate()
+                Log.w(TAG, "⚠️ No monthly data!")
+                showEmptyChart()
                 return
             }
 
-            // Sorting bulan dari yang terbaru ke terlama
-            val sortedMonths = monthlyData.keys.sortedByDescending { monthKey ->
+            val dateFormat = SimpleDateFormat("MMMM yyyy", Locale.forLanguageTag("id-ID"))
+            val sortedMonths = monthlyData.keys.sortedByDescending {
                 try {
-                    val dateFormat = SimpleDateFormat("MMMM yyyy", Locale.forLanguageTag("id-ID"))
-                    dateFormat.parse(monthKey)?.time ?: 0L
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error parsing bulan untuk sorting: $monthKey", e)
+                    dateFormat.parse(it)?.time ?: 0L
+                } catch (_: Exception) {
                     0L
                 }
             }
 
-            // Ambil 3 bulan terakhir, lalu balik urutan (untuk grafik kiri ke kanan)
+            Log.d(TAG, "📊 All months sorted: $sortedMonths")
+
             val last3Months = sortedMonths.take(3).reversed()
+            Log.d(TAG, "📊 Last 3 months (oldest to newest): $last3Months")
 
-            Log.d(TAG, "📈 3 Bulan terakhir: $last3Months")
+            val entries = mutableListOf<Entry>()
+            val labels = mutableListOf<String>()
 
-            if (last3Months.isEmpty()) {
-                lineChart.clear()
-                lineChart.invalidate()
-                return
-            }
-
-            // Siapkan data untuk grafik
-            val entries = mutableListOf<Entry>() // Titik-titik di grafik
-            val monthLabels = mutableListOf<String>() // Label bulan di sumbu X
-
-            // Loop setiap bulan
             last3Months.forEachIndexed { index, month ->
-                val values = monthlyData[month] ?: emptyList()
-                if (values.isNotEmpty()) {
-                    // Hitung rata-rata nilai di bulan ini
-                    val average = values.average().toFloat()
-                    // Tambahkan titik ke grafik (x = index, y = rata-rata)
-                    entries.add(Entry(index.toFloat(), average))
+                val values = monthlyData[month]
+                if (values != null && values.isNotEmpty()) {
+                    val avg = values.average().toFloat()
+                    entries.add(Entry(index.toFloat(), avg))
 
-                    // Ambil nama bulan saja (tanpa tahun)
-                    // Contoh: "Desember 2025" -> "Desember"
-                    val shortMonth = month.split(" ")[0]
-                    monthLabels.add(shortMonth)
+                    val monthName = month.split(" ")[0]
+                    labels.add(monthName)
 
-                    Log.d(TAG, "📈 Titik grafik $index: $shortMonth = $average")
+                    Log.d(TAG, "  ✓ Entry[$index]: x=$index, y=${String.format(Locale.getDefault(), "%.2f", avg)}, label='$monthName'")
                 }
             }
 
-            // Jika tidak ada entries, kosongkan grafik
+            Log.d(TAG, "📊 Final labels: $labels (size=${labels.size})")
+            Log.d(TAG, "📊 Final entries: ${entries.size}")
+
             if (entries.isEmpty()) {
-                Log.d(TAG, "⚠️ Tidak ada entries untuk grafik")
-                lineChart.clear()
-                lineChart.invalidate()
+                Log.w(TAG, "⚠️ No entries created!")
+                showEmptyChart()
                 return
             }
 
-            // Buat dataset (garis di grafik) dengan styling
             val dataSet = LineDataSet(entries, "Rata-rata Nilai").apply {
-                color = Color.WHITE // Warna garis putih
-                setCircleColor(Color.WHITE) // Warna lingkaran putih
-                lineWidth = 3f // Ketebalan garis
-                circleRadius = 8f // Ukuran lingkaran
-                circleHoleRadius = 4f // Ukuran lubang di lingkaran
-                setDrawCircleHole(true) // Tampilkan lubang di lingkaran
+                color = "#00DF82".toColorInt()
+                lineWidth = 3f
+                setCircleColor("#00DF82".toColorInt())
+                circleRadius = 8f
+                setDrawCircleHole(true)
+                circleHoleRadius = 4f
+                circleHoleColor = Color.WHITE
+                valueTextSize = 13f
+                valueTextColor = Color.BLACK
+                setDrawValues(true)
+                mode = LineDataSet.Mode.LINEAR
+                setDrawFilled(true)
+                fillColor = "#00DF82".toColorInt()
+                fillAlpha = 40
+            }
 
-                // PERBAIKAN: Gunakan circleHoleColor sebagai pengganti setCircleColorHole
-                // Yang tidak tersedia di versi tertentu MPAndroidChart
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                    // Untuk Android O ke atas, gunakan setCircleHoleColor
-                    try {
-                        // Coba gunakan reflection untuk versi yang lebih baru
-                        val method = this.javaClass.getMethod("setCircleHoleColor", Int::class.java)
-                        method.invoke(this, Color.parseColor("#00DF82"))
-                    } catch (e: NoSuchMethodException) {
-                        // Fallback untuk versi yang lebih lama
-                        try {
-                            // Beberapa versi menggunakan holeColor
-                            val method = this.javaClass.getMethod("holeColor", Int::class.java)
-                            method.invoke(this, Color.parseColor("#00DF82"))
-                        } catch (e2: Exception) {
-                            // Jika semua gagal, gunakan cara alternatif tanpa hole color
-                            Log.w(TAG, "setCircleHoleColor tidak tersedia di versi MPAndroidChart ini")
-                            setDrawCircleHole(false) // Nonaktifkan hole
+            lineChart?.apply {
+                // Set data
+                data = LineData(dataSet)
+
+                // Configure X axis with custom formatter
+                xAxis.apply {
+                    valueFormatter = object : com.github.mikephil.charting.formatter.ValueFormatter() {
+                        override fun getFormattedValue(value: Float): String {
+                            val index = value.toInt()
+                            val label = if (index >= 0 && index < labels.size) {
+                                labels[index]
+                            } else {
+                                ""
+                            }
+                            Log.d(TAG, "X-Axis formatter: value=$value, index=$index, label='$label'")
+                            return label
                         }
                     }
-                } else {
-                    // Untuk Android lama, nonaktifkan hole
-                    setDrawCircleHole(false)
-                }
 
-                valueTextSize = 11f // Ukuran text nilai
-                valueTextColor = Color.WHITE // Warna text nilai
-                setDrawValues(true) // Tampilkan nilai di atas titik
-                mode = LineDataSet.Mode.LINEAR // Mode garis lurus
-                setDrawFilled(true) // Isi area di bawah garis
-                fillColor = Color.parseColor("#80FFFFFF") // Warna isi putih semi-transparan
-                fillAlpha = 128 // Transparansi isi
-            }
-
-            // Set data ke chart
-            val lineData = LineData(dataSet)
-            lineChart.data = lineData
-
-            // Setup Sumbu X dengan label bulan
-            lineChart.xAxis.apply {
-                valueFormatter = object : ValueFormatter() {
-                    override fun getFormattedValue(value: Float): String {
-                        val index = value.toInt()
-                        return if (index >= 0 && index < monthLabels.size) {
-                            monthLabels[index]
-                        } else ""
-                    }
-                }
-
-                position = XAxis.XAxisPosition.BOTTOM
-                setDrawGridLines(true)
-                gridColor = Color.parseColor("#80FFFFFF")
-                textColor = Color.WHITE
-                textSize = 10f
-                granularity = 1f
-                setDrawAxisLine(false)
-
-                // Handle jika hanya 1 data point
-                if (monthLabels.size == 1) {
+                    // Set range untuk 3 bulan
                     axisMinimum = -0.5f
-                    axisMaximum = 0.5f
-                    labelCount = 1
-                } else {
-                    axisMinimum = 0f
-                    axisMaximum = (monthLabels.size - 1).toFloat()
-                    labelCount = monthLabels.size
+                    axisMaximum = (labels.size - 0.5f)
+                    setLabelCount(labels.size, true)
+                    granularity = 1f
+
+                    // Styling untuk lebih jelas
+                    position = XAxis.XAxisPosition.BOTTOM
+                    setDrawGridLines(true)
+                    gridColor = "#40000000".toColorInt()
+                    textColor = Color.BLACK
+                    textSize = 14f
+                    axisLineColor = Color.BLACK
+                    axisLineWidth = 2f
+                    yOffset = 20f
+                    setCenterAxisLabels(false)
+
+                    Log.d(TAG, "📊 X-Axis configured: labels=$labels")
                 }
+
+                // Ensure chart shows all data
+                setVisibleXRangeMaximum(labels.size.toFloat())
+                setVisibleXRangeMinimum(labels.size.toFloat())
+                moveViewToX(0f)
+
+                // Force refresh
+                notifyDataSetChanged()
+                invalidate()
+
+                // Delayed refresh untuk memastikan
+                postDelayed({
+                    invalidate()
+                    Log.d(TAG, "✅ Chart refreshed (delayed)")
+                }, 100)
+
+                Log.d(TAG, "✅ Chart configured with ${labels.size} labels")
             }
 
-            // Setup Sumbu Y (0-100)
-            lineChart.axisLeft.apply {
-                setDrawGridLines(true)
-                gridColor = Color.parseColor("#80FFFFFF")
-                textColor = Color.WHITE
-                textSize = 10f
-                axisMinimum = 0f
-                axisMaximum = 100f
-                setDrawAxisLine(false)
-                setLabelCount(5, true)
-            }
-
-            // Disable sumbu Y kanan
-            lineChart.axisRight.isEnabled = false
-
-            // Refresh grafik dengan animasi
-            lineChart.setVisibleXRangeMaximum(3f) // Maksimal 3 titik terlihat
-            lineChart.moveViewToX(0f) // Posisi awal di kiri
-            lineChart.animateX(1000) // Animasi 1 detik
-            lineChart.notifyDataSetChanged()
-            lineChart.invalidate()
-
-            Log.d(TAG, "✅ Grafik berhasil diupdate dengan ${entries.size} titik")
-            Log.d(TAG, "   Nilai: ${entries.map { "${it.x}=${it.y}" }}")
+            Log.d(TAG, "✅ Chart updated successfully with ${entries.size} points")
 
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Error update grafik: ${e.message}", e)
+            Log.e(TAG, "❌ Update chart error: ${e.message}", e)
             e.printStackTrace()
         }
     }
 
-    /**
-     * Fungsi untuk update tabel dengan data bulanan
-     * Menampilkan semua bulan yang ada data
-     */
     private fun updateTable() {
         try {
-            Log.d(TAG, "📊 Update tabel...")
-
             val tableCard = findViewById<LinearLayout>(R.id.table_card)
 
-            // Hapus semua row kecuali header (index 0)
-            val childCount = tableCard.childCount
-            if (childCount > 1) {
-                tableCard.removeViews(1, childCount - 1)
+            while (tableCard.childCount > 1) {
+                tableCard.removeViewAt(1)
             }
 
-            // Jika tidak ada data, keluar dari fungsi
-            if (monthlyData.isEmpty()) {
-                Log.d(TAG, "⚠️ Tidak ada data untuk tabel")
-                return
-            }
+            if (monthlyData.isEmpty()) return
 
-            var rowNumber = 1
-
-            // Sort bulan dari terbaru ke terlama
-            val sortedMonthly = monthlyData.toSortedMap(compareByDescending {
+            val dateFormat = SimpleDateFormat("MMMM yyyy", Locale.forLanguageTag("id-ID"))
+            val sorted = monthlyData.toSortedMap(compareByDescending {
                 try {
-                    val dateFormat = SimpleDateFormat("MMMM yyyy", Locale.forLanguageTag("id-ID"))
                     dateFormat.parse(it)?.time ?: 0L
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     0L
                 }
             })
 
-            // Loop setiap bulan
-            for ((month, values) in sortedMonthly) {
-                // Hitung rata-rata nilai di bulan ini
-                val average = values.average()
+            sorted.entries.forEachIndexed { index, (month, values) ->
+                val avg = values.average()
 
-                // Buat row layout untuk tabel
-                val rowLayout = LinearLayout(this).apply {
+                val row = LinearLayout(this).apply {
                     layoutParams = LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
-                        dpToPx(36) // Tinggi row 36dp
+                        (36 * resources.displayMetrics.density).toInt()
                     )
                     orientation = LinearLayout.HORIZONTAL
                 }
 
-                // Kolom NO (nomor urut)
-                val tvNo = TextView(this).apply {
-                    layoutParams = LinearLayout.LayoutParams(
-                        0,
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        0.8f // Weight 0.8
-                    )
-                    text = rowNumber.toString()
-                    textSize = 12f
-                    setTextColor(Color.BLACK)
-                    gravity = android.view.Gravity.CENTER
-                    setBackgroundResource(R.drawable.button_border)
-                }
+                row.addView(createTableCell((index + 1).toString(), 0.8f))
+                row.addView(createTableCell(month, 1.5f))
+                row.addView(createTableCell(String.format(Locale.getDefault(), "%.2f", avg), 1.7f))
 
-                // Kolom BULAN (nama bulan)
-                val tvBulan = TextView(this).apply {
-                    layoutParams = LinearLayout.LayoutParams(
-                        0,
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        1.5f // Weight 1.5
-                    )
-                    text = month
-                    textSize = 12f
-                    setTextColor(Color.BLACK)
-                    gravity = android.view.Gravity.CENTER
-                    setBackgroundResource(R.drawable.button_border)
-                }
-
-                // Kolom NILAI (rata-rata nilai)
-                val tvNilai = TextView(this).apply {
-                    layoutParams = LinearLayout.LayoutParams(
-                        0,
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        1.7f // Weight 1.7
-                    )
-                    text = String.format("%.2f", average) // Format 2 desimal
-                    textSize = 12f
-                    setTextColor(Color.BLACK)
-                    gravity = android.view.Gravity.CENTER
-                    setBackgroundResource(R.drawable.button_border)
-                }
-
-                // Tambahkan semua kolom ke row
-                rowLayout.addView(tvNo)
-                rowLayout.addView(tvBulan)
-                rowLayout.addView(tvNilai)
-
-                // Tambahkan row ke table
-                tableCard.addView(rowLayout)
-
-                Log.d(TAG, "📊 Tambah row: $rowNumber. $month = ${String.format("%.2f", average)}")
-                rowNumber++
+                tableCard.addView(row)
             }
 
-            Log.d(TAG, "✅ Tabel berhasil diupdate dengan ${monthlyData.size} baris")
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Error update tabel: ${e.message}", e)
-            e.printStackTrace()
+            Log.e(TAG, "❌ Update table error: ${e.message}")
         }
     }
 
-    /**
-     * Fungsi untuk membersihkan tabel
-     * Menghapus semua row kecuali header
-     */
+    private fun createTableCell(text: String, weight: Float): TextView {
+        return TextView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, weight)
+            this.text = text
+            textSize = 12f
+            setTextColor(Color.BLACK)
+            gravity = android.view.Gravity.CENTER
+            setBackgroundResource(R.drawable.button_border)
+        }
+    }
+
     private fun clearTable() {
         try {
             val tableCard = findViewById<LinearLayout>(R.id.table_card)
-            val childCount = tableCard.childCount
-            if (childCount > 1) {
-                tableCard.removeViews(1, childCount - 1)
+            while (tableCard.childCount > 1) {
+                tableCard.removeViewAt(1)
             }
-            Log.d(TAG, "🗑️ Tabel dibersihkan")
         } catch (e: Exception) {
-            Log.e(TAG, "Error saat bersihkan tabel: ${e.message}", e)
+            Log.e(TAG, "Clear table error: ${e.message}")
         }
     }
 
-    /**
-     * Fungsi helper untuk convert DP ke Pixel
-     * @param dp Nilai dalam DP
-     * @return Nilai dalam Pixel
-     */
-    private fun dpToPx(dp: Int): Int {
-        return (dp * resources.displayMetrics.density).toInt()
-    }
-
-    /**
-     * Fungsi untuk kembali ke halaman pilih jilid
-     */
-    private fun navigateBack() {
-        val intent = Intent(this, PilihJilidActivity::class.java)
-        startActivity(intent)
-        finish() // Tutup activity ini
-    }
-
-    /**
-     * Dipanggil saat activity kembali ke foreground
-     * Reload data untuk memastikan data terbaru
-     */
     override fun onResume() {
         super.onResume()
-        Log.d(TAG, "🔄 onResume - Reload data")
-        loadHistoryData()
     }
 
-    /**
-     * Dipanggil saat activity di-destroy
-     * Cancel semua coroutine untuk hindari memory leak
-     */
     override fun onDestroy() {
         super.onDestroy()
-        scope.cancel() // Cancel semua background task
-        Log.d(TAG, "🛑 Activity di-destroy")
+        scope.cancel()
     }
 }
