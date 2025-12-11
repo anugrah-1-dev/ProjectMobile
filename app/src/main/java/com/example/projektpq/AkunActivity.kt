@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.*
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -19,6 +20,7 @@ class AkunActivity : AppCompatActivity() {
 
     // View elements
     private lateinit var backIcon: ImageView
+    private lateinit var backText: TextView
     private lateinit var namaText: TextView
     private lateinit var emailText: TextView
     private lateinit var teleponText: TextView
@@ -37,55 +39,80 @@ class AkunActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.edit_akun)
 
         Log.d(TAG, "=== AkunActivity onCreate START ===")
 
         try {
+            setContentView(R.layout.edit_akun)
+
             auth = FirebaseAuth.getInstance()
             mysqlApiService = MySQLApiService()
 
             initializeViews()
             setupClickListeners()
+            setupBackPressHandler()
             loadUserProfile()
 
             Log.d(TAG, "=== AkunActivity onCreate SUCCESS ===")
         } catch (e: Exception) {
             Log.e(TAG, "❌ ERROR in onCreate", e)
             Toast.makeText(this, "Error loading profile: ${e.message}", Toast.LENGTH_LONG).show()
+            finish()
         }
     }
 
     private fun initializeViews() {
-        backIcon = findViewById(R.id.back_icon)
-        namaText = findViewById(R.id.nama_text)
-        emailText = findViewById(R.id.email_text)
-        teleponText = findViewById(R.id.telepon_text)
-        editButton = findViewById(R.id.edit_button)
-        homeIcon = findViewById(R.id.home_icon)
-        settingsIcon = findViewById(R.id.settings_icon)
+        try {
+            backIcon = findViewById(R.id.back_icon)
+            backText = findViewById(R.id.back_text)
+            namaText = findViewById(R.id.nama_text)
+            emailText = findViewById(R.id.email_text)
+            teleponText = findViewById(R.id.telepon_text)
+            editButton = findViewById(R.id.edit_button)
+            homeIcon = findViewById(R.id.home_icon)
+            settingsIcon = findViewById(R.id.settings_icon)
 
-        Log.d(TAG, "All views initialized successfully")
+            Log.d(TAG, "All views initialized successfully")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error initializing views", e)
+            throw e
+        }
     }
 
     private fun setupClickListeners() {
+        // Back button - icon
         backIcon.setOnClickListener {
-            finish()
+            onBackPressedDispatcher.onBackPressed()
         }
 
+        // Back button - text
+        backText.setOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
+        }
+
+        // Edit profile button
         editButton.setOnClickListener {
             showEditProfileDialog()
         }
 
+        // Bottom Navigation - Home
         homeIcon.setOnClickListener {
-            val intent = Intent(this, HomeActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-            startActivity(intent)
+            navigateToHome()
         }
 
+        // Bottom Navigation - Settings
         settingsIcon.setOnClickListener {
-            Toast.makeText(this, "Settings", Toast.LENGTH_SHORT).show()
+            navigateToSettings()
         }
+    }
+
+    private fun setupBackPressHandler() {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                Log.d(TAG, "Back button pressed - returning to PengaturanActivity")
+                finish()
+            }
+        })
     }
 
     private fun loadUserProfile() {
@@ -114,12 +141,13 @@ class AkunActivity : AppCompatActivity() {
         if (user != null) {
             namaText.text = user.displayName ?: "Tidak ada nama"
             emailText.text = user.email ?: "Tidak ada email"
-            teleponText.text = user.phoneNumber ?: "Tidak ada telepon"
+            teleponText.text = user.phoneNumber ?: "Tidak ada nomor telepon"
 
             Log.d(TAG, "✓ Firebase profile loaded successfully")
         } else {
             Log.e(TAG, "✗ Firebase user is null")
             Toast.makeText(this, "User tidak ditemukan", Toast.LENGTH_SHORT).show()
+            finish()
         }
     }
 
@@ -127,6 +155,8 @@ class AkunActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 Log.d(TAG, "→ Loading MySQL profile for user ID: $userId")
+
+                showLoading(true)
 
                 val result = mysqlApiService.getUserProfile(userId)
 
@@ -137,9 +167,11 @@ class AkunActivity : AppCompatActivity() {
                     if (response?.success == true && response.data != null) {
                         val userData = response.data
 
-                        namaText.text = userData.username
-                        emailText.text = if (userData.email.isNullOrEmpty()) "Belum diisi" else userData.email
-                        teleponText.text = if (userData.nomor_telepon.isNullOrEmpty()) "Belum diisi" else userData.nomor_telepon
+                        runOnUiThread {
+                            namaText.text = userData.username
+                            emailText.text = if (userData.email.isNullOrEmpty()) "Belum diisi" else userData.email
+                            teleponText.text = if (userData.nomor_telepon.isNullOrEmpty()) "Belum diisi" else userData.nomor_telepon
+                        }
 
                         Log.d(TAG, "✓ Profile loaded successfully")
                         Log.d(TAG, "  - Username: ${userData.username}")
@@ -158,6 +190,8 @@ class AkunActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 Log.e(TAG, "✗ Exception loading profile", e)
                 Toast.makeText(this@AkunActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+            } finally {
+                showLoading(false)
             }
         }
     }
@@ -167,7 +201,11 @@ class AkunActivity : AppCompatActivity() {
         val isGoogleLogin = prefs.getBoolean(KEY_LOGIN_MODE, true)
 
         if (isGoogleLogin) {
-            Toast.makeText(this, "Edit profil untuk akun Google tidak tersedia", Toast.LENGTH_SHORT).show()
+            AlertDialog.Builder(this)
+                .setTitle("Informasi")
+                .setMessage("Edit profil untuk akun Google tidak tersedia. Silakan edit profil melalui Google Account Anda.")
+                .setPositiveButton("OK", null)
+                .show()
             return
         }
 
@@ -182,7 +220,7 @@ class AkunActivity : AppCompatActivity() {
         phoneInput.setText(if (teleponText.text.toString() == "Belum diisi") "" else teleponText.text.toString())
 
         AlertDialog.Builder(this)
-            .setTitle("Edit Profile")
+            .setTitle("Edit Profil")
             .setView(dialogView)
             .setPositiveButton("Simpan") { _, _ ->
                 val newUsername = usernameInput.text.toString().trim()
@@ -233,33 +271,77 @@ class AkunActivity : AppCompatActivity() {
                     if (response?.success == true && response.data != null) {
                         val userData = response.data
 
-                        // Update UI
-                        namaText.text = userData.username
-                        emailText.text = if (userData.email.isNullOrEmpty()) "Belum diisi" else userData.email
-                        teleponText.text = if (userData.nomor_telepon.isNullOrEmpty()) "Belum diisi" else userData.nomor_telepon
+                        runOnUiThread {
+                            // Update UI
+                            namaText.text = userData.username
+                            emailText.text = if (userData.email.isNullOrEmpty()) "Belum diisi" else userData.email
+                            teleponText.text = if (userData.nomor_telepon.isNullOrEmpty()) "Belum diisi" else userData.nomor_telepon
+
+                            Toast.makeText(this@AkunActivity, "Profil berhasil diperbarui", Toast.LENGTH_SHORT).show()
+                        }
 
                         // Update SharedPreferences
                         prefs.edit().putString(KEY_USERNAME, userData.username).apply()
 
-                        Toast.makeText(this@AkunActivity, "Profil berhasil diperbarui", Toast.LENGTH_SHORT).show()
                         Log.d(TAG, "✓ Profile updated successfully")
                     } else {
-                        Toast.makeText(this@AkunActivity, response?.message ?: "Gagal memperbarui profil", Toast.LENGTH_SHORT).show()
+                        runOnUiThread {
+                            Toast.makeText(this@AkunActivity, response?.message ?: "Gagal memperbarui profil", Toast.LENGTH_SHORT).show()
+                        }
                         Log.e(TAG, "✗ Update failed: ${response?.message}")
                     }
                 } else {
                     val error = result.exceptionOrNull()
-                    Toast.makeText(this@AkunActivity, "Koneksi gagal: ${error?.message}", Toast.LENGTH_SHORT).show()
+                    runOnUiThread {
+                        Toast.makeText(this@AkunActivity, "Koneksi gagal: ${error?.message}", Toast.LENGTH_SHORT).show()
+                    }
                     Log.e(TAG, "✗ Update profile failed", error)
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "✗ Exception updating profile", e)
-                Toast.makeText(this@AkunActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                runOnUiThread {
+                    Toast.makeText(this@AkunActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
             } finally {
-                editButton.isEnabled = true
-                editButton.text = "Edit"
+                runOnUiThread {
+                    editButton.isEnabled = true
+                    editButton.text = "Edit"
+                }
             }
         }
+    }
+
+    private fun showLoading(isLoading: Boolean) {
+        editButton.isEnabled = !isLoading
+        editButton.text = if (isLoading) "Memuat..." else "Edit"
+    }
+
+    private fun navigateToHome() {
+        try {
+            val intent = Intent(this, HomeActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            startActivity(intent)
+            finish()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error navigating to Home", e)
+            Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun navigateToSettings() {
+        try {
+            val intent = Intent(this, PengaturanActivity::class.java)
+            startActivity(intent)
+            finish()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error navigating to Settings", e)
+            Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d(TAG, "AkunActivity onResume")
     }
 
     override fun onDestroy() {

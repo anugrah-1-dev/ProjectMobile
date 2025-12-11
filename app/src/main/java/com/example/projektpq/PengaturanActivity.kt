@@ -122,18 +122,16 @@ class PengaturanActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
-        // Click listener untuk Profil Saya
+        // Click listener untuk Profil Saya - Navigasi ke AkunActivity
         menuProfilContainer.setOnClickListener {
-            Log.d(TAG, "Menu Profil clicked")
-            Toast.makeText(this, "Membuka Profil Saya", Toast.LENGTH_SHORT).show()
-            // TODO: Navigasi ke ProfilActivity jika sudah dibuat
-            // try {
-            //     val intent = Intent(this, ProfilActivity::class.java)
-            //     startActivity(intent)
-            // } catch (e: Exception) {
-            //     Log.e(TAG, "Error opening ProfilActivity", e)
-            //     Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-            // }
+            Log.d(TAG, "Menu Profil clicked - Navigating to AkunActivity")
+            try {
+                val intent = Intent(this, AkunActivity::class.java)
+                startActivity(intent)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error opening AkunActivity", e)
+                Toast.makeText(this, "Error membuka profil: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
         }
 
         // Click listener untuk Bahasa
@@ -156,7 +154,11 @@ class PengaturanActivity : AppCompatActivity() {
                 "Username: $username\nLogin: MySQL Database\nRole: $role"
             }
 
-            Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+            AlertDialog.Builder(this)
+                .setTitle("Informasi Akun")
+                .setMessage(message)
+                .setPositiveButton("OK", null)
+                .show()
         }
 
         // Click listener untuk Ubah Kata Sandi
@@ -169,8 +171,8 @@ class PengaturanActivity : AppCompatActivity() {
                 // Untuk Firebase, redirect ke ResetPasswordActivity
                 try {
                     val intent = Intent(this, ResetPasswordActivity::class.java)
-                    intent.putExtra(ResetPasswordActivity.EXTRA_EMAIL, auth.currentUser?.email)
-                    intent.putExtra(ResetPasswordActivity.EXTRA_IS_GOOGLE, true)
+                    intent.putExtra("email", auth.currentUser?.email)
+                    intent.putExtra("is_google", true)
                     startActivity(intent)
                 } catch (e: Exception) {
                     Log.e(TAG, "Error opening ResetPasswordActivity", e)
@@ -228,30 +230,26 @@ class PengaturanActivity : AppCompatActivity() {
     // Dialog untuk memilih bahasa
     private fun showLanguageDialog() {
         val languages = arrayOf("Bahasa Indonesia", "English")
-        var selectedLanguage = 0
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val savedLanguageIndex = prefs.getInt("language_index", 0)
 
         AlertDialog.Builder(this)
             .setTitle("Pilih Bahasa / Select Language")
-            .setSingleChoiceItems(languages, selectedLanguage) { _, which ->
-                selectedLanguage = which
+            .setSingleChoiceItems(languages, savedLanguageIndex) { _, which ->
+                // Simpan pilihan sementara
+                prefs.edit().putInt("language_index", which).apply()
             }
             .setPositiveButton("OK") { dialog, _ ->
-                val language = languages[selectedLanguage]
+                val selectedIndex = prefs.getInt("language_index", 0)
+                val language = languages[selectedIndex]
                 Toast.makeText(this, "Bahasa dipilih: $language", Toast.LENGTH_SHORT).show()
                 Log.d(TAG, "Language selected: $language")
-
-                // TODO: Implementasi perubahan bahasa
-                // Simpan pilihan bahasa ke SharedPreferences
-                // getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-                //     .edit()
-                //     .putString("selected_language", if (selectedLanguage == 0) "id" else "en")
-                //     .apply()
-
                 dialog.dismiss()
             }
             .setNegativeButton("Batal") { dialog, _ ->
                 dialog.dismiss()
             }
+            .setCancelable(false)
             .show()
     }
 
@@ -276,6 +274,7 @@ class PengaturanActivity : AppCompatActivity() {
             .setNegativeButton("Batal") { dialog, _ ->
                 dialog.dismiss()
             }
+            .setCancelable(false)
             .show()
     }
 

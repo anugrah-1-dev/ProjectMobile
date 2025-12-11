@@ -1,6 +1,5 @@
 package com.example.projektpq
 
-import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
@@ -12,6 +11,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.projektpq.service.MySQLApiService
@@ -50,7 +50,7 @@ class MulaiUjianActivity : AppCompatActivity() {
     private lateinit var question3TextView: TextView
     private lateinit var question4TextView: TextView
 
-    // Input Nilai TextViews
+    // Input Nilai TextViews - UNTUK MULAI UJIAN: TAMPILKAN "Berikan nilai......"
     private lateinit var nilai1TextView: TextView
     private lateinit var nilai2TextView: TextView
     private lateinit var nilai3TextView: TextView
@@ -64,6 +64,7 @@ class MulaiUjianActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "MulaiUjianActivity"
+        private const val PLACEHOLDER_NILAI = "Berikan nilai......"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -88,6 +89,7 @@ class MulaiUjianActivity : AppCompatActivity() {
 
         initViews()
         setupClickListeners()
+        setupBackPressHandler()
 
         // Tampilkan dialog input nama dan nomor induk di awal
         showInputSiswaDialog()
@@ -112,11 +114,17 @@ class MulaiUjianActivity : AppCompatActivity() {
         question3TextView = findViewById(R.id.bacakan_kal_3)
         question4TextView = findViewById(R.id.bacakan_kal_4)
 
-        // Nilai Input TextViews
+        // Nilai Input TextViews - DIISI DENGAN PLACEHOLDER
         nilai1TextView = findViewById(R.id.berikan_nil_1)
         nilai2TextView = findViewById(R.id.berikan_nil_2)
         nilai3TextView = findViewById(R.id.berikan_nil_3)
         nilai4TextView = findViewById(R.id.berikan_nil_4)
+
+        // Set placeholder text for all
+        nilai1TextView.text = PLACEHOLDER_NILAI
+        nilai2TextView.text = PLACEHOLDER_NILAI
+        nilai3TextView.text = PLACEHOLDER_NILAI
+        nilai4TextView.text = PLACEHOLDER_NILAI
 
         // Question Containers
         container1 = findViewById(R.id.rectangle_1_1)
@@ -140,14 +148,27 @@ class MulaiUjianActivity : AppCompatActivity() {
         // Choose page button
         choosePageButton.setOnClickListener { showPageSelectionDialog() }
 
-        // Input nilai click listeners
+        // Input nilai click listeners - BISA DIKLIK UNTUK INPUT NILAI
         nilai1TextView.setOnClickListener { showInputNilaiDialog(0) }
         nilai2TextView.setOnClickListener { showInputNilaiDialog(1) }
         nilai3TextView.setOnClickListener { showInputNilaiDialog(2) }
         nilai4TextView.setOnClickListener { showInputNilaiDialog(3) }
     }
 
-    // ==================== DIALOG INPUT NAMA & NOMOR INDUK ====================
+    private fun setupBackPressHandler() {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // Cek apakah masih di halaman ujian (layout mulai_ujian2)
+                if (findViewById<View>(R.id.mulai_ujian2) != null) {
+                    showCancelConfirmation()
+                } else {
+                    // Jika sudah di halaman selesai ujian
+                    navigateBackToManajemen()
+                }
+            }
+        })
+    }
+
     private fun showInputSiswaDialog() {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.pop_up_nama, null)
 
@@ -257,7 +278,12 @@ class MulaiUjianActivity : AppCompatActivity() {
 
         // Display soal for current page
         currentPageSoal.forEachIndexed { index, soal ->
-            val displayNilai = nilaiMap[soal.id_soal]?.toString() ?: "Berikan nilai....."
+            // UNTUK MULAI UJIAN: TAMPILKAN PLACEHOLDER ATAU NILAI YANG SUDAH DIINPUT
+            val displayNilai = if (nilaiMap[soal.id_soal] != null) {
+                nilaiMap[soal.id_soal].toString()
+            } else {
+                PLACEHOLDER_NILAI
+            }
 
             when (index) {
                 0 -> {
@@ -265,24 +291,53 @@ class MulaiUjianActivity : AppCompatActivity() {
                     question1TextView.text = soal.isi_soal ?: ""
                     nilai1TextView.text = displayNilai
                     nilai1TextView.tag = soal.id_soal
+                    // Format styling untuk nilai yang sudah diinput
+                    if (nilaiMap[soal.id_soal] != null) {
+                        nilai1TextView.textSize = 20f
+                        nilai1TextView.setTextColor(getColor(android.R.color.black))
+                    } else {
+                        nilai1TextView.textSize = 18f
+                        nilai1TextView.setTextColor(getColor(android.R.color.darker_gray))
+                    }
                 }
                 1 -> {
                     container2.visibility = View.VISIBLE
                     question2TextView.text = soal.isi_soal ?: ""
                     nilai2TextView.text = displayNilai
                     nilai2TextView.tag = soal.id_soal
+                    if (nilaiMap[soal.id_soal] != null) {
+                        nilai2TextView.textSize = 20f
+                        nilai2TextView.setTextColor(getColor(android.R.color.black))
+                    } else {
+                        nilai2TextView.textSize = 18f
+                        nilai2TextView.setTextColor(getColor(android.R.color.darker_gray))
+                    }
                 }
                 2 -> {
                     container3.visibility = View.VISIBLE
                     question3TextView.text = soal.isi_soal ?: ""
                     nilai3TextView.text = displayNilai
                     nilai3TextView.tag = soal.id_soal
+                    if (nilaiMap[soal.id_soal] != null) {
+                        nilai3TextView.textSize = 20f
+                        nilai3TextView.setTextColor(getColor(android.R.color.black))
+                    } else {
+                        nilai3TextView.textSize = 18f
+                        nilai3TextView.setTextColor(getColor(android.R.color.darker_gray))
+                    }
                 }
                 3 -> {
                     container4.visibility = View.VISIBLE
                     question4TextView.text = soal.isi_soal ?: ""
                     nilai4TextView.text = displayNilai
                     nilai4TextView.tag = soal.id_soal
+                    if (nilaiMap[soal.id_soal] != null) {
+                        nilai4TextView.textSize = 20f
+                        nilai4TextView.setTextColor(getColor(android.R.color.black))
+                    } else {
+                        nilai4TextView.textSize = 18f
+                        nilai4TextView.setTextColor(getColor(android.R.color.darker_gray))
+                    }
                 }
             }
         }
@@ -301,10 +356,11 @@ class MulaiUjianActivity : AppCompatActivity() {
         question3TextView.text = ""
         question4TextView.text = ""
 
-        nilai1TextView.text = "Berikan nilai....."
-        nilai2TextView.text = "Berikan nilai....."
-        nilai3TextView.text = "Berikan nilai....."
-        nilai4TextView.text = "Berikan nilai....."
+        // Reset ke placeholder
+        nilai1TextView.text = PLACEHOLDER_NILAI
+        nilai2TextView.text = PLACEHOLDER_NILAI
+        nilai3TextView.text = PLACEHOLDER_NILAI
+        nilai4TextView.text = PLACEHOLDER_NILAI
     }
 
     private fun updateNavigationButtons() {
@@ -355,9 +411,10 @@ class MulaiUjianActivity : AppCompatActivity() {
 
         val soal = soalList[actualIndex]
         val currentNilai = nilaiMap[soal.id_soal] ?: 0
+        val bobotNilai = soal.bobot_nilai ?: 100
 
         val editText = EditText(this).apply {
-            hint = "Masukkan nilai (0-${soal.bobot_nilai})"
+            hint = "Masukkan nilai (0-$bobotNilai)"
             inputType = android.text.InputType.TYPE_CLASS_NUMBER
             setText(if (currentNilai > 0) currentNilai.toString() else "")
             setPadding(50, 30, 50, 30)
@@ -365,11 +422,10 @@ class MulaiUjianActivity : AppCompatActivity() {
 
         AlertDialog.Builder(this)
             .setTitle("Input Nilai")
-            .setMessage("Soal: ${soal.isi_soal}\nBobot: ${soal.bobot_nilai}")
+            .setMessage("${soal.isi_soal}\n\nBobot maksimal: $bobotNilai")
             .setView(editText)
             .setPositiveButton("Simpan") { _, _ ->
                 val inputNilai = editText.text.toString().toIntOrNull() ?: 0
-                val bobotNilai = soal.bobot_nilai ?: 100
 
                 if (inputNilai in 0..bobotNilai) {
                     nilaiMap[soal.id_soal] = inputNilai
@@ -504,7 +560,6 @@ class MulaiUjianActivity : AppCompatActivity() {
         }
     }
 
-    // ==================== SCREEN SELESAI UJIAN ====================
     private fun showSelesaiUjianScreen(totalNilai: Double, persentase: Double) {
         // Switch to selesai_ujian layout
         setContentView(R.layout.selesai_ujian)
@@ -549,15 +604,8 @@ class MulaiUjianActivity : AppCompatActivity() {
         finish()
     }
 
-
-    @SuppressLint("MissingSuperCall")
-    override fun onBackPressed() {
-        // Jika masih di layar ujian, tampilkan konfirmasi cancel
-        // Jika di layar selesai, langsung kembali
-        if (findViewById<View>(R.id.mulai_ujian2) != null) {
-            showCancelConfirmation()
-        } else {
-            navigateBackToManajemen()
-        }
-    }
+    // Menghapus onBackPressed yang lama untuk menghindari warning
+    // override fun onBackPressed() {
+    //     // Di-handle oleh setupBackPressHandler()
+    // }
 }

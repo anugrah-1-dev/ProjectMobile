@@ -34,7 +34,7 @@ class LihatSoalActivity : AppCompatActivity() {
     private lateinit var question3TextView: TextView
     private lateinit var question4TextView: TextView
 
-    // Score Display TextViews
+    // Score Display TextViews (untuk LIAT SOAL, tetap tampilkan BOBOT)
     private lateinit var score1TextView: TextView
     private lateinit var score2TextView: TextView
     private lateinit var score3TextView: TextView
@@ -56,7 +56,7 @@ class LihatSoalActivity : AppCompatActivity() {
 
         apiService = MySQLApiService()
 
-        // PERUBAHAN: Ambil data dari intent dengan KEY yang benar
+        // Ambil data dari intent
         currentJilidId = intent.getIntExtra("ID_JILID", 0)
         currentNamaJilid = intent.getStringExtra("NAMA_JILID") ?: "JILID I"
 
@@ -92,7 +92,7 @@ class LihatSoalActivity : AppCompatActivity() {
         question3TextView = findViewById(R.id.bacakan_kal_3)
         question4TextView = findViewById(R.id.bacakan_kal_4)
 
-        // Score Display TextViews (Bobot Nilai)
+        // Score Display TextViews (Bobot Nilai) - TAMPILKAN "Bobot: X"
         score1TextView = findViewById(R.id.berikan_nil_1)
         score2TextView = findViewById(R.id.berikan_nil_2)
         score3TextView = findViewById(R.id.berikan_nil_3)
@@ -204,12 +204,13 @@ class LihatSoalActivity : AppCompatActivity() {
         container3.visibility = View.GONE
         container4.visibility = View.GONE
 
-        // Display soal for current page
+        // Display soal for current page - TAMPILKAN "Bobot: X"
         currentPageSoal.forEachIndexed { index, soal ->
             when (index) {
                 0 -> {
                     container1.visibility = View.VISIBLE
                     question1TextView.text = soal.isi_soal ?: ""
+                    // UNTUK LIAT SOAL: TAMPILKAN BOBOT
                     score1TextView.text = "Bobot: ${soal.bobot_nilai ?: 10}"
                 }
                 1 -> {
