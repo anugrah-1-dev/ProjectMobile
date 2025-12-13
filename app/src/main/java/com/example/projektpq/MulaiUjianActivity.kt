@@ -50,7 +50,7 @@ class MulaiUjianActivity : AppCompatActivity() {
     private lateinit var question3TextView: TextView
     private lateinit var question4TextView: TextView
 
-    // Input Nilai TextViews - UNTUK MULAI UJIAN: TAMPILKAN "Berikan nilai......"
+    // Input Nilai TextViews
     private lateinit var nilai1TextView: TextView
     private lateinit var nilai2TextView: TextView
     private lateinit var nilai3TextView: TextView
@@ -114,7 +114,7 @@ class MulaiUjianActivity : AppCompatActivity() {
         question3TextView = findViewById(R.id.bacakan_kal_3)
         question4TextView = findViewById(R.id.bacakan_kal_4)
 
-        // Nilai Input TextViews - DIISI DENGAN PLACEHOLDER
+        // Nilai Input TextViews
         nilai1TextView = findViewById(R.id.berikan_nil_1)
         nilai2TextView = findViewById(R.id.berikan_nil_2)
         nilai3TextView = findViewById(R.id.berikan_nil_3)
@@ -127,10 +127,10 @@ class MulaiUjianActivity : AppCompatActivity() {
         nilai4TextView.text = PLACEHOLDER_NILAI
 
         // Question Containers
-        container1 = findViewById(R.id.rectangle_1_1)
-        container2 = findViewById(R.id.rectangle_1_2)
-        container3 = findViewById(R.id.rectangle_1_3)
-        container4 = findViewById(R.id.rectangle_1_4)
+        container1 = findViewById(R.id.question_container_1)
+        container2 = findViewById(R.id.question_container_2)
+        container3 = findViewById(R.id.question_container_3)
+        container4 = findViewById(R.id.question_container_4)
     }
 
     private fun setupClickListeners() {
@@ -148,7 +148,7 @@ class MulaiUjianActivity : AppCompatActivity() {
         // Choose page button
         choosePageButton.setOnClickListener { showPageSelectionDialog() }
 
-        // Input nilai click listeners - BISA DIKLIK UNTUK INPUT NILAI
+        // Input nilai click listeners
         nilai1TextView.setOnClickListener { showInputNilaiDialog(0) }
         nilai2TextView.setOnClickListener { showInputNilaiDialog(1) }
         nilai3TextView.setOnClickListener { showInputNilaiDialog(2) }
@@ -158,13 +158,7 @@ class MulaiUjianActivity : AppCompatActivity() {
     private fun setupBackPressHandler() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                // Cek apakah masih di halaman ujian (layout mulai_ujian2)
-                if (findViewById<View>(R.id.mulai_ujian2) != null) {
-                    showCancelConfirmation()
-                } else {
-                    // Jika sudah di halaman selesai ujian
-                    navigateBackToManajemen()
-                }
+                showCancelConfirmation()
             }
         })
     }
@@ -278,7 +272,7 @@ class MulaiUjianActivity : AppCompatActivity() {
 
         // Display soal for current page
         currentPageSoal.forEachIndexed { index, soal ->
-            // UNTUK MULAI UJIAN: TAMPILKAN PLACEHOLDER ATAU NILAI YANG SUDAH DIINPUT
+            // TAMPILKAN PLACEHOLDER ATAU NILAI YANG SUDAH DIINPUT
             val displayNilai = if (nilaiMap[soal.id_soal] != null) {
                 nilaiMap[soal.id_soal].toString()
             } else {
@@ -293,10 +287,8 @@ class MulaiUjianActivity : AppCompatActivity() {
                     nilai1TextView.tag = soal.id_soal
                     // Format styling untuk nilai yang sudah diinput
                     if (nilaiMap[soal.id_soal] != null) {
-                        nilai1TextView.textSize = 20f
                         nilai1TextView.setTextColor(getColor(android.R.color.black))
                     } else {
-                        nilai1TextView.textSize = 18f
                         nilai1TextView.setTextColor(getColor(android.R.color.darker_gray))
                     }
                 }
@@ -306,10 +298,8 @@ class MulaiUjianActivity : AppCompatActivity() {
                     nilai2TextView.text = displayNilai
                     nilai2TextView.tag = soal.id_soal
                     if (nilaiMap[soal.id_soal] != null) {
-                        nilai2TextView.textSize = 20f
                         nilai2TextView.setTextColor(getColor(android.R.color.black))
                     } else {
-                        nilai2TextView.textSize = 18f
                         nilai2TextView.setTextColor(getColor(android.R.color.darker_gray))
                     }
                 }
@@ -319,10 +309,8 @@ class MulaiUjianActivity : AppCompatActivity() {
                     nilai3TextView.text = displayNilai
                     nilai3TextView.tag = soal.id_soal
                     if (nilaiMap[soal.id_soal] != null) {
-                        nilai3TextView.textSize = 20f
                         nilai3TextView.setTextColor(getColor(android.R.color.black))
                     } else {
-                        nilai3TextView.textSize = 18f
                         nilai3TextView.setTextColor(getColor(android.R.color.darker_gray))
                     }
                 }
@@ -332,10 +320,8 @@ class MulaiUjianActivity : AppCompatActivity() {
                     nilai4TextView.text = displayNilai
                     nilai4TextView.tag = soal.id_soal
                     if (nilaiMap[soal.id_soal] != null) {
-                        nilai4TextView.textSize = 20f
                         nilai4TextView.setTextColor(getColor(android.R.color.black))
                     } else {
-                        nilai4TextView.textSize = 18f
                         nilai4TextView.setTextColor(getColor(android.R.color.darker_gray))
                     }
                 }
@@ -603,9 +589,4 @@ class MulaiUjianActivity : AppCompatActivity() {
         startActivity(intent)
         finish()
     }
-
-    // Menghapus onBackPressed yang lama untuk menghindari warning
-    // override fun onBackPressed() {
-    //     // Di-handle oleh setupBackPressHandler()
-    // }
 }

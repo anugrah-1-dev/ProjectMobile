@@ -1,6 +1,7 @@
 package com.example.projektpq
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -34,7 +35,7 @@ class LihatSoalActivity : AppCompatActivity() {
     private lateinit var question3TextView: TextView
     private lateinit var question4TextView: TextView
 
-    // Score Display TextViews (untuk LIAT SOAL, tetap tampilkan BOBOT)
+    // Score Display TextViews
     private lateinit var score1TextView: TextView
     private lateinit var score2TextView: TextView
     private lateinit var score3TextView: TextView
@@ -92,17 +93,17 @@ class LihatSoalActivity : AppCompatActivity() {
         question3TextView = findViewById(R.id.bacakan_kal_3)
         question4TextView = findViewById(R.id.bacakan_kal_4)
 
-        // Score Display TextViews (Bobot Nilai) - TAMPILKAN "Bobot: X"
+        // Score Display TextViews
         score1TextView = findViewById(R.id.berikan_nil_1)
         score2TextView = findViewById(R.id.berikan_nil_2)
         score3TextView = findViewById(R.id.berikan_nil_3)
         score4TextView = findViewById(R.id.berikan_nil_4)
 
         // Question Containers
-        container1 = findViewById(R.id.rectangle_1_1)
-        container2 = findViewById(R.id.rectangle_1_2)
-        container3 = findViewById(R.id.rectangle_1_3)
-        container4 = findViewById(R.id.rectangle_1_4)
+        container1 = findViewById(R.id.question_container_1)
+        container2 = findViewById(R.id.question_container_2)
+        container3 = findViewById(R.id.question_container_3)
+        container4 = findViewById(R.id.question_container_4)
     }
 
     private fun setupClickListeners() {
@@ -206,27 +207,27 @@ class LihatSoalActivity : AppCompatActivity() {
 
         // Display soal for current page - TAMPILKAN "Bobot: X"
         currentPageSoal.forEachIndexed { index, soal ->
+            val bobot = soal.bobot_nilai ?: 10
             when (index) {
                 0 -> {
                     container1.visibility = View.VISIBLE
                     question1TextView.text = soal.isi_soal ?: ""
-                    // UNTUK LIAT SOAL: TAMPILKAN BOBOT
-                    score1TextView.text = "Bobot: ${soal.bobot_nilai ?: 10}"
+                    score1TextView.text = "Bobot: $bobot"
                 }
                 1 -> {
                     container2.visibility = View.VISIBLE
                     question2TextView.text = soal.isi_soal ?: ""
-                    score2TextView.text = "Bobot: ${soal.bobot_nilai ?: 10}"
+                    score2TextView.text = "Bobot: $bobot"
                 }
                 2 -> {
                     container3.visibility = View.VISIBLE
                     question3TextView.text = soal.isi_soal ?: ""
-                    score3TextView.text = "Bobot: ${soal.bobot_nilai ?: 10}"
+                    score3TextView.text = "Bobot: $bobot"
                 }
                 3 -> {
                     container4.visibility = View.VISIBLE
                     question4TextView.text = soal.isi_soal ?: ""
-                    score4TextView.text = "Bobot: ${soal.bobot_nilai ?: 10}"
+                    score4TextView.text = "Bobot: $bobot"
                 }
             }
         }
@@ -270,9 +271,9 @@ class LihatSoalActivity : AppCompatActivity() {
         val totalPages = (soalList.size + itemsPerPage - 1) / itemsPerPage
         val pageNumbers = (1..totalPages).map { "Halaman $it" }.toTypedArray()
 
-        android.app.AlertDialog.Builder(this)
+        AlertDialog.Builder(this)
             .setTitle("Pilih Halaman")
-            .setItems(pageNumbers) { _, which ->
+            .setItems(pageNumbers) { dialog, which ->
                 currentPageIndex = which
                 displayCurrentPage()
             }

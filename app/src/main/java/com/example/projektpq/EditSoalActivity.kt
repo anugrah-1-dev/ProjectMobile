@@ -48,6 +48,12 @@ class EditSoalActivity : AppCompatActivity() {
     private lateinit var container3: View
     private lateinit var container4: View
 
+    // Score TextViews
+    private lateinit var score1TextView: TextView
+    private lateinit var score2TextView: TextView
+    private lateinit var score3TextView: TextView
+    private lateinit var score4TextView: TextView
+
     companion object {
         private const val TAG = "EditSoalActivity"
     }
@@ -58,7 +64,7 @@ class EditSoalActivity : AppCompatActivity() {
 
         apiService = MySQLApiService()
 
-        // PERUBAHAN: Ambil data dari intent dengan KEY yang benar
+        // Ambil data dari intent
         currentJilidId = intent.getIntExtra("ID_JILID", 0)
         currentNamaJilid = intent.getStringExtra("NAMA_JILID") ?: "JILID I"
 
@@ -101,10 +107,16 @@ class EditSoalActivity : AppCompatActivity() {
         editButton4 = findViewById(R.id.edit_pencil_4)
 
         // Question Containers
-        container1 = findViewById(R.id.rectangle_1_1)
-        container2 = findViewById(R.id.rectangle_1_2)
-        container3 = findViewById(R.id.rectangle_1_3)
-        container4 = findViewById(R.id.rectangle_1_4)
+        container1 = findViewById(R.id.question_container_1)
+        container2 = findViewById(R.id.question_container_2)
+        container3 = findViewById(R.id.question_container_3)
+        container4 = findViewById(R.id.question_container_4)
+
+        // Score TextViews
+        score1TextView = findViewById(R.id.berikan_nil_1)
+        score2TextView = findViewById(R.id.berikan_nil_2)
+        score3TextView = findViewById(R.id.berikan_nil_3)
+        score4TextView = findViewById(R.id.berikan_nil_4)
     }
 
     private fun setupClickListeners() {
@@ -230,21 +242,25 @@ class EditSoalActivity : AppCompatActivity() {
                 0 -> {
                     container1.visibility = View.VISIBLE
                     question1TextView.text = soal.isi_soal ?: ""
+                    score1TextView.text = "Berikan nilai....."
                     editButton1.visibility = View.VISIBLE
                 }
                 1 -> {
                     container2.visibility = View.VISIBLE
                     question2TextView.text = soal.isi_soal ?: ""
+                    score2TextView.text = "Berikan nilai....."
                     editButton2.visibility = View.VISIBLE
                 }
                 2 -> {
                     container3.visibility = View.VISIBLE
                     question3TextView.text = soal.isi_soal ?: ""
+                    score3TextView.text = "Berikan nilai....."
                     editButton3.visibility = View.VISIBLE
                 }
                 3 -> {
                     container4.visibility = View.VISIBLE
                     question4TextView.text = soal.isi_soal ?: ""
+                    score4TextView.text = "Berikan nilai....."
                     editButton4.visibility = View.VISIBLE
                 }
             }
@@ -253,10 +269,22 @@ class EditSoalActivity : AppCompatActivity() {
         // Hide edit buttons for empty containers
         for (i in currentPageSoal.size until 4) {
             when (i) {
-                0 -> editButton1.visibility = View.GONE
-                1 -> editButton2.visibility = View.GONE
-                2 -> editButton3.visibility = View.GONE
-                3 -> editButton4.visibility = View.GONE
+                0 -> {
+                    editButton1.visibility = View.GONE
+                    score1TextView.text = ""
+                }
+                1 -> {
+                    editButton2.visibility = View.GONE
+                    score2TextView.text = ""
+                }
+                2 -> {
+                    editButton3.visibility = View.GONE
+                    score3TextView.text = ""
+                }
+                3 -> {
+                    editButton4.visibility = View.GONE
+                    score4TextView.text = ""
+                }
             }
         }
 
@@ -278,6 +306,11 @@ class EditSoalActivity : AppCompatActivity() {
         question2TextView.text = ""
         question3TextView.text = ""
         question4TextView.text = ""
+
+        score1TextView.text = ""
+        score2TextView.text = ""
+        score3TextView.text = ""
+        score4TextView.text = ""
     }
 
     private fun updateNavigationButtons() {
