@@ -18,15 +18,12 @@ class AkunActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var mysqlApiService: MySQLApiService
 
-    // View elements
-    private lateinit var backIcon: ImageView
-    private lateinit var backText: TextView
+    // View elements - disesuaikan dengan XML
+    private lateinit var btnBack: Button
     private lateinit var namaText: TextView
     private lateinit var emailText: TextView
     private lateinit var teleponText: TextView
     private lateinit var editButton: Button
-    private lateinit var homeIcon: ImageView
-    private lateinit var settingsIcon: ImageView
 
     companion object {
         private const val TAG = "AkunActivity"
@@ -63,14 +60,12 @@ class AkunActivity : AppCompatActivity() {
 
     private fun initializeViews() {
         try {
-            backIcon = findViewById(R.id.back_icon)
-            backText = findViewById(R.id.back_text)
+            // Sesuaikan dengan ID di XML
+            btnBack = findViewById(R.id.btn_back)
             namaText = findViewById(R.id.nama_text)
             emailText = findViewById(R.id.email_text)
             teleponText = findViewById(R.id.telepon_text)
             editButton = findViewById(R.id.edit_button)
-            homeIcon = findViewById(R.id.home_icon)
-            settingsIcon = findViewById(R.id.settings_icon)
 
             Log.d(TAG, "All views initialized successfully")
         } catch (e: Exception) {
@@ -80,29 +75,14 @@ class AkunActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
-        // Back button - icon
-        backIcon.setOnClickListener {
-            onBackPressedDispatcher.onBackPressed()
-        }
-
-        // Back button - text
-        backText.setOnClickListener {
+        // Back button
+        btnBack.setOnClickListener {
             onBackPressedDispatcher.onBackPressed()
         }
 
         // Edit profile button
         editButton.setOnClickListener {
             showEditProfileDialog()
-        }
-
-        // Bottom Navigation - Home
-        homeIcon.setOnClickListener {
-            navigateToHome()
-        }
-
-        // Bottom Navigation - Settings
-        settingsIcon.setOnClickListener {
-            navigateToSettings()
         }
     }
 
@@ -314,29 +294,6 @@ class AkunActivity : AppCompatActivity() {
     private fun showLoading(isLoading: Boolean) {
         editButton.isEnabled = !isLoading
         editButton.text = if (isLoading) "Memuat..." else "Edit"
-    }
-
-    private fun navigateToHome() {
-        try {
-            val intent = Intent(this, HomeActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-            startActivity(intent)
-            finish()
-        } catch (e: Exception) {
-            Log.e(TAG, "Error navigating to Home", e)
-            Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun navigateToSettings() {
-        try {
-            val intent = Intent(this, PengaturanActivity::class.java)
-            startActivity(intent)
-            finish()
-        } catch (e: Exception) {
-            Log.e(TAG, "Error navigating to Settings", e)
-            Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-        }
     }
 
     override fun onResume() {

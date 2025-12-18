@@ -5,12 +5,19 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.OnBackPressedCallback
 import kotlinx.coroutines.*
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
 
 class DetailSiswaActivity : AppCompatActivity() {
+
+    private lateinit var btnBack: Button
+    private lateinit var namaSiswa: TextView
+    private lateinit var nomorInduk: TextView
+    private lateinit var tempatTanggalLahir: TextView
+    private lateinit var jilid: TextView
 
     companion object {
         private const val TAG = "DetailSiswaActivity"
@@ -22,7 +29,9 @@ class DetailSiswaActivity : AppCompatActivity() {
 
         Log.d(TAG, "DetailSiswaActivity onCreate")
 
+        initializeViews()
         setupViews()
+        setupBackPressHandler()
         displayStudentData()
 
         // Coba load data tambahan dari API jika no_induk tersedia
@@ -32,28 +41,38 @@ class DetailSiswaActivity : AppCompatActivity() {
         }
     }
 
+    private fun initializeViews() {
+        Log.d(TAG, "Initializing views")
+
+        btnBack = findViewById(R.id.btn_back)
+        namaSiswa = findViewById(R.id.nama_siswa)
+        nomorInduk = findViewById(R.id.nomor_induk)
+        tempatTanggalLahir = findViewById(R.id.tempat_tanggal_lahir)
+        jilid = findViewById(R.id.jilid)
+    }
+
     private fun setupViews() {
         Log.d(TAG, "Setting up views")
 
         // Tombol back
-        findViewById<Button>(R.id.btn_back).setOnClickListener {
+        btnBack.setOnClickListener {
             Log.d(TAG, "Tombol back diklik")
-            finish()
+            navigateBack()
         }
+    }
 
-        // Bottom navigation
-        findViewById<ImageButton>(R.id.btn_home).setOnClickListener {
-            Log.d(TAG, "Tombol home diklik")
-            val intent = Intent(this, HomeActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-            startActivity(intent)
-            finish()
-        }
+    private fun setupBackPressHandler() {
+        // Setup hardware back button
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                navigateBack()
+            }
+        })
+    }
 
-        findViewById<ImageButton>(R.id.btn_settings).setOnClickListener {
-            Log.d(TAG, "Tombol settings diklik")
-            Toast.makeText(this, "Pengaturan", Toast.LENGTH_SHORT).show()
-        }
+    private fun navigateBack() {
+        Log.d(TAG, "Navigating back")
+        finish()
     }
 
     private fun displayStudentData() {
@@ -65,7 +84,7 @@ class DetailSiswaActivity : AppCompatActivity() {
         val tempatLahir = intent.getStringExtra("tempat_lahir") ?: "-"
         val tanggalLahir = intent.getStringExtra("tanggal_lahir") ?: "-"
         val alamat = intent.getStringExtra("alamat") ?: "-"
-        val jilid = intent.getStringExtra("jilid") ?: "-"
+        val jilidData = intent.getStringExtra("jilid") ?: "-"
 
         Log.d(TAG, "Data dari intent:")
         Log.d(TAG, "  No Induk: $noInduk")
@@ -73,10 +92,10 @@ class DetailSiswaActivity : AppCompatActivity() {
         Log.d(TAG, "  Tempat Lahir: $tempatLahir")
         Log.d(TAG, "  Tanggal Lahir: $tanggalLahir")
         Log.d(TAG, "  Alamat: $alamat")
-        Log.d(TAG, "  Jilid: $jilid")
+        Log.d(TAG, "  Jilid: $jilidData")
 
         // Format tempat tanggal lahir
-        val tempatTanggalLahir = if (tempatLahir != "-" && tanggalLahir != "-") {
+        val tempatTanggalLahirText = if (tempatLahir != "-" && tanggalLahir != "-") {
             "$tempatLahir, $tanggalLahir"
         } else if (tempatLahir != "-") {
             tempatLahir
@@ -88,16 +107,16 @@ class DetailSiswaActivity : AppCompatActivity() {
 
         // Tampilkan data
         try {
-            findViewById<TextView>(R.id.nama_siswa).text = nama
-            findViewById<TextView>(R.id.nomor_induk).text = noInduk
-            findViewById<TextView>(R.id.tempat_tanggal_lahir).text = tempatTanggalLahir
+            namaSiswa.text = nama
+            nomorInduk.text = noInduk
+            tempatTanggalLahir.text = tempatTanggalLahirText
 
-            val jilidText = if (jilid != "-" && jilid.isNotEmpty()) {
-                "Jilid $jilid"
+            val jilidText = if (jilidData != "-" && jilidData.isNotEmpty()) {
+                "Jilid $jilidData"
             } else {
                 "Belum ditentukan"
             }
-            findViewById<TextView>(R.id.jilid).text = jilidText
+            jilid.text = jilidText
 
             Log.d(TAG, "Data berhasil ditampilkan di UI")
         } catch (e: Exception) {

@@ -1,6 +1,7 @@
 package com.example.projektpq
 
 import android.os.Bundle
+import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -20,6 +21,7 @@ class HistoriActivity : AppCompatActivity() {
     private lateinit var searchText: TextView
     private lateinit var contentContainer: LinearLayout
     private lateinit var requestQueue: RequestQueue
+    private lateinit var btnBack: Button
 
     // URL API - sesuaikan dengan server Anda
     private val URL_GET_HISTORI = "https://kampunginggrisori.com/api/get_histori_ujian.php"
@@ -32,8 +34,8 @@ class HistoriActivity : AppCompatActivity() {
         setContentView(R.layout.histori)
 
         initViews()
+        setupBackButton()
         setupSearchBar()
-        setupBottomNavigation()
 
         requestQueue = Volley.newRequestQueue(this)
         loadHistoriData()
@@ -42,10 +44,17 @@ class HistoriActivity : AppCompatActivity() {
     private fun initViews() {
         searchContainer = findViewById(R.id.search_container)
         searchText = findViewById(R.id.search_text)
+        btnBack = findViewById(R.id.btn_back)
 
-        // Perbaikan: Gunakan ScrollView bukan NestedScrollView
+        // Perbaikan: Gunakan ScrollView
         val scrollView = findViewById<android.widget.ScrollView>(R.id.scroll_content)
         contentContainer = scrollView.getChildAt(0) as LinearLayout
+    }
+
+    private fun setupBackButton() {
+        btnBack.setOnClickListener {
+            finish() // Kembali ke activity sebelumnya
+        }
     }
 
     private fun setupSearchBar() {
@@ -103,18 +112,26 @@ class HistoriActivity : AppCompatActivity() {
                         parseHistoriData(response)
                     } else {
                         Toast.makeText(this, "Tidak ada data histori", Toast.LENGTH_SHORT).show()
+                        // Clear existing items
+                        clearDynamicContent()
                     }
                 } catch (e: JSONException) {
                     e.printStackTrace()
                     Toast.makeText(this, "Error parsing data: ${e.message}", Toast.LENGTH_SHORT).show()
+                    // Clear existing items
+                    clearDynamicContent()
                 } catch (e: Exception) {
                     e.printStackTrace()
                     Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    // Clear existing items
+                    clearDynamicContent()
                 }
             },
             { error ->
                 error.printStackTrace()
                 Toast.makeText(this, "Error koneksi: ${error.message}", Toast.LENGTH_SHORT).show()
+                // Clear existing items
+                clearDynamicContent()
             }
         )
 
@@ -147,12 +164,30 @@ class HistoriActivity : AppCompatActivity() {
         displayHistoriData()
     }
 
-    private fun displayHistoriData() {
-        // Clear existing dynamic items, keep static ones
-        val staticViews = 1 // Keep the first month header
-        while (contentContainer.childCount > staticViews) {
-            contentContainer.removeViewAt(staticViews)
+    private fun clearDynamicContent() {
+        // Hapus semua item dinamis kecuali elemen statis pertama (jika ada)
+        // Dalam layout XML Anda, ada beberapa elemen statis
+        // Kita akan menghapus semua dan menampilkan pesan kosong
+        contentContainer.removeAllViews()
+
+        val emptyText = TextView(this).apply {
+            text = "Tidak ada data histori ujian"
+            textSize = 14f
+            setTextColor(ContextCompat.getColor(context, android.R.color.darker_gray))
+            gravity = android.view.Gravity.CENTER
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = dpToPx(32)
+            }
         }
+        contentContainer.addView(emptyText)
+    }
+
+    private fun displayHistoriData() {
+        // Clear existing content
+        contentContainer.removeAllViews()
 
         if (filteredList.isEmpty()) {
             // Tampilkan pesan jika tidak ada data
@@ -172,23 +207,22 @@ class HistoriActivity : AppCompatActivity() {
             return
         }
 
+        // Sort by date (newest first)
+        val sortedList = filteredList.sortedByDescending {
+            it.tanggalUjian
+        }
+
         // Group by month
-        val groupedByMonth = filteredList.groupBy {
+        val groupedByMonth = sortedList.groupBy {
             getMonthYear(it.tanggalUjian)
         }
 
-        var isFirstMonth = true
+        // Add items
         for ((monthYear, items) in groupedByMonth) {
             // Add month header
-            if (!isFirstMonth || contentContainer.childCount == 0) {
-                addMonthHeader(monthYear)
-            } else {
-                // Update the first static header
-                (contentContainer.getChildAt(0) as? TextView)?.text = monthYear
-            }
-            isFirstMonth = false
+            addMonthHeader(monthYear)
 
-            // Add items
+            // Add items for this month
             for (histori in items) {
                 addHistoriItem(histori)
             }
@@ -205,7 +239,7 @@ class HistoriActivity : AppCompatActivity() {
                 LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply {
                 bottomMargin = dpToPx(8)
-                topMargin = if (contentContainer.childCount > 1) dpToPx(16) else 0
+                topMargin = if (contentContainer.childCount > 0) dpToPx(16) else 0
             }
         }
         contentContainer.addView(monthHeader)
@@ -222,7 +256,7 @@ class HistoriActivity : AppCompatActivity() {
                 bottomMargin = dpToPx(8)
             }
             setPadding(dpToPx(12), dpToPx(12), dpToPx(12), dpToPx(12))
-            setBackgroundColor(ContextCompat.getColor(context, android.R.color.white))
+            setBackgroundResource(R.drawable.rounded_card) // Gunakan drawable dari XML
             elevation = dpToPx(2).toFloat()
         }
 
@@ -346,17 +380,6 @@ class HistoriActivity : AppCompatActivity() {
             "${parts[2]}/${parts[1]}/${parts[0]}"
         } catch (e: Exception) {
             tanggal
-        }
-    }
-
-    private fun setupBottomNavigation() {
-        findViewById<LinearLayout>(R.id.btn_home).setOnClickListener {
-            finish() // Kembali ke halaman sebelumnya
-        }
-
-        findViewById<LinearLayout>(R.id.btn_settings).setOnClickListener {
-            Toast.makeText(this, "Settings clicked", Toast.LENGTH_SHORT).show()
-            // TODO: Implementasi navigasi ke settings
         }
     }
 

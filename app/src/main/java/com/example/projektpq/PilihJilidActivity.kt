@@ -5,7 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
 import androidx.cardview.widget.CardView
-import android.widget.ImageButton
+import android.widget.Button
 import android.widget.TextView
 import com.android.volley.Request
 import com.android.volley.Response
@@ -37,8 +37,7 @@ class PilihJilidActivity : AppCompatActivity() {
     private lateinit var jilid6Text: TextView
     private lateinit var alquranText: TextView
 
-    private lateinit var btnHome: ImageButton
-    private lateinit var btnSettings: ImageButton
+    private lateinit var btnBack: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,26 +75,20 @@ class PilihJilidActivity : AppCompatActivity() {
         jilid6Text = findViewById(R.id.tv_jilid6)
         alquranText = findViewById(R.id.tv_alquran)
 
-        // Inisialisasi ImageButton
-        btnHome = findViewById(R.id.btn_home)
-        btnSettings = findViewById(R.id.btn_settings)
+        // Inisialisasi Button (Tombol Back)
+        btnBack = findViewById(R.id.btn_back)
     }
 
     private fun setupButtonListeners() {
-        // Klik pada Home Button
-        btnHome.setOnClickListener {
+        // Klik pada Back Button - Kembali ke HomeActivity
+        btnBack.setOnClickListener {
             navigateBackToHome()
-        }
-
-        // Klik pada Settings Button
-        btnSettings.setOnClickListener {
-            val intent = Intent(this, PengaturanActivity::class.java)
-            startActivity(intent)
         }
     }
 
     private fun setupBackPressHandler() {
         // Menggunakan OnBackPressedDispatcher yang compatible
+        // Hardware back button juga akan kembali ke HomeActivity
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 navigateBackToHome()
@@ -121,8 +114,7 @@ class PilihJilidActivity : AppCompatActivity() {
                         val jsonObject = response.getJSONObject(i)
 
                         // PERHATIKAN: Sesuaikan dengan field di database Anda
-                        // Dari gambar: id_ijild, nama_ijild, deskripsi
-                        // Dari model Jilid: id_ijild, nama_ijild, deskripsi
+                        // Sesuaikan dengan model Jilid yang Anda miliki
                         val id = jsonObject.getInt("id_jilid")
                         val nama = jsonObject.getString("nama_jilid")
                         val deskripsi = jsonObject.optString("deskripsi", "")
@@ -140,12 +132,10 @@ class PilihJilidActivity : AppCompatActivity() {
                     Toast.makeText(this, "Error parsing data: ${e.message}", Toast.LENGTH_SHORT).show()
                     // Fallback ke data statis jika parsing gagal
                     loadStaticJilidData()
-                    updateJilidUI()
                 } catch (e: Exception) {
                     e.printStackTrace()
                     Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
                     loadStaticJilidData()
-                    updateJilidUI()
                 }
             },
             Response.ErrorListener { error ->
@@ -153,7 +143,6 @@ class PilihJilidActivity : AppCompatActivity() {
                 Toast.makeText(this, "Gagal mengambil data: ${error.message}", Toast.LENGTH_SHORT).show()
                 // Fallback ke data statis jika gagal mengambil dari database
                 loadStaticJilidData()
-                updateJilidUI()
             }
         )
 
@@ -173,65 +162,73 @@ class PilihJilidActivity : AppCompatActivity() {
         jilidList.add(Jilid(5, "JILID V", "Jilid kelima - hukum tajwid dasar"))
         jilidList.add(Jilid(6, "JILID VI", "Jilid keenam - hukum tajwid lanjutan"))
         jilidList.add(Jilid(7, "AL-QUR'AN", "Membaca Al-Qur'an"))
+
+        // Update UI dengan data statis
+        updateJilidUI()
     }
 
     private fun updateJilidUI() {
-        runOnUiThread {
-            // Buat list TextView
-            val textViews = listOf(
-                jilid1Text,
-                jilid2Text,
-                jilid3Text,
-                jilid4Text,
-                jilid5Text,
-                jilid6Text,
-                alquranText
-            )
+        // Buat list TextView
+        val textViews = listOf(
+            jilid1Text,
+            jilid2Text,
+            jilid3Text,
+            jilid4Text,
+            jilid5Text,
+            jilid6Text,
+            alquranText
+        )
 
-            // Update teks pada setiap TextView
-            for (i in textViews.indices) {
-                if (i < jilidList.size) {
-                    // PERHATIKAN: Gunakan nama_ijild bukan nama_jilid
-                    textViews[i].text = jilidList[i].nama_jilid
+        // Update teks pada setiap TextView
+        for (i in textViews.indices) {
+            if (i < jilidList.size) {
+                // Gunakan properti sesuai model Jilid Anda
+                // Jika model Jilid Anda memiliki properti "nama", gunakan jilidList[i].nama
+                // Sesuaikan dengan struktur model Jilid yang Anda miliki
+                textViews[i].text = jilidList[i].nama_jilid
+            } else {
+                // Jika tidak ada data, tampilkan placeholder
+                textViews[i].text = "JILID ${i + 1}"
+            }
+        }
+
+        // Buat list CardView
+        val cardViews = listOf(
+            jilid1Card,
+            jilid2Card,
+            jilid3Card,
+            jilid4Card,
+            jilid5Card,
+            jilid6Card,
+            alquranCard
+        )
+
+        // Update click listeners dengan data yang benar
+        cardViews.forEachIndexed { index, cardView ->
+            cardView.setOnClickListener {
+                if (index < jilidList.size) {
+                    val jilid = jilidList[index]
+                    navigateToManajemenSoal(jilid.id_jilid, jilid.nama_jilid)
                 } else {
-                    // Jika tidak ada data, tampilkan placeholder
-                    textViews[i].text = "JILID ${i + 1}"
+                    Toast.makeText(
+                        this@PilihJilidActivity,
+                        "Data jilid belum tersedia",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
+        }
 
-            // Buat list CardView
-            val cardViews = listOf(
-                jilid1Card,
-                jilid2Card,
-                jilid3Card,
-                jilid4Card,
-                jilid5Card,
-                jilid6Card,
-                alquranCard
-            )
-
-            // Update click listeners dengan data yang benar
-            cardViews.forEachIndexed { index, cardView ->
-                cardView.setOnClickListener {
-                    if (index < jilidList.size) {
-                        val jilid = jilidList[index]
-                        navigateToManajemenSoal(jilid.id_jilid, jilid.nama_jilid)
-                    } else {
-                        Toast.makeText(
-                            this@PilihJilidActivity,
-                            "Data jilid belum tersedia",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
+        // Jika ada lebih dari 7 jilid, sembunyikan yang tidak terpakai
+        // (Opsional, tergantung layout Anda)
+        if (jilidList.size < 7) {
+            for (i in jilidList.size until 7) {
+                cardViews[i].visibility = android.view.View.GONE
             }
-
-            // Jika ada lebih dari 7 jilid, sembunyikan yang tidak terpakai
-            // (Opsional, tergantung layout Anda)
-            if (jilidList.size < 7) {
-                for (i in jilidList.size until 7) {
-                    cardViews[i].visibility = android.view.View.GONE
-                }
+        } else {
+            // Tampilkan semua card jika ada data
+            for (i in 0 until 7) {
+                cardViews[i].visibility = android.view.View.VISIBLE
             }
         }
     }

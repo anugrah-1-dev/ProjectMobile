@@ -18,7 +18,6 @@ class PengaturanActivity : AppCompatActivity() {
 
     // Deklarasi views
     private lateinit var menuProfilContainer: RelativeLayout
-    private lateinit var menuBahasaContainer: RelativeLayout
     private lateinit var menuEmailContainer: RelativeLayout
     private lateinit var textEmail: TextView
     private lateinit var menuPasswordContainer: RelativeLayout
@@ -84,7 +83,6 @@ class PengaturanActivity : AppCompatActivity() {
     private fun initializeViews() {
         try {
             menuProfilContainer = findViewById(R.id.menu_profil_container)
-            menuBahasaContainer = findViewById(R.id.menu_bahasa_container)
             menuEmailContainer = findViewById(R.id.menu_email_container)
             textEmail = findViewById(R.id.text_email)
             menuPasswordContainer = findViewById(R.id.menu_password_container)
@@ -132,12 +130,6 @@ class PengaturanActivity : AppCompatActivity() {
                 Log.e(TAG, "Error opening AkunActivity", e)
                 Toast.makeText(this, "Error membuka profil: ${e.message}", Toast.LENGTH_SHORT).show()
             }
-        }
-
-        // Click listener untuk Bahasa
-        menuBahasaContainer.setOnClickListener {
-            Log.d(TAG, "Menu Bahasa clicked")
-            showLanguageDialog()
         }
 
         // Click listener untuk Email/Username (bisa untuk menampilkan detail)
@@ -225,32 +217,6 @@ class PengaturanActivity : AppCompatActivity() {
             Log.e(TAG, "Error navigating to Home", e)
             Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
         }
-    }
-
-    // Dialog untuk memilih bahasa
-    private fun showLanguageDialog() {
-        val languages = arrayOf("Bahasa Indonesia", "English")
-        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val savedLanguageIndex = prefs.getInt("language_index", 0)
-
-        AlertDialog.Builder(this)
-            .setTitle("Pilih Bahasa / Select Language")
-            .setSingleChoiceItems(languages, savedLanguageIndex) { _, which ->
-                // Simpan pilihan sementara
-                prefs.edit().putInt("language_index", which).apply()
-            }
-            .setPositiveButton("OK") { dialog, _ ->
-                val selectedIndex = prefs.getInt("language_index", 0)
-                val language = languages[selectedIndex]
-                Toast.makeText(this, "Bahasa dipilih: $language", Toast.LENGTH_SHORT).show()
-                Log.d(TAG, "Language selected: $language")
-                dialog.dismiss()
-            }
-            .setNegativeButton("Batal") { dialog, _ ->
-                dialog.dismiss()
-            }
-            .setCancelable(false)
-            .show()
     }
 
     // Dialog konfirmasi logout

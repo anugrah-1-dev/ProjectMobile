@@ -4,12 +4,14 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.View
+import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.activity.OnBackPressedCallback
 import com.example.projektpq.service.MySQLApiService
 import kotlinx.coroutines.launch
 
@@ -23,9 +25,8 @@ class TambahSoalActivity : AppCompatActivity() {
     private lateinit var jilidTitle: TextView
     private lateinit var isiSoalInput: EditText
     private lateinit var bobotNilaiInput: EditText
-    private lateinit var simpanButton: View
-    private lateinit var homeButton: View
-    private lateinit var settingButton: View
+    private lateinit var simpanButton: Button
+    private lateinit var btnBack: ImageButton
 
     companion object {
         private const val TAG = "TambahSoalActivity"
@@ -57,6 +58,9 @@ class TambahSoalActivity : AppCompatActivity() {
 
         // Setup listeners
         setupClickListeners()
+
+        // Setup back press handler
+        setupBackPressHandler()
     }
 
     private fun initializeViews() {
@@ -73,8 +77,7 @@ class TambahSoalActivity : AppCompatActivity() {
 
         // Buttons
         simpanButton = findViewById(R.id.simpan)
-        homeButton = findViewById(R.id.home_button_container)
-        settingButton = findViewById(R.id.setting_button_container)
+        btnBack = findViewById(R.id.btn_back)
     }
 
     private fun setupClickListeners() {
@@ -83,16 +86,19 @@ class TambahSoalActivity : AppCompatActivity() {
             simpanSoal()
         }
 
-        // Tombol Home - kembali ke ManajemenSoalActivity
-        homeButton.setOnClickListener {
+        // Tombol Back - kembali ke ManajemenSoalActivity
+        btnBack.setOnClickListener {
             navigateBackToManajemen()
         }
+    }
 
-        // Tombol Settings
-        settingButton.setOnClickListener {
-            val intent = Intent(this, PengaturanActivity::class.java)
-            startActivity(intent)
-        }
+    private fun setupBackPressHandler() {
+        // Setup hardware back button untuk kembali ke ManajemenSoalActivity
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                navigateBackToManajemen()
+            }
+        })
     }
 
     private fun simpanSoal() {
@@ -201,11 +207,5 @@ class TambahSoalActivity : AppCompatActivity() {
         intent.putExtra("NAMA_JILID", currentNamaJilid)
         startActivity(intent)
         finish()
-    }
-
-    @SuppressLint("GestureBackNavigation")
-    override fun onBackPressed() {
-        super.onBackPressed()
-        navigateBackToManajemen()
     }
 }

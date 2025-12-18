@@ -115,41 +115,6 @@
 
             </RelativeLayout>
 
-            <!-- ========== MENU BAHASA ========== -->
-            <RelativeLayout
-                android:id="@+id/menu_bahasa_container"
-                android:layout_width="match_parent"
-                android:layout_height="70dp"
-                android:layout_marginStart="20dp"
-                android:layout_marginEnd="20dp"
-                android:layout_marginBottom="15dp"
-                android:background="@drawable/rectangle_8"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp"
-                android:clickable="true"
-                android:focusable="true">
-
-                <TextView
-                    android:id="@+id/text_bahasa"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:text="Bahasa / Language"
-                    android:textColor="#000000"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <ImageView
-                    android:id="@+id/arrow_bahasa"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:src="@drawable/back"
-                    android:contentDescription="Arrow" />
-
-            </RelativeLayout>
-
             <!-- ========== MENU EMAIL ========== -->
             <RelativeLayout
                 android:id="@+id/menu_email_container"

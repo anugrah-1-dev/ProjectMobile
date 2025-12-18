@@ -24,6 +24,8 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.components.XAxis
 import android.widget.FrameLayout
+import android.widget.ImageButton
+import androidx.activity.OnBackPressedCallback
 
 class ManajemenSoalActivity : AppCompatActivity() {
 
@@ -33,6 +35,7 @@ class ManajemenSoalActivity : AppCompatActivity() {
     private val scope = CoroutineScope(Dispatchers.Main + Job())
     private lateinit var chartContainer: FrameLayout
     private var lineChart: LineChart? = null
+    private lateinit var btnBack: ImageButton
 
     companion object {
         private const val TAG = "ManajemenSoalActivity"
@@ -67,13 +70,35 @@ class ManajemenSoalActivity : AppCompatActivity() {
         }
 
         chartContainer = findViewById(R.id.chart_container)
+        btnBack = findViewById(R.id.btn_back)
 
         setupDynamicChart()
         setupButtons()
+        setupBackPressHandler()
 
         chartContainer.post {
             loadHistoryData()
         }
+    }
+
+    private fun setupBackPressHandler() {
+        // Setup tombol back untuk kembali ke PilihJilidActivity
+        btnBack.setOnClickListener {
+            navigateBackToPilihJilid()
+        }
+
+        // Setup hardware back button
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                navigateBackToPilihJilid()
+            }
+        })
+    }
+
+    private fun navigateBackToPilihJilid() {
+        val intent = Intent(this, PilihJilidActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 
     private fun setupDynamicChart() {
@@ -181,15 +206,6 @@ class ManajemenSoalActivity : AppCompatActivity() {
                 putExtra("ID_JILID", idJilid)
                 putExtra("NAMA_JILID", namaJilid)
             })
-        }
-
-        findViewById<LinearLayout>(R.id.btn_home)?.setOnClickListener {
-            startActivity(Intent(this, PilihJilidActivity::class.java))
-            finish()
-        }
-
-        findViewById<LinearLayout>(R.id.btn_settings)?.setOnClickListener {
-            startActivity(Intent(this, PengaturanActivity::class.java))
         }
     }
 

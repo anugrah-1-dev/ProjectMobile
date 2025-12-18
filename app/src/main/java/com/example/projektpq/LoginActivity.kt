@@ -38,7 +38,6 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var forgotPassword: TextView
     private lateinit var googleSignInButton: com.google.android.gms.common.SignInButton
     private lateinit var loginModeSwitch: Switch
-    private lateinit var registerButton: Button
     private lateinit var usernameLabel: TextView
     private lateinit var dividerContainer: LinearLayout
 
@@ -113,7 +112,6 @@ class LoginActivity : AppCompatActivity() {
         forgotPassword = findViewById(R.id.forgot_password)
         googleSignInButton = findViewById(R.id.google_sign_in_button)
         loginModeSwitch = findViewById(R.id.login_mode_switch)
-        registerButton = findViewById(R.id.register_button)
         usernameLabel = findViewById(R.id.username_label)
         dividerContainer = findViewById(R.id.divider_container)
     }
@@ -143,14 +141,6 @@ class LoginActivity : AppCompatActivity() {
                 performEmailPasswordLogin()
             } else {
                 performMySQLLogin()
-            }
-        }
-
-        registerButton.setOnClickListener {
-            if (!isGoogleLoginMode) {
-                performMySQLRegister()
-            } else {
-                Toast.makeText(this, "Registrasi hanya untuk mode SQL", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -226,7 +216,6 @@ class LoginActivity : AppCompatActivity() {
             forgotPassword.visibility = View.VISIBLE
             forgotPassword.text = "Lupa Password?"
             loginButton.text = "Login"
-            registerButton.visibility = View.GONE
             loginModeSwitch.text = "Google/Firebase"
             usernameInput.inputType = android.text.InputType.TYPE_CLASS_TEXT or
                     android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
@@ -238,7 +227,6 @@ class LoginActivity : AppCompatActivity() {
             forgotPassword.visibility = View.VISIBLE
             forgotPassword.text = "Ganti Password?"
             loginButton.text = "Login dengan SQL"
-            registerButton.visibility = View.VISIBLE
             loginModeSwitch.text = "SQL Database"
             usernameInput.inputType = android.text.InputType.TYPE_CLASS_TEXT or
                     android.text.InputType.TYPE_TEXT_VARIATION_NORMAL
@@ -514,50 +502,6 @@ class LoginActivity : AppCompatActivity() {
                 Toast.makeText(this@LoginActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
             } finally {
                 setButtonLoading(loginButton, false, "Login dengan SQL")
-            }
-        }
-    }
-
-    private fun performMySQLRegister() {
-        val username = usernameInput.text.toString().trim()
-        val password = passwordInput.text.toString().trim()
-
-        if (validateInputForMySQL(username, password)) {
-            registerWithMySQL(username, password)
-        }
-    }
-
-    private fun registerWithMySQL(username: String, password: String) {
-        lifecycleScope.launch {
-            try {
-                setButtonLoading(registerButton, true, "Loading...")
-
-                val result = mysqlApiService.register(username, password)
-
-                if (result.isSuccess) {
-                    val response = result.getOrNull()
-                    if (response?.success == true && response.data != null) {
-                        val userData = response.data
-                        saveUserSession(
-                            userData.id_user.toString(),
-                            userData.username,
-                            userData.role,
-                            false
-                        )
-                        showLoginSuccessNotification()
-                    } else {
-                        Toast.makeText(this@LoginActivity, response?.message ?: "Registrasi gagal", Toast.LENGTH_LONG).show()
-                    }
-                } else {
-                    val error = result.exceptionOrNull()
-                    Toast.makeText(this@LoginActivity, "Koneksi gagal: ${error?.message}", Toast.LENGTH_LONG).show()
-                    Log.e(TAG, "MySQL register failed", error)
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "MySQL register error", e)
-                Toast.makeText(this@LoginActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
-            } finally {
-                setButtonLoading(registerButton, false, "Register Akun Baru")
             }
         }
     }

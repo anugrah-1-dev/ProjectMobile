@@ -23,6 +23,14 @@ data class SantriResponse(
     val data: SantriDetail? = null
 )
 
+data class User(
+    val id_user: Int,
+    val username: String,
+    val role: String,
+    val email: String,
+    val nomor_telepon: String
+)
+
 // ==================== JILID ====================
 data class Jilid(
     val id_jilid: Int,

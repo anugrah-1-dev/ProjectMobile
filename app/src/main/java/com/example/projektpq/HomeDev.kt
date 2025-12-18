@@ -9,6 +9,7 @@ import android.util.Log
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import com.google.firebase.auth.FirebaseAuth
 
@@ -19,6 +20,8 @@ class HomeDev : AppCompatActivity() {
     // View elements
     private lateinit var cardKelolaAkun: LinearLayout
     private lateinit var cardActivity: LinearLayout
+    private lateinit var cardTambahAkun: LinearLayout
+    private lateinit var cardDaftarAkun: LinearLayout
     private lateinit var btnHome: LinearLayout
     private lateinit var btnSettings: LinearLayout
     private lateinit var tpqTitle: TextView
@@ -46,6 +49,7 @@ class HomeDev : AppCompatActivity() {
             loadUserInfo()
             setupClickListeners()
             verifyUserAccess()
+            setupBackPressHandler()
 
             Log.d(TAG, "=== HomeDev onCreate SUCCESS ===")
         } catch (e: Exception) {
@@ -59,6 +63,8 @@ class HomeDev : AppCompatActivity() {
             // Cards yang ada di layout
             cardKelolaAkun = findViewById(R.id.card_kelola_akun)
             cardActivity = findViewById(R.id.card_activity)
+            cardTambahAkun = findViewById(R.id.card_tambah_akun)
+            cardDaftarAkun = findViewById(R.id.card_daftar_akun)
 
             // Bottom navigation
             btnHome = findViewById(R.id.btn_home)
@@ -139,6 +145,31 @@ class HomeDev : AppCompatActivity() {
             }
         }
 
+        // Card Tambah Akun - Membuat akun baru
+        cardTambahAkun.setOnClickListener {
+            Log.d(TAG, "→ Navigating to TambahAkunActivity")
+            try {
+                val intent = Intent(this, TambahAkunActivity::class.java)
+                startActivity(intent)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error navigating to TambahAkunActivity", e)
+                Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // Card Daftar Akun - Melihat semua akun
+        cardDaftarAkun.setOnClickListener {
+            Log.d(TAG, "→ Navigating to DaftarAkunActivity")
+            try {
+                // PERBAIKAN: Tambahkan explicit type untuk Intent
+                val intent: Intent = Intent(this, DaftarAkunActivity::class.java)
+                startActivity(intent)
+            } catch (e: Exception) {
+                Log.e(TAG, "DaftarAkunActivity not found", e)
+                Toast.makeText(this, "Fitur Daftar Akun - Coming Soon", Toast.LENGTH_SHORT).show()
+            }
+        }
+
         // Tombol Home - Refresh atau stay
         btnHome.setOnClickListener {
             Log.d(TAG, "Home button clicked")
@@ -150,6 +181,23 @@ class HomeDev : AppCompatActivity() {
             Log.d(TAG, "Settings button clicked")
             showSettingsMenu()
         }
+    }
+
+    private fun setupBackPressHandler() {
+        // PERBAIKAN: Gunakan OnBackPressedDispatcher yang baru
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // Tampilkan konfirmasi sebelum keluar dari app
+                AlertDialog.Builder(this@HomeDev)
+                    .setTitle("Keluar Aplikasi")
+                    .setMessage("Apakah Anda yakin ingin keluar dari aplikasi?")
+                    .setPositiveButton("Ya") { _, _ ->
+                        finishAffinity() // Tutup semua activity
+                    }
+                    .setNegativeButton("Tidak", null)
+                    .show()
+            }
+        })
     }
 
     private fun showSettingsMenu() {
@@ -219,20 +267,6 @@ class HomeDev : AppCompatActivity() {
             Log.e(TAG, "✗ Error during logout", e)
             Toast.makeText(this, "Error logout: ${e.message}", Toast.LENGTH_SHORT).show()
         }
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        // Tampilkan konfirmasi sebelum keluar dari app
-        AlertDialog.Builder(this)
-            .setTitle("Keluar Aplikasi")
-            .setMessage("Apakah Anda yakin ingin keluar dari aplikasi?")
-            .setPositiveButton("Ya") { _, _ ->
-                super.onBackPressed()
-                finishAffinity() // Tutup semua activity
-            }
-            .setNegativeButton("Tidak", null)
-            .show()
     }
 
     override fun onResume() {

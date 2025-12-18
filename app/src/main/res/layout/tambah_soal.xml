@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/tambah_soal"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#5DD62C"
-    android:clipToOutline="true">
+    android:background="#5DD62C">
 
     <!-- Header Background -->
     <View
@@ -21,9 +21,9 @@
         android:layout_width="125dp"
         android:layout_height="125dp"
         android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_marginTop="8dp"
-        android:layout_marginLeft="23dp"
+        android:layout_marginStart="23dp"
         android:background="@drawable/logo_mitra" />
 
     <!-- Judul TPQ -->
@@ -37,7 +37,23 @@
         android:textColor="#000000"
         android:textSize="26sp"
         android:textStyle="bold"
-        android:lineSpacingExtra="8sp" />
+        android:lineSpacingExtra="8sp"
+        tools:ignore="HardcodedText" />
+
+    <!-- Tombol Back di bawah logo -->
+    <ImageButton
+        android:id="@+id/btn_back"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_below="@id/logo_mitra_"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="23dp"
+        android:layout_marginTop="8dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/ic_back"
+        android:contentDescription="@string/tombol_kembali"
+        android:scaleType="fitCenter"
+        android:padding="10dp" />
 
     <!-- Main Container -->
     <View
@@ -46,7 +62,7 @@
         android:layout_height="420dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="252dp"
+        android:layout_marginTop="282dp"
         android:background="@drawable/rectangle_2" />
 
     <!-- Soal Ujian Title Background -->
@@ -56,7 +72,7 @@
         android:layout_height="74dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="178dp"
+        android:layout_marginTop="208dp"
         android:background="@drawable/rectangle_title_bg" />
 
     <!-- Soal Ujian Title (DYNAMIC - Will be updated by code) -->
@@ -66,12 +82,13 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_marginStart="52dp"
-        android:layout_marginTop="188dp"
+        android:layout_marginTop="218dp"
         android:gravity="top"
-        android:text="Soal Ujian\nJILID I"
+        android:text="Soal Ujian\nJILID"
         android:textColor="#000000"
         android:textSize="24sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        tools:ignore="HardcodedText" />
 
     <!-- Bobot Nilai Label -->
     <TextView
@@ -79,11 +96,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_marginTop="270dp"
-        android:layout_marginLeft="42dp"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="300dp"
+        android:layout_marginStart="42dp"
         android:gravity="top"
-        android:text="Bobot Nilai"
+        android:text="@string/bobot_nilai"
         android:textColor="#000000"
         android:textSize="20sp" />
 
@@ -91,30 +108,33 @@
     <View
         android:id="@+id/bobot_input_bg"
         android:layout_width="335dp"
-        android:layout_height="43dp"
+        android:layout_height="48dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="295dp"
+        android:layout_marginTop="325dp"
         android:background="@drawable/rectangle_input" />
 
     <!-- BOBOT NILAI INPUT (EDIT TEXT) -->
     <EditText
         android:id="@+id/edit_bobot_nilai"
         android:layout_width="335dp"
-        android:layout_height="43dp"
+        android:layout_height="48dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="295dp"
-        android:hint="Masukkan Bobot Nilai (1-100)"
+        android:layout_marginTop="325dp"
+        android:hint="@string/masukkan_bobot_nilai"
         android:textColor="#000000"
         android:textColorHint="#403C3C"
         android:textSize="18sp"
         android:background="@android:color/transparent"
         android:paddingStart="12dp"
+        android:paddingEnd="12dp"
         android:paddingTop="10dp"
         android:inputType="number"
         android:maxLines="1"
-        android:text="10" />
+        android:text="@string/default_bobot"
+        android:autofillHints="number"
+        android:minHeight="48dp" />
 
     <!-- Soal Label -->
     <TextView
@@ -122,11 +142,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_marginTop="350dp"
-        android:layout_marginLeft="42dp"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="385dp"
+        android:layout_marginStart="42dp"
         android:gravity="top"
-        android:text="Soal"
+        android:text="@string/soal"
         android:textColor="#000000"
         android:textSize="20sp" />
 
@@ -137,7 +157,7 @@
         android:layout_height="200dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="375dp"
+        android:layout_marginTop="410dp"
         android:background="@drawable/rectangle_input" />
 
     <!-- SOAL INPUT (EDIT TEXT) -->
@@ -147,8 +167,8 @@
         android:layout_height="200dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="375dp"
-        android:hint="Masukkan Soal"
+        android:layout_marginTop="410dp"
+        android:hint="@string/masukkan_soal"
         android:textColor="#000000"
         android:textColorHint="#403C3C"
         android:textSize="18sp"
@@ -159,96 +179,33 @@
         android:gravity="top"
         android:inputType="textMultiLine"
         android:maxLines="8"
-        android:scrollbars="vertical" />
+        android:scrollbars="vertical"
+        android:autofillHints="text" />
 
     <!-- Simpan Button Background -->
     <View
         android:id="@+id/group_44"
-        android:layout_width="120dp"
-        android:layout_height="40dp"
+        android:layout_width="150dp"
+        android:layout_height="48dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="600dp"
+        android:layout_marginTop="630dp"
         android:background="@drawable/rectangle_title_bg" />
 
     <!-- Simpan Button -->
-    <TextView
+    <Button
         android:id="@+id/simpan"
-        android:layout_width="120dp"
-        android:layout_height="40dp"
+        android:layout_width="150dp"
+        android:layout_height="48dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="600dp"
+        android:layout_marginTop="630dp"
         android:gravity="center"
-        android:text="Simpan"
+        android:text="@string/simpan"
         android:textColor="#000000"
         android:textSize="22sp"
         android:textStyle="bold"
-        android:clickable="true"
-        android:focusable="true" />
+        android:background="@android:color/transparent"
+        android:minHeight="48dp" />
 
-    <!-- ========== BOTTOM NAVIGATION ========== -->
-
-    <!-- Navbar Background -->
-    <View
-        android:id="@+id/navbar"
-        android:layout_width="match_parent"
-        android:layout_height="92dp"
-        android:layout_alignParentBottom="true"
-        android:background="@drawable/rounded_bottom_nav" />
-
-    <!-- Tombol Home Container -->
-    <RelativeLayout
-        android:id="@+id/home_button_container"
-        android:layout_width="45dp"
-        android:layout_height="45dp"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="30dp"
-        android:layout_marginBottom="24dp"
-        android:clickable="true"
-        android:focusable="true">
-
-        <View
-            android:id="@+id/home_circle"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
-            android:background="@drawable/circle_green" />
-
-        <ImageView
-            android:id="@+id/home_icon"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_centerInParent="true"
-            android:src="@drawable/home"
-            android:contentDescription="Home" />
-
-    </RelativeLayout>
-
-    <!-- Tombol Setting Container -->
-    <RelativeLayout
-        android:id="@+id/setting_button_container"
-        android:layout_width="45dp"
-        android:layout_height="45dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="30dp"
-        android:layout_marginBottom="24dp"
-        android:clickable="true"
-        android:focusable="true">
-
-        <View
-            android:id="@+id/setting_circle"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
-            android:background="@drawable/circle_green" />
-
-        <ImageView
-            android:id="@+id/settings_icon"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_centerInParent="true"
-            android:src="@drawable/setting"
-            android:contentDescription="Settings" />
-
-    </RelativeLayout>
 </RelativeLayout>

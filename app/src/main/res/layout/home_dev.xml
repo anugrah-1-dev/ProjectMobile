@@ -1,274 +1,343 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/home"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#5DD62C">
 
-    <!-- Header Background dengan bentuk gelombang -->
-    <View
-        android:id="@+id/gelombang1"
+    <!-- Scrollable Content Area -->
+    <ScrollView
+        android:id="@+id/scroll_content"
         android:layout_width="0dp"
-        android:layout_height="220dp"
-        android:background="@drawable/gelombang1"
+        android:layout_height="0dp"
+        android:fillViewport="true"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <!-- Logo -->
-    <ImageView
-        android:id="@+id/logo_mitra"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="30dp"
-        android:src="@drawable/logo_mitra"
-        android:scaleType="centerCrop"
-        android:contentDescription="Logo TPQ"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <!-- TPQ Title with User Info -->
-    <LinearLayout
-        android:id="@+id/header_info"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="20dp"
-        android:orientation="vertical"
-        app:layout_constraintTop_toTopOf="@id/logo_mitra"
-        app:layout_constraintBottom_toBottomOf="@id/logo_mitra"
-        app:layout_constraintStart_toEndOf="@id/logo_mitra"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <TextView
-            android:id="@+id/tpq_roudlot"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="TPQ ROUDLOTUL ILMI"
-            android:textColor="#000000"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/role_badge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="SUPER ADMIN"
-            android:textColor="#D32F2F"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:background="@drawable/badge_background"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="4dp" />
-    </LinearLayout>
-
-    <!-- Welcome Message -->
-    <TextView
-        android:id="@+id/welcome_text"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginTop="16dp"
-        android:text="Selamat Datang, Admin"
-        android:textColor="#000000"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/logo_mitra"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <TextView
-        android:id="@+id/subtitle_text"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginTop="4dp"
-        android:text="Panel Kontrol Super Admin"
-        android:textColor="#424242"
-        android:textSize="14sp"
-        app:layout_constraintTop_toBottomOf="@id/welcome_text"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <!-- Guideline untuk membagi layar menjadi 2 kolom -->
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline_vertical"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.5" />
-
-    <!-- Card 1 - Kelola Akun -->
-    <LinearLayout
-        android:id="@+id/card_kelola_akun"
-        android:layout_width="0dp"
-        android:layout_height="160dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginTop="30dp"
-        android:background="@drawable/rounded_card"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:padding="16dp"
-        android:elevation="8dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:foreground="?attr/selectableItemBackground"
-        app:layout_constraintTop_toBottomOf="@id/gelombang1"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/guideline_vertical">
-
-        <ImageView
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:src="@drawable/profil"
-            android:scaleType="centerInside"
-            android:contentDescription="Kelola Akun" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="Kelola Akun"
-            android:textColor="#000000"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:gravity="center" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Profil &amp; Informasi"
-            android:textColor="#757575"
-            android:textSize="12sp"
-            android:gravity="center" />
-    </LinearLayout>
-
-    <!-- Card 2 - Activity -->
-    <LinearLayout
-        android:id="@+id/card_activity"
-        android:layout_width="0dp"
-        android:layout_height="160dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="20dp"
-        android:background="@drawable/rounded_card"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:padding="16dp"
-        android:elevation="8dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:foreground="?attr/selectableItemBackground"
-        app:layout_constraintTop_toTopOf="@id/card_kelola_akun"
-        app:layout_constraintStart_toEndOf="@id/guideline_vertical"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <ImageView
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:src="@drawable/history"
-            android:scaleType="centerInside"
-            android:contentDescription="Activity History" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="Activity"
-            android:textColor="#000000"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:gravity="center" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Riwayat Aktivitas"
-            android:textColor="#757575"
-            android:textSize="12sp"
-            android:gravity="center" />
-    </LinearLayout>
-
-    <!-- Info Card (Optional) -->
-    <LinearLayout
-        android:id="@+id/info_card"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginTop="20dp"
-        android:background="@drawable/rounded_card"
-        android:orientation="vertical"
-        android:padding="16dp"
-        android:elevation="4dp"
-        app:layout_constraintTop_toBottomOf="@id/card_kelola_akun"
+        app:layout_constraintBottom_toTopOf="@id/bottom_nav"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/home"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="📊 Status Sistem"
-            android:textColor="#000000"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:paddingBottom="20dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="✓ Semua sistem berjalan normal\n✓ Akses penuh tersedia"
-            android:textColor="#424242"
-            android:textSize="14sp"
-            android:lineSpacingExtra="4dp" />
-    </LinearLayout>
+            <!-- Header Background dengan bentuk gelombang -->
+            <View
+                android:id="@+id/gelombang1"
+                android:layout_width="0dp"
+                android:layout_height="220dp"
+                android:background="@drawable/gelombang1"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Bottom Navigation Background -->
+            <!-- Logo -->
+            <ImageView
+                android:id="@+id/logo_mitra"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="30dp"
+                android:src="@drawable/logo_mitra"
+                android:scaleType="centerCrop"
+                android:contentDescription="Logo TPQ"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <!-- TPQ Title with User Info -->
+            <LinearLayout
+                android:id="@+id/header_info"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="20dp"
+                android:orientation="vertical"
+                app:layout_constraintTop_toTopOf="@id/logo_mitra"
+                app:layout_constraintBottom_toBottomOf="@id/logo_mitra"
+                app:layout_constraintStart_toEndOf="@id/logo_mitra"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <TextView
+                    android:id="@+id/tpq_roudlot"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="TPQ\nROUDLOTUL ILMI"
+                    android:textColor="#000000"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <!-- Welcome Message -->
+            <TextView
+                android:id="@+id/welcome_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginTop="16dp"
+                android:text="Selamat Datang, Admin"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@id/logo_mitra"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <TextView
+                android:id="@+id/subtitle_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginTop="4dp"
+                android:text="Panel Kontrol Super Admin"
+                android:textColor="#424242"
+                android:textSize="14sp"
+                app:layout_constraintTop_toBottomOf="@id/welcome_text"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <!-- Guideline untuk membagi layar menjadi 2 kolom -->
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.5" />
+
+            <!-- Card 1 - Kelola Akun -->
+            <LinearLayout
+                android:id="@+id/card_kelola_akun"
+                android:layout_width="0dp"
+                android:layout_height="160dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginTop="30dp"
+                android:background="@drawable/rounded_card"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="16dp"
+                android:elevation="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                app:layout_constraintTop_toBottomOf="@id/gelombang1"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/guideline_vertical">
+
+                <ImageView
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:src="@drawable/profil"
+                    android:scaleType="centerInside"
+                    android:contentDescription="Kelola Akun" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="Kelola Akun"
+                    android:textColor="#000000"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:gravity="center" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Profil &amp; Informasi"
+                    android:textColor="#757575"
+                    android:textSize="12sp"
+                    android:gravity="center" />
+            </LinearLayout>
+
+            <!-- Card 2 - Activity -->
+            <LinearLayout
+                android:id="@+id/card_activity"
+                android:layout_width="0dp"
+                android:layout_height="160dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="20dp"
+                android:background="@drawable/rounded_card"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="16dp"
+                android:elevation="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                app:layout_constraintTop_toTopOf="@id/card_kelola_akun"
+                app:layout_constraintStart_toEndOf="@id/guideline_vertical"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <ImageView
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:src="@drawable/history"
+                    android:scaleType="centerInside"
+                    android:contentDescription="Activity History" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="Activity"
+                    android:textColor="#000000"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:gravity="center" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Riwayat Aktivitas"
+                    android:textColor="#757575"
+                    android:textSize="12sp"
+                    android:gravity="center" />
+            </LinearLayout>
+
+            <!-- Card 3 - Tambah Akun (NEW) -->
+            <LinearLayout
+                android:id="@+id/card_tambah_akun"
+                android:layout_width="0dp"
+                android:layout_height="160dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/rounded_card"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="16dp"
+                android:elevation="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                app:layout_constraintTop_toBottomOf="@id/card_kelola_akun"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/guideline_vertical">
+
+                <ImageView
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:src="@android:drawable/ic_input_add"
+                    android:scaleType="centerInside"
+                    app:tint="#5DD62C"
+                    android:contentDescription="Tambah Akun" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="Tambah Akun"
+                    android:textColor="#000000"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:gravity="center" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Buat Akun Baru"
+                    android:textColor="#757575"
+                    android:textSize="12sp"
+                    android:gravity="center" />
+            </LinearLayout>
+
+            <!-- Card 4 - Daftar Akun (NEW) -->
+            <LinearLayout
+                android:id="@+id/card_daftar_akun"
+                android:layout_width="0dp"
+                android:layout_height="160dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="20dp"
+                android:background="@drawable/rounded_card"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="16dp"
+                android:elevation="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                app:layout_constraintTop_toTopOf="@id/card_tambah_akun"
+                app:layout_constraintStart_toEndOf="@id/guideline_vertical"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <ImageView
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:src="@android:drawable/ic_menu_view"
+                    android:scaleType="centerInside"
+                    app:tint="#5DD62C"
+                    android:contentDescription="Daftar Akun" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="Daftar Akun"
+                    android:textColor="#000000"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:gravity="center" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Lihat Semua Akun"
+                    android:textColor="#757575"
+                    android:textSize="12sp"
+                    android:gravity="center" />
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
+
+    <!-- Bottom Navigation Bar - Fixed at Bottom -->
     <View
         android:id="@+id/bottom_nav"
         android:layout_width="0dp"
-        android:layout_height="70dp"
+        android:layout_height="80dp"
         android:background="@drawable/rounded_bottom_nav"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Home Button -->
+    <!-- Home Button - Fixed at Bottom -->
     <LinearLayout
         android:id="@+id/btn_home"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="50dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="60dp"
         android:layout_marginBottom="10dp"
         android:orientation="vertical"
         android:gravity="center"
         android:background="@drawable/home"
-        android:elevation="6dp"
+        android:elevation="10dp"
         android:clickable="true"
         android:focusable="true"
         android:contentDescription="Home"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Settings/Menu Button -->
+    <!-- Settings/Menu Button - Fixed at Bottom -->
     <LinearLayout
         android:id="@+id/btn_settings"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginEnd="50dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginEnd="60dp"
         android:layout_marginBottom="10dp"
         android:orientation="vertical"
         android:gravity="center"
         android:background="@drawable/setting"
-        android:elevation="6dp"
+        android:elevation="10dp"
         android:clickable="true"
         android:focusable="true"
         android:contentDescription="Settings &amp; Logout"
