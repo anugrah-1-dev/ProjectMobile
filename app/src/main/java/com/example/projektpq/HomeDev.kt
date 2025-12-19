@@ -210,7 +210,7 @@ class HomeDev : AppCompatActivity() {
                     0 -> {
                         // Pengaturan
                         try {
-                            val intent = Intent(this, PengaturanActivity::class.java)
+                            val intent = Intent(this, PengaturanDev::class.java)
                             intent.putExtra("IS_SUPER_ADMIN", true)
                             startActivity(intent)
                         } catch (e: Exception) {

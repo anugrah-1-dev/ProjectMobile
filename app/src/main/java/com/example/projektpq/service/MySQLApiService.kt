@@ -1,6 +1,12 @@
 package com.example.projektpq.service
 
 import android.util.Log
+import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.client.HttpClient
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -17,6 +23,11 @@ class MySQLApiService {
         private const val BASE_URL = "https://kampunginggrisori.com/api"
         private const val CONNECT_TIMEOUT = 15000
         private const val READ_TIMEOUT = 15000
+
+        // Ktor client untuk API calls yang lebih modern
+        private val apiClient = HttpClient {
+            expectSuccess = false // Handle errors manually
+        }
     }
 
     // ==================== DATA CLASSES ====================
@@ -142,6 +153,34 @@ class MySQLApiService {
         val message: String
     )
 
+    // ==================== KUALIFIKASI DATA CLASSES ====================
+    data class KualifikasiResponse(
+        val success: Boolean,
+        val qualified: Boolean?, // true jika memenuhi syarat
+        val message: String?,
+        val previous_jilid: Int?,
+        val previous_status: String?,
+        val previous_nilai: Double?,
+        val previous_persentase: Double?
+    )
+
+    // ==================== RIWAYAT UJIAN DATA CLASSES ====================
+    data class RiwayatUjianResponse(
+        val success: Boolean,
+        val message: String?,
+        val data: List<RiwayatUjianData>?
+    )
+
+    data class RiwayatUjianData(
+        val id_ujian: Int,
+        val id_jilid: Int,
+        val nama_jilid: String?,
+        val nilai_total: Double,
+        val persentase: Double,
+        val status: String, // "LULUS" atau "TIDAK LULUS"
+        val tanggal_ujian: String
+    )
+
     // ==================== PRIVATE HELPER METHODS ====================
     private fun parseJsonResponse(response: String): JSONObject {
         return JSONObject(response)
@@ -153,6 +192,112 @@ class MySQLApiService {
             json.optString("message", "Unknown error occurred")
         } catch (e: Exception) {
             "Failed to parse error response"
+        }
+    }
+
+    // ==================== KUALIFIKASI FUNCTIONS ====================
+
+    // ✅ Cek apakah siswa memenuhi syarat untuk ujian jilid tertentu
+    suspend fun checkKualifikasiJilid(noInduk: String, idJilid: Int): Result<KualifikasiResponse> {
+        return try {
+            val response = apiClient.get("$BASE_URL/check_kualifikasi.php") {
+                parameter("no_induk", noInduk)
+                parameter("id_jilid", idJilid)
+            }.body<KualifikasiResponse>()
+            Result.success(response)
+        } catch (e: Exception) {
+            Log.e("MySQLApiService", "Error checking kualifikasi", e)
+            Result.failure(e)
+        }
+    }
+
+    // ✅ Simpan ujian dengan status kelulusan
+    suspend fun saveUjianWithStatus(
+        noInduk: String,
+        idJilid: Int,
+        nilaiTotal: Double,
+        persentase: Double,
+        status: String,
+        tanggalUjian: String
+    ): Result<ApiResponse<Any>> {
+        return withContext(Dispatchers.IO) {
+            var connection: HttpURLConnection? = null
+            try {
+                val url = URL("$BASE_URL/save_ujian_with_status.php")
+                connection = url.openConnection() as HttpURLConnection
+
+                connection.apply {
+                    requestMethod = "POST"
+                    setRequestProperty("Content-Type", "application/json; charset=utf-8")
+                    setRequestProperty("Accept", "application/json")
+                    connectTimeout = CONNECT_TIMEOUT
+                    readTimeout = READ_TIMEOUT
+                    doOutput = true
+                    doInput = true
+                    useCaches = false
+                }
+
+                val jsonInput = JSONObject().apply {
+                    put("no_induk", noInduk)
+                    put("id_jilid", idJilid)
+                    put("nilai_total", nilaiTotal)
+                    put("persentase", persentase)
+                    put("status", status)
+                    put("tanggal_ujian", tanggalUjian)
+                }
+
+                Log.d(TAG, "Save Ujian with Status URL: $url")
+                Log.d(TAG, "Request: $jsonInput")
+
+                OutputStreamWriter(connection.outputStream, Charsets.UTF_8).use { writer ->
+                    writer.write(jsonInput.toString())
+                    writer.flush()
+                }
+
+                val responseCode = connection.responseCode
+                Log.d(TAG, "Response Code: $responseCode")
+
+                val inputStream = if (responseCode == HttpURLConnection.HTTP_OK) {
+                    connection.inputStream
+                } else {
+                    connection.errorStream
+                }
+
+                val response = BufferedReader(InputStreamReader(inputStream, Charsets.UTF_8)).use { reader ->
+                    reader.readText()
+                }
+
+                Log.d(TAG, "Response: $response")
+
+                if (response.isBlank()) {
+                    return@withContext Result.failure(Exception("Empty response from server"))
+                }
+
+                val jsonResponse = parseJsonResponse(response)
+                val success = jsonResponse.getBoolean("success")
+                val message = jsonResponse.getString("message")
+
+                Result.success(ApiResponse(success, message, null))
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Error saving ujian with status", e)
+                Result.failure(Exception("Network error: ${e.message}"))
+            } finally {
+                connection?.disconnect()
+            }
+        }
+    }
+
+    // ✅ Get riwayat ujian siswa untuk tracking progress
+    suspend fun getRiwayatUjianSiswa(noInduk: String): Result<RiwayatUjianResponse> {
+        return try {
+            val response = apiClient.get("$BASE_URL/get_riwayat_ujian.php") {
+                parameter("no_induk", noInduk)
+            }.body<RiwayatUjianResponse>()
+            Result.success(response)
+        } catch (e: Exception) {
+            Log.e("MySQLApiService", "Error getting riwayat ujian", e)
+            Result.failure(e)
         }
     }
 

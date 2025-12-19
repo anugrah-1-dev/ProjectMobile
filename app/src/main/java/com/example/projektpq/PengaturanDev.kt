@@ -10,11 +10,8 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import com.google.firebase.auth.FirebaseAuth
 
-class PengaturanActivity : AppCompatActivity() {
-
-    private lateinit var auth: FirebaseAuth
+class PengaturanDev : AppCompatActivity() {
 
     // Deklarasi views
     private lateinit var menuProfilContainer: RelativeLayout
@@ -30,8 +27,9 @@ class PengaturanActivity : AppCompatActivity() {
         private const val PREFS_NAME = "LoginPrefs"
         private const val KEY_USER_ID = "user_id"
         private const val KEY_USERNAME = "username"
+        private const val KEY_USER_EMAIL = "user_email"
         private const val KEY_USER_ROLE = "user_role"
-        private const val KEY_LOGIN_MODE = "login_mode"
+        private const val KEY_USER_PHONE = "user_phone"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,9 +40,6 @@ class PengaturanActivity : AppCompatActivity() {
         try {
             setContentView(R.layout.pengaturan)
             Log.d(TAG, "Layout 'pengaturan' set successfully")
-
-            // Initialize Firebase Auth
-            auth = FirebaseAuth.getInstance()
 
             // Cek apakah user sudah login
             if (!isUserLoggedIn()) {
@@ -69,15 +64,10 @@ class PengaturanActivity : AppCompatActivity() {
     private fun isUserLoggedIn(): Boolean {
         val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val savedUserId = prefs.getString(KEY_USER_ID, null)
-        val savedLoginMode = prefs.getBoolean(KEY_LOGIN_MODE, true)
+        val savedUsername = prefs.getString(KEY_USERNAME, null)
 
-        return if (savedLoginMode) {
-            // Firebase login - cek Firebase Auth
-            auth.currentUser != null
-        } else {
-            // MySQL login - cek SharedPreferences
-            savedUserId != null
-        }
+        Log.d(TAG, "Checking login status - UserID: $savedUserId, Username: $savedUsername")
+        return !savedUserId.isNullOrEmpty() && !savedUsername.isNullOrEmpty()
     }
 
     private fun initializeViews() {
@@ -100,19 +90,13 @@ class PengaturanActivity : AppCompatActivity() {
     private fun loadUserData() {
         try {
             val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            val isGoogleLogin = prefs.getBoolean(KEY_LOGIN_MODE, true)
+            val username = prefs.getString(KEY_USERNAME, "username")
+            val email = prefs.getString(KEY_USER_EMAIL, "")
 
-            if (isGoogleLogin) {
-                // Ambil email dari Firebase Auth
-                val email = auth.currentUser?.email ?: "Tidak ada email"
-                textEmail.text = email
-                Log.d(TAG, "Loaded Firebase email: $email")
-            } else {
-                // Ambil username dari SharedPreferences untuk MySQL
-                val username = prefs.getString(KEY_USERNAME, "username")
-                textEmail.text = username
-                Log.d(TAG, "Loaded MySQL username: $username")
-            }
+            // Tampilkan email jika ada, jika tidak tampilkan username
+            textEmail.text = if (!email.isNullOrEmpty()) email else username
+
+            Log.d(TAG, "Loaded user data - Username: $username, Email: $email")
         } catch (e: Exception) {
             Log.e(TAG, "Error loading user data", e)
             textEmail.text = "Error loading data"
@@ -132,61 +116,16 @@ class PengaturanActivity : AppCompatActivity() {
             }
         }
 
-        // Click listener untuk Email/Username (bisa untuk menampilkan detail)
+        // Click listener untuk Email/Username - Menampilkan detail akun
         menuEmailContainer.setOnClickListener {
             Log.d(TAG, "Menu Email clicked")
-            val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            val isGoogleLogin = prefs.getBoolean(KEY_LOGIN_MODE, true)
-            val username = prefs.getString(KEY_USERNAME, "")
-            val role = prefs.getString(KEY_USER_ROLE, "user")
-
-            val message = if (isGoogleLogin) {
-                "Email: ${auth.currentUser?.email}\nLogin: Firebase/Google\nRole: $role"
-            } else {
-                "Username: $username\nLogin: MySQL Database\nRole: $role"
-            }
-
-            AlertDialog.Builder(this)
-                .setTitle("Informasi Akun")
-                .setMessage(message)
-                .setPositiveButton("OK", null)
-                .show()
+            showAccountDetails()
         }
 
         // Click listener untuk Ubah Kata Sandi
         menuPasswordContainer.setOnClickListener {
             Log.d(TAG, "Menu Ubah Password clicked")
-            val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            val isGoogleLogin = prefs.getBoolean(KEY_LOGIN_MODE, true)
-
-            try {
-                val intent = Intent(this, ResetPasswordActivity::class.java)
-
-                if (isGoogleLogin) {
-                    // Untuk Firebase/Google login
-                    intent.putExtra("email", auth.currentUser?.email)
-                    intent.putExtra("is_google", true)
-                    intent.putExtra("login_type", "google")
-                } else {
-                    // Untuk MySQL login - ambil email dari SharedPreferences
-                    val userEmail = prefs.getString("user_email", "") // Sesuaikan key dengan yang Anda gunakan
-                    val userId = prefs.getString("user_id", "") // Jika perlu ID user
-
-                    intent.putExtra("email", userEmail)
-                    intent.putExtra("is_google", false)
-                    intent.putExtra("login_type", "mysql")
-                    intent.putExtra("user_id", userId)
-
-                    // Jika Anda menyimpan data user lain yang diperlukan
-                    val username = prefs.getString("username", "")
-                    intent.putExtra("username", username)
-                }
-
-                startActivity(intent)
-            } catch (e: Exception) {
-                Log.e(TAG, "Error opening ResetPasswordActivity", e)
-                Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
+            navigateToResetPassword()
         }
 
         // Click listener untuk Logout
@@ -208,7 +147,55 @@ class PengaturanActivity : AppCompatActivity() {
         }
     }
 
-    // Setup OnBackPressedDispatcher (Modern way)
+    private fun showAccountDetails() {
+        try {
+            val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            val userId = prefs.getString(KEY_USER_ID, "-")
+            val username = prefs.getString(KEY_USERNAME, "-")
+            val email = prefs.getString(KEY_USER_EMAIL, "-")
+            val role = prefs.getString(KEY_USER_ROLE, "user")
+            val phone = prefs.getString(KEY_USER_PHONE, "-")
+
+            val message = """
+                User ID: $userId
+                Username: $username
+                Email: $email
+                No. Telepon: $phone
+                Role: $role
+                Login Type: MySQL Database
+            """.trimIndent()
+
+            AlertDialog.Builder(this)
+                .setTitle("Informasi Akun")
+                .setMessage(message)
+                .setPositiveButton("OK", null)
+                .show()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error showing account details", e)
+            Toast.makeText(this, "Error menampilkan detail akun", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun navigateToResetPassword() {
+        try {
+            val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            val intent = Intent(this, ResetPasswordActivity::class.java)
+
+            // Kirim data user ke ResetPasswordActivity
+            intent.putExtra("user_id", prefs.getString(KEY_USER_ID, ""))
+            intent.putExtra("username", prefs.getString(KEY_USERNAME, ""))
+            intent.putExtra("email", prefs.getString(KEY_USER_EMAIL, ""))
+            intent.putExtra("login_type", "mysql")
+            intent.putExtra("is_google", false)
+
+            startActivity(intent)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error opening ResetPasswordActivity", e)
+            Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // Setup OnBackPressedDispatcher
     private fun setupBackPressHandler() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -221,7 +208,7 @@ class PengaturanActivity : AppCompatActivity() {
     // Fungsi untuk navigasi ke Home
     private fun navigateToHome() {
         try {
-            val intent = Intent(this, HomeActivity::class.java)
+            val intent = Intent(this, HomeDev::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
             startActivity(intent)
             finish()
@@ -233,27 +220,32 @@ class PengaturanActivity : AppCompatActivity() {
 
     // Dialog konfirmasi logout
     private fun showLogoutDialog() {
-        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val username = prefs.getString(KEY_USERNAME, "")
-        val isGoogleLogin = prefs.getBoolean(KEY_LOGIN_MODE, true)
+        try {
+            val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            val username = prefs.getString(KEY_USERNAME, "User")
+            val email = prefs.getString(KEY_USER_EMAIL, "")
 
-        val accountInfo = if (isGoogleLogin) {
-            "Google/Firebase: ${auth.currentUser?.email}"
-        } else {
-            "MySQL: $username"
+            val accountInfo = if (!email.isNullOrEmpty()) {
+                "Username: $username\nEmail: $email"
+            } else {
+                "Username: $username"
+            }
+
+            AlertDialog.Builder(this)
+                .setTitle("Konfirmasi Logout")
+                .setMessage("Apakah Anda yakin ingin keluar?\n\n$accountInfo")
+                .setPositiveButton("Ya, Logout") { _, _ ->
+                    performLogout()
+                }
+                .setNegativeButton("Batal") { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .setCancelable(false)
+                .show()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error showing logout dialog", e)
+            performLogout() // Tetap lakukan logout jika ada error
         }
-
-        AlertDialog.Builder(this)
-            .setTitle("Konfirmasi Logout")
-            .setMessage("Apakah Anda yakin ingin keluar?\n\nAkun: $accountInfo")
-            .setPositiveButton("Ya, Logout") { _, _ ->
-                performLogout()
-            }
-            .setNegativeButton("Batal") { dialog, _ ->
-                dialog.dismiss()
-            }
-            .setCancelable(false)
-            .show()
     }
 
     // Fungsi untuk melakukan logout
@@ -262,17 +254,11 @@ class PengaturanActivity : AppCompatActivity() {
             Log.d(TAG, "→ Starting logout process")
 
             val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            val isGoogleLogin = prefs.getBoolean(KEY_LOGIN_MODE, true)
+            val username = prefs.getString(KEY_USERNAME, "")
 
-            if (isGoogleLogin) {
-                // Logout Firebase
-                auth.signOut()
-                Log.d(TAG, "✓ Firebase signed out")
-            }
-
-            // Clear SharedPreferences
+            // Clear semua data di SharedPreferences
             prefs.edit().clear().apply()
-            Log.d(TAG, "✓ SharedPreferences cleared")
+            Log.d(TAG, "✓ SharedPreferences cleared for user: $username")
 
             Toast.makeText(this, "Logout berhasil", Toast.LENGTH_SHORT).show()
             navigateToLogin()
@@ -281,6 +267,8 @@ class PengaturanActivity : AppCompatActivity() {
         } catch (e: Exception) {
             Log.e(TAG, "✗ Error during logout", e)
             Toast.makeText(this, "Error logout: ${e.message}", Toast.LENGTH_SHORT).show()
+            // Tetap navigasi ke login meski ada error
+            navigateToLogin()
         }
     }
 
@@ -300,6 +288,14 @@ class PengaturanActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         Log.d(TAG, "PengaturanActivity onResume")
+
+        // Cek ulang status login
+        if (!isUserLoggedIn()) {
+            Log.d(TAG, "User session expired, redirect to login")
+            navigateToLogin()
+            return
+        }
+
         // Refresh user data saat kembali ke activity ini
         loadUserData()
     }

@@ -215,7 +215,7 @@
         </activity>
 
         <activity
-            android:name=".AkunActivity"
+            android:name=".PengaturanDev"
             android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
