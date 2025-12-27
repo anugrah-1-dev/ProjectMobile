@@ -32,6 +32,10 @@ class MulaiUjianActivity : AppCompatActivity() {
     private var namaSiswa: String = ""
     private var nomorInduk: String = ""
 
+    // Data jilid siswa
+    private var siswaJilidSekarang: Int = 1
+    private var passingGrade: Double = 70.0
+
     // Map untuk menyimpan nilai yang sudah diinput
     private val nilaiMap = mutableMapOf<Int, Int>() // soalId -> nilai
 
@@ -199,11 +203,78 @@ class MulaiUjianActivity : AppCompatActivity() {
 
             dialog.dismiss()
 
-            // Load soal setelah input data siswa
-            loadSoalData()
+            // Cek jilid siswa terlebih dahulu sebelum load soal
+            checkSiswaJilid()
         }
 
         dialog.show()
+    }
+    
+    private fun checkSiswaJilid() {
+        lifecycleScope.launch {
+            try {
+                Toast.makeText(this@MulaiUjianActivity, "Mengecek data siswa...", Toast.LENGTH_SHORT).show()
+                
+                val result = apiService.getSiswaJilid(nomorInduk)
+                
+                result.onSuccess { response ->
+                    if (response.success && response.data != null) {
+                        val siswaData = response.data
+                        siswaJilidSekarang = siswaData.id_jilid_sekarang
+                        passingGrade = siswaData.passing_grade ?: 70.0
+                        
+                        Log.d(TAG, "Siswa Jilid Sekarang: $siswaJilidSekarang, Ujian Jilid: $currentJilidId")
+                        
+                        // Validasi: Siswa hanya bisa mengambil ujian sesuai jilid yang sedang dipelajari
+                        if (currentJilidId != siswaJilidSekarang) {
+                            val namaJilidSiswa = siswaData.nama_jilid ?: "Jilid $siswaJilidSekarang"
+                            
+                            AlertDialog.Builder(this@MulaiUjianActivity)
+                                .setTitle("Perhatian")
+                                .setMessage(
+                                    "Anda saat ini berada di $namaJilidSiswa.\n\n" +
+                                    "Anda tidak dapat mengambil ujian untuk $currentNamaJilid.\n\n" +
+                                    "Silakan ambil ujian sesuai jilid Anda."
+                                )
+                                .setPositiveButton("OK") { _, _ ->
+                                    finish()
+                                }
+                                .setCancelable(false)
+                                .show()
+                        } else {
+                            // Siswa sesuai jilid, lanjutkan load soal
+                            loadSoalData()
+                        }
+                    } else {
+                        Toast.makeText(
+                            this@MulaiUjianActivity,
+                            "Gagal mengecek data siswa: ${response.message}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        finish()
+                    }
+                }
+                
+                result.onFailure { exception ->
+                    Toast.makeText(
+                        this@MulaiUjianActivity,
+                        "Error: ${exception.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    Log.e(TAG, "Error checking siswa jilid", exception)
+                    finish()
+                }
+                
+            } catch (e: Exception) {
+                Toast.makeText(
+                    this@MulaiUjianActivity,
+                    "Error: ${e.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+                Log.e(TAG, "Exception checking siswa jilid", e)
+                finish()
+            }
+        }
     }
 
     private fun loadSoalData() {
@@ -505,7 +576,7 @@ class MulaiUjianActivity : AppCompatActivity() {
 
                 val tanggalUjian = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
-                // Call API to save ujian
+                // Call API to save ujian (updated - returns id_ujian)
                 val result = apiService.saveUjian(
                     noInduk = nomorInduk,
                     idJilid = currentJilidId,
@@ -514,9 +585,11 @@ class MulaiUjianActivity : AppCompatActivity() {
                 )
 
                 result.onSuccess { response ->
-                    if (response.success) {
-                        // Show success screen with result
-                        showSelesaiUjianScreen(totalNilai, persentase)
+                    if (response.success && response.data != null) {
+                        val idUjian = response.data.id_ujian
+                        
+                        // ✨ CEK DAN PROSES KENAIKAN JILID
+                        checkAndProcessKenaikanJilid(idUjian, totalNilai, persentase)
                     } else {
                         Toast.makeText(
                             this@MulaiUjianActivity,
@@ -546,7 +619,75 @@ class MulaiUjianActivity : AppCompatActivity() {
         }
     }
 
-    private fun showSelesaiUjianScreen(totalNilai: Double, persentase: Double) {
+    // ==================== JILID PROGRESSION LOGIC ====================
+    
+    private fun checkAndProcessKenaikanJilid(idUjian: Int, totalNilai: Double, persentase: Double) {
+        lifecycleScope.launch {
+            try {
+                // Cek apakah lulus (persentase >= passing grade)
+                val isLulus = persentase >= passingGrade
+                
+                Log.d(TAG, "Persentase: $persentase%, Passing Grade: $passingGrade%, Lulus: $isLulus")
+                
+                if (isLulus) {
+                    // Cek apakah sudah di jilid maksimal (7 = Al-Qur'an)
+                    if (siswaJilidSekarang >= 7) {
+                        // Sudah di Al-Qur'an, tidak bisa naik lagi
+                        Log.d(TAG, "Siswa sudah di jilid Al-Qur'an (maksimal)")
+                        showSelesaiUjianScreen(totalNilai, persentase, false, null)
+                    } else {
+                        // Naik jilid
+                        val idJilidBaru = siswaJilidSekarang + 1
+                        val tanggalNaik = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+                        
+                        // Save kenaikan jilid ke database
+                        val result = apiService.saveKenaikanJilid(
+                            noInduk = nomorInduk,
+                            idJilidLama = siswaJilidSekarang,
+                            idJilidBaru = idJilidBaru,
+                            idUjian = idUjian,
+                            nilaiUjian = totalNilai,
+                            persentaseUjian = persentase,
+                            tanggalNaik = tanggalNaik
+                        )
+                        
+                        result.onSuccess { kenaikanResponse ->
+                            if (kenaikanResponse.success && kenaikanResponse.data != null) {
+                                val namaJilidBaru = kenaikanResponse.data.nama_jilid_baru ?: "Jilid ${idJilidBaru}"
+                                Log.d(TAG, "✅ Berhasil naik ke $namaJilidBaru")
+                                
+                                // Tampilkan screen selesai WITH kenaikan jilid
+                                showSelesaiUjianScreen(totalNilai, persentase, true, namaJilidBaru)
+                            } else {
+                                Log.e(TAG, "Gagal menyimpan kenaikan jilid: ${kenaikanResponse.message}")
+                                showSelesaiUjianScreen(totalNilai, persentase, false, null)
+                            }
+                        }
+                        
+                        result.onFailure { exception ->
+                            Log.e(TAG, "Error save kenaikan jilid", exception)
+                            showSelesaiUjianScreen(totalNilai, persentase, false, null)
+                        }
+                    }
+                } else {
+                    // Tidak lulus, tidak naik jilid
+                    Log.d(TAG, "Siswa tidak lulus (persentase < passing grade)")
+                    showSelesaiUjianScreen(totalNilai, persentase, false, null)
+                }
+                
+            } catch (e: Exception) {
+                Log.e(TAG, "Error checking kenaikan jilid", e)
+                showSelesaiUjianScreen(totalNilai, persentase, false, null)
+            }
+        }
+    }
+
+    private fun showSelesaiUjianScreen(
+        totalNilai: Double, 
+        persentase: Double, 
+        isNaikJilid: Boolean = false, 
+        namaJilidBaru: String? = null
+    ) {
         // Switch to selesai_ujian layout
         setContentView(R.layout.selesai_ujian)
 
@@ -562,6 +703,11 @@ class MulaiUjianActivity : AppCompatActivity() {
         namaText.text = namaSiswa
         idText.text = nomorInduk
         nilaiText.text = String.format("Nilai: %.2f (%.1f%%)", totalNilai, persentase)
+
+        // Tampilkan dialog kenaikan jilid jika naik
+        if (isNaikJilid && namaJilidBaru != null) {
+            showDialogNaikJilid(namaJilidBaru)
+        }
 
         // Button Selesai
         buttonSelesai.setOnClickListener {
@@ -580,6 +726,17 @@ class MulaiUjianActivity : AppCompatActivity() {
             val intent = Intent(this, PengaturanActivity::class.java)
             startActivity(intent)
         }
+    }
+    
+    private fun showDialogNaikJilid(namaJilidBaru: String) {
+        AlertDialog.Builder(this)
+            .setTitle("🎉 Selamat!")
+            .setMessage("Anda berhasil naik ke $namaJilidBaru!\n\nTerus semangat belajar mengaji!")
+            .setPositiveButton("Alhamdulillah") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setCancelable(false)
+            .show()
     }
 
     private fun navigateBackToManajemen() {
